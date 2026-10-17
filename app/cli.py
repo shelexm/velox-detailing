@@ -31,7 +31,8 @@ async def _with_session(action):
 async def _seed(slug: str) -> None:
     from app.seed.run import seed_all
 
-    studio = await _with_session(lambda session: seed_all(session, slug))
+    media_root = get_settings().media_root
+    studio = await _with_session(lambda session: seed_all(session, slug, media_root=media_root))
     print(f"Studio '{studio.slug}' is ready (id={studio.id})")
 
 

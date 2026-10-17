@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 from datetime import time
+from pathlib import Path
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -142,8 +143,13 @@ async def seed_catalog(session: AsyncSession, studio: Studio) -> None:
     await session.flush()
 
 
-async def seed_all(session: AsyncSession, slug: str = data.STUDIO["slug"]) -> Studio:
+async def seed_all(session: AsyncSession, slug: str = data.STUDIO["slug"], *, media_root: Path | None = None) -> Studio:
+    """Catalog always; images and site texts too when a media root is given (they need files on disk)."""
     studio = await seed_studio(session, slug)
     await seed_catalog(session, studio)
     await session.commit()
+    if media_root is not None:
+        from app.seed.content import seed_content
+
+        await seed_content(session, studio, media_root)
     return studio
