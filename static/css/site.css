@@ -657,7 +657,7 @@ html.is-repeat .anim-in, html.is-repeat .hero__media, html.is-repeat .site-heade
 .status-pill--new { border-color: #86ADE6; color: #B9D0F2; }
 .status-pill--confirmed { border-color: var(--gold); color: var(--gold-light); }
 .status-pill--cancelled { border-color: var(--danger); color: var(--danger-soft); }
-.error-page { min-height: 100dvh; display: flex; flex-direction: column; justify-content: center; gap: 24px; }
+.error-page { min-height: 100dvh; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 24px; }
 
 /* ---------- tablet ---------- */
 @media (min-width: 901px) {
