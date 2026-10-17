@@ -42,6 +42,17 @@ services:
     stop_grace_period: 30s
     logging: *logging
 
+  # The media volume may be created first by the backup service (as root); hand it to the app user.
+  media-init:
+    <<: *app
+    user: "0:0"
+    command: ["chown", "-R", "10001:10001", "/app/media"]
+    volumes:
+      - media:/app/media
+    restart: "no"
+    healthcheck:
+      disable: true
+
   # The only service that runs migrations, once, before api and bot start.
   migrate:
     <<: *app
@@ -52,6 +63,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      media-init:
+        condition: service_completed_successfully
     restart: "no"
     healthcheck:
       disable: true
