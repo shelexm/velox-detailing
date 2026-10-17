@@ -9,7 +9,7 @@ from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core import security
-from app.core.errors import UnauthorizedError
+from app.core.errors import UnauthorizedError, ValidationFailedError
 from app.models import Studio, StudioMembership, User, UserSession
 from app.models.enums import Role
 
@@ -88,6 +88,28 @@ async def revoke_all_sessions(session: AsyncSession, user_id: int, now: datetime
         .where(UserSession.user_id == user_id, UserSession.revoked_at.is_(None))
         .values(revoked_at=now or datetime.now(UTC))
     )
+
+
+async def change_password(
+    session: AsyncSession, user: User, current_session: UserSession, current: str, new: str
+) -> None:
+    """Checks the current password, stores the new one and signs out every other device."""
+    if not security.verify_password(user.password_hash, current):
+        raise ValidationFailedError(details=[{"field": "current_password", "message": "Неверный текущий пароль"}])
+    try:
+        security.validate_new_password(new)
+    except ValueError as exc:
+        raise ValidationFailedError(details=[{"field": "new_password", "message": str(exc)}]) from exc
+    if security.verify_password(user.password_hash, new):
+        raise ValidationFailedError(details=[{"field": "new_password", "message": "Новый пароль совпадает с текущим"}])
+    user.password_hash = security.hash_password(new)
+    now = datetime.now(UTC)
+    await session.execute(
+        update(UserSession)
+        .where(UserSession.user_id == user.id, UserSession.revoked_at.is_(None), UserSession.id != current_session.id)
+        .values(revoked_at=now)
+    )
+    await session.commit()
 
 
 async def memberships(session: AsyncSession, user_id: int) -> list[tuple[StudioMembership, Studio]]:

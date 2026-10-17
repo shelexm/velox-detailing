@@ -9,7 +9,7 @@ from fastapi import APIRouter, Request, Response
 from app.api.deps import CurrentAuth, DbSession, check_same_origin, client_ip
 from app.core import security
 from app.core.errors import RateLimitedError, UnauthorizedError
-from app.schemas.auth import LoginIn, MembershipOut, MeOut
+from app.schemas.auth import LoginIn, MembershipOut, MeOut, PasswordChangeIn
 from app.services import auth as auth_service
 
 router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
@@ -69,6 +69,24 @@ async def logout(auth: CurrentAuth, session: DbSession, response: Response) -> R
     response.status_code = 204
     _clear_cookies(response)
     return response
+
+
+@router.post("/password", status_code=204)
+async def change_password(
+    payload: PasswordChangeIn, auth: CurrentAuth, session: DbSession, request: Request
+) -> Response:
+    limiter = request.app.state.limiters.login_by_ip
+    ip = client_ip(request)
+    if limiter.is_blocked(ip):
+        raise RateLimitedError("Слишком много попыток. Попробуйте через 15 минут")
+    try:
+        await auth_service.change_password(
+            session, auth.user, auth.session_row, payload.current_password, payload.new_password
+        )
+    except Exception:
+        limiter.hit(ip)
+        raise
+    return Response(status_code=204)
 
 
 @router.get("/me")
