@@ -8,7 +8,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
-from app.api.routes import admin, admin_media, auth, health, public
+from app.api.routes import admin, admin_catalog, admin_media, auth, health, public
 from app.core.config import BASE_DIR, Settings, get_settings
 from app.core.errors import register_error_handlers
 from app.core.logging import configure_logging
@@ -60,6 +60,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(public.router)
     app.include_router(admin.router)
     app.include_router(admin_media.router)
+    app.include_router(admin_catalog.router)
     app.include_router(panel.router)
     app.include_router(site.router)
     app.mount("/static", CachedStaticFiles(directory=BASE_DIR / "static"), name="static")

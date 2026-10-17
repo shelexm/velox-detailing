@@ -4,25 +4,17 @@ import io
 import re
 
 import httpx
-import pytest
 from PIL import Image
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import Settings
 from app.models import Booking, Service, SiteSection, Studio
-from app.seed.content import seed_site_content
 from app.services.media import ingest_image
 
 PLACEHOLDERS = re.compile(
     r"\[(ГОРОД|Город|N\]|Бренд|Имя клиента|Марка|Юрлицо|Автомобиль)|\+7 \[000\]|VELOX_BOT_USERNAME"
 )
-
-
-@pytest.fixture
-async def site_studio(session: AsyncSession, studio: Studio) -> Studio:
-    await seed_site_content(session, studio, media={})
-    return studio
 
 
 def image_bytes(color: str, size: tuple[int, int] = (1200, 800)) -> bytes:

@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.security import CSRF_COOKIE, hash_password
 from app.models import Studio, StudioMembership, User
 from app.models.enums import Role
+from app.seed.content import seed_site_content
 from app.seed.run import seed_all
 
 PASSWORD = "correct horse battery"
@@ -17,6 +18,12 @@ PASSWORD = "correct horse battery"
 @pytest.fixture
 async def studio(session: AsyncSession) -> Studio:
     return await seed_all(session)
+
+
+@pytest.fixture
+async def site_studio(session: AsyncSession, studio: Studio) -> Studio:
+    await seed_site_content(session, studio, media={})
+    return studio
 
 
 @pytest.fixture
