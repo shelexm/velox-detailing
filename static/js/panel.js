@@ -240,6 +240,74 @@ document.addEventListener("click", async (event) => {
   finish(button, button.dataset.done || "Готово");
 });
 
+// Switches that save immediately: <input type="checkbox" data-toggle="/api/..." data-field="online_booking">.
+document.addEventListener("change", async (event) => {
+  const input = event.target.closest("input[data-toggle]");
+  if (!input) return;
+  input.disabled = true;
+  const result = await api(input.dataset.toggle, { method: "PATCH", data: { [input.dataset.field]: input.checked } });
+  input.disabled = false;
+  if (!result.ok) {
+    input.checked = !input.checked;
+    toast(result.error?.details?.[0]?.message || result.error?.message || "Не сохранилось", "error");
+    return;
+  }
+  toast(input.checked ? input.dataset.on || "Включено" : input.dataset.off || "Выключено");
+});
+
+// Ordering with up/down buttons inside [data-sortable data-order-api]; children carry data-id.
+document.addEventListener("click", async (event) => {
+  const button = event.target.closest("[data-move]");
+  if (!button) return;
+  const item = button.closest("[data-id], [data-repeat-row]");
+  const list = item?.parentElement;
+  if (!item || !list) return;
+  const sameKind = (n) => n && (item.dataset.id ? n.dataset.id : n.matches("[data-repeat-row]"));
+  const sibling = button.dataset.move === "up" ? item.previousElementSibling : item.nextElementSibling;
+  if (!sameKind(sibling)) return;
+  if (button.dataset.move === "up") sibling.before(item);
+  else sibling.after(item);
+  button.focus();
+  if (list.matches("[data-repeat]")) {
+    renumber(list);
+    list.closest("form")?.querySelectorAll("[data-dirty-note]").forEach((n) => (n.hidden = false));
+    return;
+  }
+  if (!list.dataset.orderApi) return;
+  const ids = [...list.children].filter((n) => n.dataset.id).map((n) => Number(n.dataset.id));
+  const result = await api(list.dataset.orderApi, { method: "POST", data: { ids } });
+  toast(result.ok ? "Порядок сохранён" : result.error?.message || "Порядок не сохранился", result.ok ? "ok" : "error");
+});
+
+// Repeated rows (gallery items, list entries): [data-repeat] holds rows, a <template data-repeat-template>,
+// buttons [data-repeat-add] and [data-repeat-remove]; names use __i__ for the row index.
+function renumber(box) {
+  [...box.querySelectorAll(":scope > [data-repeat-row]")].forEach((row, index) => {
+    row.querySelectorAll("[name]").forEach((el) => (el.name = el.name.replace(/\.\d+\./, `.${index}.`)));
+  });
+}
+document.addEventListener("click", (event) => {
+  const add = event.target.closest("[data-repeat-add]");
+  if (add) {
+    const box = document.querySelector(add.dataset.repeatAdd);
+    const template = box?.querySelector("template[data-repeat-template]");
+    if (!template) return;
+    const index = box.querySelectorAll(":scope > [data-repeat-row]").length;
+    const html = template.innerHTML.replaceAll("__i__", String(index));
+    template.insertAdjacentHTML("beforebegin", html);
+    box.querySelectorAll(":scope > [data-repeat-row]")[index]?.querySelector("input, textarea, button")?.focus();
+    return;
+  }
+  const remove = event.target.closest("[data-repeat-remove]");
+  if (remove) {
+    const row = remove.closest("[data-repeat-row]");
+    const box = row.parentElement;
+    row.remove();
+    renumber(box);
+    box.closest("form")?.querySelectorAll("[data-dirty-note]").forEach((n) => (n.hidden = false));
+  }
+});
+
 // Whole table rows open their record; links and controls inside keep working.
 document.addEventListener("click", (event) => {
   const row = event.target.closest("[data-href]");

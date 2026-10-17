@@ -7,7 +7,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import CSRF_COOKIE
-from app.models import Booking, Service, Staff, Studio
+from app.models import Booking, Service, ServiceGroup, Staff, Studio
 from app.models.enums import Role
 from tests.api.conftest import PASSWORD, first_free_slot, login
 
@@ -208,3 +208,30 @@ async def test_clients_screen_is_for_managers(client: httpx.AsyncClient, studio:
     await make_user("master@velox.test", studio, role=Role.MASTER)
     await login(client, "master@velox.test")
     assert (await client.get(f"/admin/{studio.id}/clients", headers=HTML)).status_code == 403
+
+
+async def test_services_screen(
+    client: httpx.AsyncClient, session: AsyncSession, site_studio: Studio, make_user
+) -> None:
+    studio = site_studio
+    await make_user("owner@velox.test", studio)
+    await login(client, "owner@velox.test")
+    base = f"/admin/{studio.id}/services"
+    page = await client.get(base, headers=HTML)
+    assert page.status_code == 200, page.text
+    assert "КУЗОВ" in page.text and "Лёгкая полировка" in page.text and "data-toggle=" in page.text
+    service_id = await session.scalar(select(Service.id).where(Service.slug == "ceramic-coating"))
+    opened = await client.get(f"{base}?open={service_id}", headers=HTML)
+    assert "Редактирование услуги" in opened.text and "Редактируется" in opened.text
+    assert 'name="staff_ids"' in opened.text and "data-media-dialog" in opened.text
+    assert 'data-type="lines"' in opened.text and 'data-type="nullable"' in opened.text  # not escaped
+    assert "Поиск услуги" in (await client.get(f"{base}?q=керам", headers=HTML)).text
+    assert "Новая услуга" in (await client.get(f"{base}?new=1", headers=HTML)).text
+    groups = await client.get(f"{base}?tab=groups", headers=HTML)
+    assert groups.status_code == 200 and "Полировка кузова" in groups.text
+    group_id = await session.scalar(select(ServiceGroup.id).where(ServiceGroup.slug == "polishing"))
+    group = await client.get(f"{base}?tab=groups&open={group_id}", headers=HTML)
+    assert "Страница услуги" in group.text and "detail.gallery.0.image_id" not in group.text  # no media seeded
+    assert "Новое направление" in (await client.get(f"{base}?tab=groups&new=1", headers=HTML)).text
+    categories = await client.get(f"{base}?tab=categories", headers=HTML)
+    assert categories.status_code == 200 and 'value="Кузов"' in categories.text

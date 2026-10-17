@@ -69,7 +69,7 @@
 {% macro toggle(name, checked, label, hint="", attrs="") -%}
 <label class="switch-row">
   <span class="switch-row__text"><span class="switch-row__label">{{ label }}</span>{% if hint %}<span class="switch-row__hint">{{ hint }}</span>{% endif %}</span>
-  <input class="switch" type="checkbox" role="switch" name="{{ name }}" data-type="bool" {% if checked %}checked{% endif %} {{ attrs }}>
+  <input class="switch" type="checkbox" role="switch" name="{{ name }}" data-type="bool" {% if checked %}checked{% endif %} {{ attrs | safe }}>
 </label>
 {%- endmacro %}
 
@@ -77,9 +77,9 @@
 <div class="fld {{ cls }}">
   <label class="fld__label" for="f-{{ name }}">{{ label }}</label>
   {% if type == "textarea" %}
-  <textarea class="input input--area" id="f-{{ name }}" name="{{ name }}" {% if maxlength %}maxlength="{{ maxlength }}"{% endif %} placeholder="{{ placeholder }}" {% if required %}required{% endif %} {{ attrs }}>{{ value if value is not none else "" }}</textarea>
+  <textarea class="input input--area" id="f-{{ name }}" name="{{ name }}" {% if maxlength %}maxlength="{{ maxlength }}"{% endif %} placeholder="{{ placeholder }}" {% if required %}required{% endif %} {{ attrs | safe }}>{{ value if value is not none else "" }}</textarea>
   {% else %}
-  <input class="input" id="f-{{ name }}" name="{{ name }}" type="{{ type }}" value="{{ value if value is not none else '' }}" {% if maxlength %}maxlength="{{ maxlength }}"{% endif %} placeholder="{{ placeholder }}" {% if required %}required{% endif %} {{ attrs }}>
+  <input class="input" id="f-{{ name }}" name="{{ name }}" type="{{ type }}" value="{{ value if value is not none else '' }}" {% if maxlength %}maxlength="{{ maxlength }}"{% endif %} placeholder="{{ placeholder }}" {% if required %}required{% endif %} {{ attrs | safe }}>
   {% endif %}
   {% if hint %}<span class="fld__hint">{{ hint }}</span>{% endif %}
   <span class="fld__error" data-error-for="{{ name }}" hidden></span>
@@ -88,4 +88,43 @@
 
 {% macro empty(text, action="") -%}
 <div class="empty"><p>{{ text }}</p>{% if action %}{{ action }}{% endif %}</div>
+{%- endmacro %}
+
+{% macro media_field(name, asset_id, media, label="Фото", hint="JPG, PNG, WebP · до 5 МБ", required=false) -%}
+{% set src = media_src(media, asset_id, 480) if asset_id else "" %}
+<div class="fld media-field {% if src %}has-image{% endif %}" data-media-field>
+  <span class="fld__label">{{ label }}</span>
+  <input type="hidden" name="{{ name }}" value="{{ asset_id or '' }}" data-type="int">
+  <div class="media-field__box">
+    <div class="media-field__preview" data-media-preview>{% if src %}<img src="{{ src }}" alt="">{% else %}<span class="media-field__empty">Нет фото</span>{% endif %}</div>
+    <div class="media-field__actions">
+      <button class="btn btn--dark btn--sm" type="button" data-media-pick>{{ icon("image", 16) }}<span class="media-field__pick-label">Выбрать фото</span></button>
+      {% if not required %}<button class="icon-btn media-field__clear" type="button" data-media-clear aria-label="Убрать фото">{{ icon("trash", 16) }}</button>{% endif %}
+      {% if hint %}<span class="media-field__hint">{{ hint }}</span>{% endif %}
+    </div>
+  </div>
+  <span class="fld__error" data-error-for="{{ name }}" hidden></span>
+</div>
+{%- endmacro %}
+
+{% macro media_dialog() -%}
+<dialog class="media-dialog" data-media-dialog aria-labelledby="media-dialog-title">
+  <div class="media-dialog__head">
+    <h2 class="card__title" id="media-dialog-title">Медиатека</h2>
+    <form method="dialog"><button class="icon-btn icon-btn--round" aria-label="Закрыть">{{ icon("close", 18) }}</button></form>
+  </div>
+  <div class="media-dialog__upload">
+    <input class="input input--sm" type="text" placeholder="Описание для нового фото (alt)" maxlength="300" data-media-alt>
+    <label class="btn btn--primary btn--sm" data-media-upload-label>{{ icon("upload", 16) }}Загрузить новое<input class="visually-hidden" type="file" accept="image/jpeg,image/png,image/webp,image/avif" data-media-upload></label>
+  </div>
+  <div class="media-grid" data-media-grid></div>
+  <p class="muted" data-media-empty hidden>В медиатеке пока нет фото. Загрузите первое.</p>
+</dialog>
+{%- endmacro %}
+
+{% macro move_buttons(id) -%}
+<span class="move">
+  <button class="icon-btn icon-btn--xs" type="button" data-move="up" aria-label="Выше">{{ icon("arrow-up", 14) }}</button>
+  <button class="icon-btn icon-btn--xs" type="button" data-move="down" aria-label="Ниже">{{ icon("arrow-down", 14) }}</button>
+</span>
 {%- endmacro %}

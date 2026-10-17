@@ -1,0 +1,265 @@
+{% extends "panel/base.html" %}
+{% from "panel/_macros.html" import icon, field, toggle, media_field, media_dialog, move_buttons %}
+{% block title %}Услуги{% endblock %}
+
+{% macro service_sub(s) -%}
+{% set n = links.get(s.id, []) | length %}
+{% if not s.online_booking %}<span class="muted">Только через администратора</span>
+{%- elif not s.requires_staff %}Мастер не выбирается
+{%- elif s.staff_selection == StaffSelection.STUDIO %}Мастера назначает студия
+{%- elif n %}{{ n }} {{ plural(n, "мастер", "мастера", "мастеров") }}
+{%- else %}<span class="danger-text">Нет мастеров: онлайн-запись недоступна</span>{% endif %}
+{%- endmacro %}
+
+{% macro service_form(s, creating=false) -%}
+{% set value, unit = duration %}
+<form class="drawer__body form" data-form novalidate
+  {% if creating %}data-action="{{ panel.api }}/services" data-method="POST" data-redirect="?open={id}" data-success="Услуга добавлена"
+  {% else %}data-action="{{ panel.api }}/services/{{ s.id }}" data-method="PATCH" data-reload{% endif %}>
+  <div class="form-alert" data-form-alert hidden>{{ icon("alert", 18) }}<span data-form-alert-text></span></div>
+  {{ media_field("image_id", s.image_id if s else none, media) }}
+  {{ field("name", "Название", s.name if s else "", required=true, maxlength=120) }}
+  <div class="fld">
+    <label class="fld__label" for="f-short_description">Описание на сайте</label>
+    <textarea class="input input--area" id="f-short_description" name="short_description" maxlength="160" rows="3">{{ s.short_description if s else "" }}</textarea>
+    <span class="fld__count" data-count-for="f-short_description"></span>
+    <span class="fld__error" data-error-for="short_description" hidden></span>
+  </div>
+  <div class="fld-row">
+    {{ field("price_from", "Цена от, ₽", s.price_from if s else "", type="number", attrs='min="0" step="100" inputmode="numeric"', cls="fld--mono") }}
+    <div class="fld">
+      <label class="fld__label" for="f-duration_value">Длительность для записи</label>
+      <div class="input-group">
+        <input class="input input--mono" id="f-duration_value" name="duration_value" type="number" min="1" max="1440" value="{{ value or '' }}" data-type="int" required>
+        <select class="select input-group__select" name="duration_unit" aria-label="Единица">
+          <option value="minutes" {% if unit == "minutes" %}selected{% endif %}>мин</option>
+          <option value="hours" {% if unit == "hours" %}selected{% endif %}>ч</option>
+          <option value="days" {% if unit == "days" %}selected{% endif %}>дн</option>
+        </select>
+      </div>
+      <span class="fld__error" data-error-for="duration_value" hidden></span>
+    </div>
+  </div>
+  {{ field("duration_label", "Срок на сайте", s.duration_label if s else "", maxlength=40, placeholder="Например: 2–3 дня", hint="Если пусто, сайт покажет длительность для записи", attrs='data-type="nullable"') }}
+  <fieldset class="fld fld--plain">
+    <legend class="fld__label">Кто выполняет</legend>
+    <div class="chip-row">
+      {% for m in staff %}
+      <label class="chip"><input type="checkbox" name="staff_ids" value="{{ m.id }}" {% if s and m.id in links.get(s.id, []) %}checked{% endif %}>{{ icon("check", 14, "chip__check") }}{{ m.short_name }}</label>
+      {% else %}<span class="muted small">Мастеров пока нет: добавьте их в разделе «Мастера».</span>{% endfor %}
+    </div>
+    <span class="fld__error" data-error-for="staff_ids" hidden></span>
+  </fieldset>
+  <div class="switches">
+    {{ toggle("online_booking", s.online_booking if s else true, "Онлайн-запись", "Клиент может записаться на сайте и в боте") }}
+    {{ toggle("client_selects_staff", (s.staff_selection == StaffSelection.CLIENT) if s else true, "Клиент выбирает мастера", "Иначе мастера назначает студия") }}
+  </div>
+  <details class="edit-block">
+    <summary>Дополнительно</summary>
+    <div class="form">
+      <div class="fld-row">
+        <div class="fld"><label class="fld__label" for="f-category_id">Раздел прайса</label>
+          <select class="select" id="f-category_id" name="category_id" data-type="int"><option value="">Без раздела</option>{% for c in categories %}<option value="{{ c.id }}" {% if s and s.category_id == c.id %}selected{% endif %}>{{ c.name }}</option>{% endfor %}</select></div>
+        <div class="fld"><label class="fld__label" for="f-group_id">Направление на сайте</label>
+          <select class="select" id="f-group_id" name="group_id" data-type="int"><option value="">Не показывать в карточках</option>{% for g in groups %}<option value="{{ g.id }}" {% if s and s.group_id == g.id %}selected{% endif %}>{{ g.title }}</option>{% endfor %}</select></div>
+      </div>
+      <div class="fld"><label class="fld__label" for="f-kind">Тип</label>
+        <select class="select" id="f-kind" name="kind">
+          <option value="service" {% if not s or s.kind == "service" %}selected{% endif %}>Услуга</option>
+          <option value="package" {% if s and s.kind == "package" %}selected{% endif %}>Пакет (несколько услуг)</option>
+          <option value="inspection" {% if s and s.kind == "inspection" %}selected{% endif %}>Осмотр</option>
+        </select></div>
+      {{ field("items", "Состав пакета: по одной услуге в строке", (s.items | join("\n")) if s and s.items else "", type="textarea", attrs='data-type="lines" rows="3"') }}
+      <div class="fld-row">
+        {{ field("badge", "Плашка", s.badge if s else "", maxlength=40, placeholder="РЕКОМЕНДУЕМ", attrs='data-type="nullable"') }}
+        {{ field("note", "Примечание в прайсе", s.note if s else "", maxlength=300, attrs='data-type="nullable"') }}
+      </div>
+      {{ field("description", "Подробное описание", s.description if s else "", type="textarea", maxlength=4000, attrs='data-type="nullable"') }}
+      <div class="switches">
+        {{ toggle("requires_resource", s.requires_resource if s else true, "Занимает бокс", "Выключите для осмотров и выдачи") }}
+        {{ toggle("requires_staff", s.requires_staff if s else true, "Нужен мастер", "Выключите, если работу ведёт любой сотрудник") }}
+        {{ toggle("show_in_price_list", s.show_in_price_list if s else true, "Показывать в прайсе", "Строка в блоке «Цены и сроки»") }}
+      </div>
+    </div>
+  </details>
+  <div class="form__actions form__actions--split">
+    {% if not creating %}<button class="btn btn--link-danger" type="button" data-api="{{ panel.api }}/services/{{ s.id }}" data-method="DELETE" data-confirm="Убрать услугу «{{ s.name }}»?" data-confirm-text="Она исчезнет с сайта и из форм записи. Записи и история сохранятся." data-confirm-ok="Убрать" data-done="Услуга убрана" data-redirect="?tab=services">Удалить услугу</button>{% else %}<span></span>{% endif %}
+    <button class="btn btn--primary btn--lg" type="submit">{{ "Добавить" if creating else "Сохранить" }}</button>
+  </div>
+</form>
+{%- endmacro %}
+
+{% macro group_form(g, creating=false) -%}
+{% set d = g.detail if g else {} %}
+<form class="drawer__body form" data-form novalidate
+  {% if creating %}data-action="{{ panel.api }}/groups" data-method="POST" data-redirect="?tab=groups&open={id}" data-success="Направление добавлено"
+  {% else %}data-action="{{ panel.api }}/groups/{{ g.id }}" data-method="PATCH" data-reload{% endif %}>
+  <div class="form-alert" data-form-alert hidden>{{ icon("alert", 18) }}<span data-form-alert-text></span></div>
+  {{ media_field("image_id", g.image_id if g else none, media, label="Фото карточки") }}
+  <div class="fld-row">
+    {{ field("title", "Название", g.title if g else "", required=true, maxlength=120) }}
+    {{ field("short_title", "Коротко (для телефона)", g.short_title if g else "", maxlength=40, attrs='data-type="nullable"') }}
+  </div>
+  {{ field("summary", "Текст карточки", g.summary if g else "", type="textarea", maxlength=300, attrs='data-type="nullable"') }}
+  {{ field("tagline", "Подпись в мобильном списке", g.tagline if g else "", maxlength=120, attrs='data-type="nullable"') }}
+  {{ field("features", "Пункты карточки: по одному в строке", (g.features | join("\n")) if g else "", type="textarea", attrs='data-type="lines" rows="3"') }}
+  <div class="fld-row">
+    {{ field("price_label", "Цена на карточке", g.price_label if g else "", maxlength=60, placeholder="от 25 000 ₽*", attrs='data-type="nullable"') }}
+    {{ field("duration_label", "Срок на карточке", g.duration_label if g else "", maxlength=60, placeholder="1–2 дня", attrs='data-type="nullable"') }}
+  </div>
+  {{ field("badge", "Плашка", g.badge if g else "", maxlength=40, attrs='data-type="nullable"') }}
+  <div class="switches">
+    {{ toggle("is_visible", g.is_visible if g else true, "Показывать на сайте") }}
+    {{ toggle("is_wide", g.is_wide if g else false, "Широкая карточка", "Как «Комплексный уход» в макете") }}
+  </div>
+  <h3 class="sub-title">Страница услуги</h3>
+  {{ field("detail.description", "Описание", d.description, type="textarea", maxlength=1000, attrs='data-type="nullable"') }}
+  {{ field("detail.includes", "Что входит: по пункту в строке", (d.includes or []) | join("\n"), type="textarea", attrs='data-type="lines" rows="4"') }}
+  <div class="fld-row">
+    {{ field("detail.term", "Срок", d.term, maxlength=60, attrs='data-type="nullable"') }}
+    {{ field("detail.cost", "Стоимость", d.cost, maxlength=60, attrs='data-type="nullable"') }}
+  </div>
+  {{ field("detail.guarantee", "Гарантия", d.guarantee, maxlength=200, attrs='data-type="nullable"') }}
+  {{ field("detail.upsell", "Совет (внизу страницы)", d.upsell, maxlength=300, attrs='data-type="nullable"') }}
+  {{ field("detail.footnote", "Сноска", d.footnote, maxlength=300, attrs='data-type="nullable"') }}
+  <fieldset class="fld fld--plain">
+    <legend class="fld__label">Галерея страницы</legend>
+    <div class="repeat" id="gallery-rows" data-repeat>
+      {% for item in (d.gallery or []) %}
+      <div class="repeat__row" data-repeat-row>
+        {{ media_field("detail.gallery." ~ loop.index0 ~ ".image_id", item.image_id, media, label="Фото " ~ loop.index, hint="", required=true) }}
+        <div class="fld"><label class="fld__label">Подпись</label><input class="input input--sm" name="detail.gallery.{{ loop.index0 }}.label" value="{{ item.label }}" maxlength="20" placeholder="ДО, ПОСЛЕ"></div>
+        <div class="repeat__tools">{{ move_buttons(0) }}<button class="icon-btn icon-btn--xs" type="button" data-repeat-remove aria-label="Убрать фото">{{ icon("close", 14) }}</button></div>
+      </div>
+      {% endfor %}
+      <template data-repeat-template>
+        <div class="repeat__row" data-repeat-row>
+          {{ media_field("detail.gallery.__i__.image_id", none, media, label="Новое фото", hint="", required=true) }}
+          <div class="fld"><label class="fld__label">Подпись</label><input class="input input--sm" name="detail.gallery.__i__.label" maxlength="20" placeholder="ДО, ПОСЛЕ"></div>
+          <div class="repeat__tools">{{ move_buttons(0) }}<button class="icon-btn icon-btn--xs" type="button" data-repeat-remove aria-label="Убрать фото">{{ icon("close", 14) }}</button></div>
+        </div>
+      </template>
+    </div>
+    <button class="btn btn--ghost btn--sm" type="button" data-repeat-add="#gallery-rows">{{ icon("plus", 14) }}Добавить фото</button>
+  </fieldset>
+  <div class="form__actions form__actions--split">
+    {% if not creating %}<button class="btn btn--link-danger" type="button" data-api="{{ panel.api }}/groups/{{ g.id }}" data-method="DELETE" data-confirm="Удалить направление «{{ g.title }}»?" data-confirm-ok="Удалить" data-done="Направление удалено" data-redirect="?tab=groups">Удалить</button>{% else %}<span></span>{% endif %}
+    <button class="btn btn--primary btn--lg" type="submit">{{ "Добавить" if creating else "Сохранить" }}</button>
+  </div>
+</form>
+{%- endmacro %}
+
+{% block main %}
+<header class="pn-head">
+  <div class="pn-head__text">
+    <span class="pn-eyebrow mono">{{ total }} {{ plural(total, "услуга", "услуги", "услуг") }} · {{ online_total }} в онлайн-записи</span>
+    <h1 class="pn-title">Услуги</h1>
+  </div>
+  <div class="pn-head__actions">
+    {% if tab == "services" %}
+    <form method="get" class="search search--head" role="search"><input type="hidden" name="tab" value="services"><label class="visually-hidden" for="svc-q">Поиск услуги</label>{{ icon("search", 18) }}<input class="input" id="svc-q" type="search" name="q" value="{{ q }}" placeholder="Поиск услуги" maxlength="100"></form>
+    <a class="btn btn--primary" href="?tab=services&new=1">{{ icon("plus", 16) }}Добавить услугу</a>
+    {% elif tab == "groups" %}
+    <a class="btn btn--primary" href="?tab=groups&new=1">{{ icon("plus", 16) }}Добавить направление</a>
+    {% endif %}
+  </div>
+</header>
+
+<nav class="tabs" aria-label="Разделы">
+  <a class="tabs__item" href="?tab=services" {% if tab == "services" %}aria-current="page"{% endif %}>Услуги и цены</a>
+  <a class="tabs__item" href="?tab=groups" {% if tab == "groups" %}aria-current="page"{% endif %}>Направления на сайте</a>
+  <a class="tabs__item" href="?tab=categories" {% if tab == "categories" %}aria-current="page"{% endif %}>Разделы прайса</a>
+</nav>
+
+{% if tab == "services" %}
+<div class="pn-cols pn-cols--main-side {% if not (selected or creating) %}pn-cols--single{% endif %}">
+  <section class="card card--flush">
+    <table class="table table--services">
+      <thead><tr><th class="table__thumb"></th><th>Название</th><th>Цена</th><th>Время</th><th>Онлайн</th><th class="visually-hidden">Порядок</th></tr></thead>
+      {% for title, rows in sections %}
+      <tbody data-sortable data-order-api="{{ panel.api }}/services/order">
+        <tr class="table__group"><td colspan="6">{{ title | upper }}</td></tr>
+        {% for s in rows %}
+        {% set img = s.image_id or (groups | selectattr("id", "equalto", s.group_id) | map(attribute="image_id") | first) %}
+        <tr data-id="{{ s.id }}" data-href="?tab=services&open={{ s.id }}" {% if selected and selected.id == s.id %}class="is-selected"{% endif %}>
+          <td class="table__thumb">{% if img and media.get(img) %}<img class="thumb" src="{{ media_src(media, img, 480) }}" alt="">{% else %}<span class="thumb thumb--empty">{{ icon("image", 16) }}</span>{% endif %}</td>
+          <td><a class="row-link svc-name" href="?tab=services&open={{ s.id }}"><strong>{{ s.name }}</strong><span>{% if selected and selected.id == s.id %}<span class="gold">Редактируется</span>{% else %}{{ service_sub(s) }}{% endif %}</span></a></td>
+          <td class="mono nowrap">{{ s.price_from | rub if s.price_from is not none else "по запросу" }}</td>
+          <td class="mono nowrap">{{ s.duration_label or ((s.duration_days ~ " дн") if s.duration_days else (s.duration_minutes | duration)) }}</td>
+          <td><input class="switch switch--sm" type="checkbox" role="switch" aria-label="Онлайн-запись: {{ s.name }}" {% if s.online_booking %}checked{% endif %} data-toggle="{{ panel.api }}/services/{{ s.id }}" data-field="online_booking" data-on="Онлайн-запись включена" data-off="Онлайн-запись выключена"></td>
+          <td>{{ move_buttons(s.id) }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      {% else %}
+      <tbody><tr><td colspan="6"><p class="empty">{% if q %}Ничего не нашли по запросу «{{ q }}».{% else %}Услуг пока нет.{% endif %}</p></td></tr></tbody>
+      {% endfor %}
+    </table>
+  </section>
+  {% if selected or creating %}
+  <section class="drawer" aria-labelledby="svc-edit-title">
+    <div class="drawer__head">
+      <h2 class="drawer__title" id="svc-edit-title">{{ "Новая услуга" if creating else "Редактирование услуги" }}</h2>
+      <a class="icon-btn icon-btn--round" href="?tab=services" aria-label="Закрыть">{{ icon("close", 18) }}</a>
+    </div>
+    {{ service_form(selected, creating=creating) }}
+  </section>
+  {% endif %}
+</div>
+
+{% elif tab == "groups" %}
+<div class="pn-cols pn-cols--main-side {% if not (group or creating_group) %}pn-cols--single{% endif %}">
+  <section class="card card--flush">
+    <p class="card__intro muted">Карточки в блоке «Услуги» на главной странице и страницы «Подробнее». Услуги привязываются к направлению в их настройках.</p>
+    <ul class="item-list" data-sortable data-order-api="{{ panel.api }}/groups/order">
+      {% for g in groups %}
+      <li class="item-list__row {% if group and group.id == g.id %}is-selected{% endif %}" data-id="{{ g.id }}">
+        {% if g.image_id and media.get(g.image_id) %}<img class="thumb" src="{{ media_src(media, g.image_id, 480) }}" alt="">{% else %}<span class="thumb thumb--empty">{{ icon("image", 16) }}</span>{% endif %}
+        <a class="item-list__text row-link" href="?tab=groups&open={{ g.id }}"><strong>{{ g.title }}</strong><span class="muted small">{{ group_services[g.id] | map(attribute="name") | join(", ") or "нет услуг" }}{% if not g.image_id %} · <span class="danger-text">нет фото</span>{% endif %}</span></a>
+        <input class="switch switch--sm" type="checkbox" role="switch" aria-label="Показывать на сайте: {{ g.title }}" {% if g.is_visible %}checked{% endif %} data-toggle="{{ panel.api }}/groups/{{ g.id }}" data-field="is_visible" data-on="Показывается на сайте" data-off="Скрыто с сайта">
+        {{ move_buttons(g.id) }}
+      </li>
+      {% else %}
+      <li class="empty">Направлений пока нет.</li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% if group or creating_group %}
+  <section class="drawer drawer--wide" aria-labelledby="grp-edit-title">
+    <div class="drawer__head">
+      <h2 class="drawer__title" id="grp-edit-title">{{ "Новое направление" if creating_group else group.title }}</h2>
+      <a class="icon-btn icon-btn--round" href="?tab=groups" aria-label="Закрыть">{{ icon("close", 18) }}</a>
+    </div>
+    {{ group_form(group, creating=creating_group) }}
+  </section>
+  {% endif %}
+</div>
+
+{% else %}
+<section class="card pn-cols--narrow">
+  <p class="muted">Разделы делят прайс на сайте («Кузов», «Защита», «Салон»). Порядок здесь совпадает с порядком на сайте.</p>
+  <ul class="item-list" data-sortable data-order-api="{{ panel.api }}/categories/order">
+    {% for c in categories %}
+    <li class="item-list__row" data-id="{{ c.id }}">
+      <form class="inline-form" data-form data-action="{{ panel.api }}/categories/{{ c.id }}" data-method="PATCH" data-success="Раздел переименован" novalidate>
+        <label class="visually-hidden" for="cat-{{ c.id }}">Название раздела</label>
+        <input class="input input--sm" id="cat-{{ c.id }}" name="name" value="{{ c.name }}" maxlength="120" required>
+        <button class="btn btn--ghost btn--sm" type="submit">Сохранить</button>
+        <span class="fld__error" data-error-for="name" hidden></span>
+      </form>
+      <button class="icon-btn icon-btn--xs" type="button" data-api="{{ panel.api }}/categories/{{ c.id }}" data-method="DELETE" data-confirm="Удалить раздел «{{ c.name }}»?" data-confirm-ok="Удалить" data-done="Раздел удалён" data-reload aria-label="Удалить раздел">{{ icon("trash", 14) }}</button>
+      {{ move_buttons(c.id) }}
+    </li>
+    {% endfor %}
+  </ul>
+  <form class="inline-form" data-form data-action="{{ panel.api }}/categories" data-method="POST" data-success="Раздел добавлен" data-reload novalidate>
+    <label class="visually-hidden" for="cat-new">Новый раздел</label>
+    <input class="input input--sm" id="cat-new" name="name" maxlength="120" placeholder="Новый раздел" required>
+    <button class="btn btn--primary btn--sm" type="submit">{{ icon("plus", 14) }}Добавить</button>
+    <span class="fld__error" data-error-for="name" hidden></span>
+  </form>
+</section>
+{% endif %}
+{{ media_dialog() }}
+{% endblock %}
+{% block scripts %}<script type="module" src="{{ static_url('js/media-picker.js') }}"></script>{% endblock %}
