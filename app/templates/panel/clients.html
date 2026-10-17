@@ -1,0 +1,134 @@
+{% extends "panel/base.html" %}
+{% from "panel/_macros.html" import icon, avatar, field, STATUS_LABELS %}
+{% block title %}Клиенты{% endblock %}
+{% set keep = ("q=" ~ (q | urlencode) ~ "&segment=" ~ segment ~ ("&page=" ~ page if page > 1 else "")) %}
+{% macro when(moment) -%}
+{% if moment %}{% set d = moment.astimezone(panel.tz).date() %}{% if d == today %}Сегодня{% else %}{{ d | day_short }}{% endif %}{% endif %}
+{%- endmacro %}
+{% block main %}
+<header class="pn-head">
+  <div class="pn-head__text">
+    <span class="pn-eyebrow mono">{{ listing.counts.all }} {{ plural(listing.counts.all, "клиент", "клиента", "клиентов") }} · {{ listing.counts.new }} {{ plural(listing.counts.new, "новый", "новых", "новых") }} за месяц</span>
+    <h1 class="pn-title">Клиенты</h1>
+  </div>
+  <div class="pn-head__actions"><a class="btn btn--primary" href="?{{ keep }}&new=1">{{ icon("plus", 16) }}Добавить клиента</a></div>
+</header>
+
+<form class="clients-filter" method="get" role="search">
+  <input type="hidden" name="segment" value="{{ segment }}">
+  <label class="search"><span class="visually-hidden">Поиск клиента</span>{{ icon("search", 18) }}<input class="input" type="search" name="q" value="{{ q }}" placeholder="Имя, телефон или автомобиль" maxlength="100"></label>
+  <div class="chip-row">
+    {% for key, label in segment_labels.items() %}
+    <a class="chip {% if key == segment %}is-on{% endif %}" href="?segment={{ key }}{% if q %}&q={{ q | urlencode }}{% endif %}">{{ label }} · {{ listing.counts[key] }}</a>
+    {% endfor %}
+  </div>
+</form>
+
+<div class="pn-cols pn-cols--main-side {% if not (detail or creating) %}pn-cols--single{% endif %}">
+  <section class="card card--flush">
+    <table class="table table--stack table--clients">
+      <thead><tr><th>Клиент</th><th>Телефон</th><th>Визиты</th><th>Последний</th><th>Следующая запись</th></tr></thead>
+      <tbody>
+        {% for c in listing.items %}
+        <tr data-href="?{{ keep }}&open={{ c.id }}" {% if detail and detail.id == c.id %}class="is-selected"{% endif %}>
+          <td><a class="client-cell row-link" href="?{{ keep }}&open={{ c.id }}">{{ avatar(initials(c.full_name), "sm") }}<span><strong>{{ c.full_name }}</strong><span class="muted small">{{ c.vehicles[0] if c.vehicles else "" }}</span></span></a></td>
+          <td class="mono nowrap">{{ c.phone }}</td>
+          <td class="mono">{{ c.visits }}</td>
+          <td class="mono muted">{{ c.last_visit.astimezone(panel.tz).strftime("%d.%m.%Y") if c.last_visit else "–" }}</td>
+          <td>{% if c.next_booking %}<span class="gold-light">{{ when(c.next_booking) }} · {{ c.next_booking.astimezone(panel.tz) | hm }}</span>{% elif c.visits == 0 %}<span class="blue-text">Новый</span>{% elif c.last_visit and (now - c.last_visit).days > 180 %}<span class="muted">Давно не был · напомнить</span>{% else %}<span class="muted">–</span>{% endif %}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="5"><p class="empty">{% if q %}Никого не нашли по запросу «{{ q }}».{% else %}Клиентов пока нет. Они появятся после первых записей или добавьте вручную.{% endif %}</p></td></tr>
+        {% endfor %}
+        {% if q and listing.items %}<tr class="table__note"><td colspan="5">Найдено {{ listing.total }} из {{ listing.counts.all }} · <a class="link" href="?segment={{ segment }}">очистите поиск</a>, чтобы увидеть всех</td></tr>{% endif %}
+      </tbody>
+    </table>
+    {% if pages > 1 %}
+    <nav class="pagination" aria-label="Страницы">
+      {% if page > 1 %}<a class="btn btn--ghost btn--sm" href="?q={{ q | urlencode }}&segment={{ segment }}&page={{ page - 1 }}">Назад</a>{% endif %}
+      <span class="mono muted">{{ page }} / {{ pages }}</span>
+      {% if page < pages %}<a class="btn btn--ghost btn--sm" href="?q={{ q | urlencode }}&segment={{ segment }}&page={{ page + 1 }}">Дальше</a>{% endif %}
+    </nav>
+    {% endif %}
+  </section>
+
+  {% if detail %}
+  <section class="drawer client-card" aria-labelledby="client-title">
+    <div class="drawer__head">
+      <div class="client-card__who">
+        {{ avatar(initials(detail.full_name), "lg") }}
+        <div><h2 class="drawer__title" id="client-title">{{ detail.full_name }}</h2>
+          <span class="muted">Клиент с {{ detail.created_at.astimezone(panel.tz).strftime("%m.%Y") }} · {{ detail.visits }} {{ plural(detail.visits, "визит", "визита", "визитов") }}</span></div>
+      </div>
+      <a class="icon-btn icon-btn--round" href="?{{ keep }}" aria-label="Закрыть">{{ icon("close", 18) }}</a>
+    </div>
+    <div class="drawer__body">
+      <div class="chip-row">
+        {% if detail.visits >= 2 %}<span class="tag tag--gold">Постоянный клиент</span>{% endif %}
+        {% for t in detail.tags %}<span class="tag">{{ t }}</span>{% endfor %}
+        {% if detail.telegram_username %}<span class="tag">Связь в Telegram</span>{% endif %}
+      </div>
+      <dl class="kv kv--client">
+        <div><dt>Телефон</dt><dd class="mono">{{ detail.phone }}</dd></div>
+        <div><dt>Автомобиль</dt><dd>{{ detail.vehicles | join(", ") if detail.vehicles else "не указан" }}</dd></div>
+        {% if detail.notes %}<div><dt>Заметка</dt><dd class="pre">{{ detail.notes }}</dd></div>{% endif %}
+        <div><dt>Напоминания</dt><dd>{{ "включены" if detail.reminders_enabled else "отключены клиентом" }}</dd></div>
+        <div><dt>Согласие на ПД</dt><dd>{{ detail.consent_at.astimezone(panel.tz).strftime("%d.%m.%Y") if detail.consent_at else "не получено онлайн" }}</dd></div>
+      </dl>
+      <div class="client-card__actions">
+        <a class="btn btn--primary btn--lg" href="{{ panel.url('/bookings?new=1&client=' ~ detail.id) }}">Записать снова</a>
+        <a class="icon-btn icon-btn--lg" href="tel:{{ detail.phone | replace(' ', '') | replace('-', '') }}" aria-label="Позвонить">{{ icon("phone", 20) }}</a>
+        {% if detail.telegram_username %}<a class="icon-btn icon-btn--lg" href="https://t.me/{{ detail.telegram_username }}" target="_blank" rel="noopener" aria-label="Написать в Telegram">{{ icon("send", 20) }}</a>{% endif %}
+      </div>
+
+      <h3 class="sub-title">История посещений</h3>
+      {% if detail.history %}
+      <ol class="timeline">
+        {% for v in detail.history %}
+        <li class="timeline__item timeline__item--{{ v.status }} {% if loop.index > 5 %}is-extra{% endif %}" {% if loop.index > 5 %}hidden{% endif %}>
+          <a class="timeline__link" href="{{ panel.url('/bookings?date=' ~ v.starts_at.astimezone(panel.tz).date().isoformat() ~ '&open=' ~ v.booking_id) }}">
+            <span class="timeline__title">{{ v.service_name }}</span>
+            <span class="mono timeline__date">{{ v.starts_at.astimezone(panel.tz).strftime("%d.%m.%Y") }}</span>
+            <span class="timeline__sub">{{ v.staff_name or "мастер не назначен" }} · {{ STATUS_LABELS.get(v.status, v.status) | lower }}</span>
+          </a>
+        </li>
+        {% endfor %}
+      </ol>
+      {% if detail.history | length > 5 %}<button class="link" type="button" data-show-extra>Показать все {{ detail.history | length }} {{ plural(detail.history | length, "визит", "визита", "визитов") }}</button>{% endif %}
+      {% else %}
+      <p class="muted">Записей пока не было.</p>
+      {% endif %}
+
+      <details class="edit-block">
+        <summary>Изменить карточку</summary>
+        <form class="form" data-form data-action="{{ panel.api }}/clients/{{ detail.id }}" data-method="PATCH" data-reload novalidate>
+          {{ field("full_name", "Имя", detail.full_name, required=true, maxlength=120) }}
+          {{ field("tags", "Метки через запятую", detail.tags | join(", "), hint="Например: светлая кожа, VIP", attrs='data-type="list"') }}
+          {{ field("notes", "Заметка", detail.notes, type="textarea", maxlength=4000, attrs='data-type="nullable"') }}
+          {{ field("add_vehicle", "Добавить автомобиль", "", maxlength=120, placeholder="Марка, модель, цвет", attrs="data-skip-empty data-type=\"nullable\"") }}
+          <label class="check"><input type="checkbox" name="reminders_enabled" data-type="bool" {% if detail.reminders_enabled %}checked{% endif %}>Отправлять напоминания о визитах</label>
+          <div class="form__actions"><button class="btn btn--primary" type="submit">Сохранить</button></div>
+        </form>
+      </details>
+    </div>
+  </section>
+  {% elif creating %}
+  <section class="drawer" aria-labelledby="new-client-title">
+    <div class="drawer__head">
+      <div><span class="drawer__eyebrow mono">НОВЫЙ КЛИЕНТ</span><h2 class="drawer__title" id="new-client-title">Добавить клиента</h2></div>
+      <a class="icon-btn icon-btn--round" href="?{{ keep }}" aria-label="Закрыть">{{ icon("close", 18) }}</a>
+    </div>
+    <form class="drawer__body form" data-form data-action="{{ panel.api }}/clients" data-method="POST" data-redirect="?open={id}" data-success="Клиент добавлен" novalidate>
+      <div class="form-alert" data-form-alert hidden>{{ icon("alert", 18) }}<span data-form-alert-text></span></div>
+      {{ field("full_name", "Имя", required=true, maxlength=120, attrs='autocomplete="off"') }}
+      {{ field("phone", "Телефон", type="tel", required=true, maxlength=20, placeholder="+7 900 000-00-00", attrs='autocomplete="off" inputmode="tel"', cls="fld--mono") }}
+      {{ field("vehicle", "Автомобиль", maxlength=120, placeholder="Марка, модель, цвет", attrs='data-type="nullable"') }}
+      {{ field("tags", "Метки через запятую", attrs='data-type="list"') }}
+      {{ field("notes", "Заметка", type="textarea", maxlength=4000, attrs='data-type="nullable"') }}
+      <div class="form__actions"><button class="btn btn--primary btn--lg" type="submit">Добавить</button></div>
+    </form>
+  </section>
+  {% endif %}
+</div>
+{% endblock %}
+{% block scripts %}<script type="module" src="{{ static_url('js/clients.js') }}"></script>{% endblock %}

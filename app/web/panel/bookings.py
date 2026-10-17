@@ -176,6 +176,7 @@ async def bookings_page(
     q: Annotated[str | None, Query(max_length=100)] = None,
     open_id: Annotated[int | None, Query(alias="open", ge=1)] = None,
     new: Annotated[bool, Query()] = False,
+    client: Annotated[int | None, Query(ge=1)] = None,
 ) -> Response:
     tz, now = panel.tz, panel.now()
     today = now.date()
@@ -270,6 +271,12 @@ async def bookings_page(
         if detail:
             allowed = [s.value for s in TRANSITIONS.get(detail.status, frozenset())]
     options = await _form_options(session, panel) if (detail or new) and panel.is_manager else {}
+    prefill = None
+    if new and client and panel.is_manager:
+        try:
+            prefill = await queries.client_detail(session, panel.studio.id, client)
+        except NotFoundError:
+            prefill = None
 
     now_top = None
     if lo <= now.hour < hi and first <= today < first + timedelta(days=days):
@@ -321,6 +328,7 @@ async def bookings_page(
         detail=detail,
         allowed=allowed,
         creating=new and panel.is_manager,
+        prefill=prefill,
         options=options,
         status_order=STATUS_ORDER,
         source_labels=SOURCE_LABELS,

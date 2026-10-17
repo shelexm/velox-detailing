@@ -127,7 +127,7 @@
   {% if detail %}
   {{ booking_editor(detail, allowed, options, status_order, source_labels, panel, close_href=close_href) }}
   {% elif creating %}
-  {{ booking_creator(options, panel, today, close_href, day) }}
+  {{ booking_creator(options, panel, today, close_href, day, prefill) }}
   {% endif %}
 </div>
 {% endblock %}

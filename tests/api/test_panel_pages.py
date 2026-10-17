@@ -164,3 +164,47 @@ async def test_master_calendar_is_read_only_and_scoped(
     assert (await client.get(f"/admin/{studio.id}/bookings/{booking.id}", headers=HTML)).status_code == 404
     week = await client.get(f"/admin/{studio.id}/bookings?date={light['start'][:10]}", headers=HTML)
     assert week.status_code == 200 and "Марина" not in week.text
+
+
+async def test_clients_screen(client: httpx.AsyncClient, session: AsyncSession, studio: Studio, make_user) -> None:
+    await make_user("owner@velox.test", studio)
+    await login(client, "owner@velox.test")
+    api = f"/api/v1/admin/studios/{studio.id}/clients"
+
+    created = await client.post(
+        api,
+        json={
+            "full_name": " Ольга  Петрова ",
+            "phone": "8 (900) 501-73-29",
+            "vehicle": "Lexus RX",
+            "tags": ["VIP", "vip ", ""],
+        },
+    )
+    assert created.status_code == 201, created.text
+    body = created.json()
+    assert body["full_name"] == "Ольга Петрова" and body["phone"] == "+7 900 501-73-29"
+    assert body["vehicles"] == ["Lexus RX"] and body["tags"] == ["VIP", "vip"]
+    duplicate = await client.post(api, json={"full_name": "Другая", "phone": "+79005017329"})
+    assert duplicate.status_code == 409 and duplicate.json()["error"]["details"]["client_id"] == body["id"]
+    bad = await client.post(api, json={"full_name": "Кто-то", "phone": "12345"})
+    assert bad.status_code == 422 and bad.json()["error"]["details"][0]["field"] == "phone"
+
+    patched = await client.patch(f"{api}/{body['id']}", json={"notes": "Предпочитает утро", "add_vehicle": "BMW X5"})
+    assert patched.status_code == 200 and set(patched.json()["vehicles"]) == {"Lexus RX", "BMW X5"}
+
+    page = await client.get(f"/admin/{studio.id}/clients?q=Петр", headers=HTML)
+    assert page.status_code == 200 and "Ольга Петрова" in page.text and "Найдено 1 из 1" in page.text
+    card = await client.get(f"/admin/{studio.id}/clients?open={body['id']}", headers=HTML)
+    assert "Предпочитает утро" in card.text and "Записать снова" in card.text
+    assert (await client.get(f"/admin/{studio.id}/clients?new=1", headers=HTML)).status_code == 200
+    for segment in ("regular", "new", "lapsed"):
+        assert (await client.get(f"/admin/{studio.id}/clients?segment={segment}", headers=HTML)).status_code == 200
+
+    rebook = await client.get(f"/admin/{studio.id}/bookings?new=1&client={body['id']}", headers=HTML)
+    assert 'value="+7 900 501-73-29"' in rebook.text and 'value="Ольга Петрова"' in rebook.text
+
+
+async def test_clients_screen_is_for_managers(client: httpx.AsyncClient, studio: Studio, make_user) -> None:
+    await make_user("master@velox.test", studio, role=Role.MASTER)
+    await login(client, "master@velox.test")
+    assert (await client.get(f"/admin/{studio.id}/clients", headers=HTML)).status_code == 403
