@@ -7,6 +7,7 @@ from datetime import datetime
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.errors import NotFoundError
 from app.models import Client, Vehicle
 
 CONSENT_VERSION = "2026-10"
@@ -54,3 +55,14 @@ async def remember_vehicle(session: AsyncSession, *, studio_id: int, client_id: 
         session.add(vehicle)
         await session.flush()
     return vehicle
+
+
+async def update_client(session: AsyncSession, studio_id: int, client_id: int, **changes: object) -> Client:
+    client = await session.scalar(select(Client).where(Client.studio_id == studio_id, Client.id == client_id))
+    if client is None:
+        raise NotFoundError("Клиент не найден")
+    for field in ("full_name", "notes", "tags", "reminders_enabled"):
+        if field in changes and changes[field] is not None:
+            setattr(client, field, changes[field])
+    await session.commit()
+    return client

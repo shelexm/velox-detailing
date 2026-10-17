@@ -8,11 +8,13 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
-from app.api.routes import health
+from app.api.routes import admin, auth, health, public
 from app.core.config import Settings, get_settings
 from app.core.errors import register_error_handlers
 from app.core.logging import configure_logging
 from app.core.middleware import RequestIdMiddleware
+from app.core.ratelimit import Limiters
+from app.core.security import SecurityHeadersMiddleware
 from app.db.migrations import migration_heads
 from app.db.session import create_engine, create_sessionmaker
 
@@ -43,10 +45,15 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     )
     app.state.settings = settings
     app.state.migration_heads = migration_heads()
+    app.state.limiters = Limiters()
 
     register_error_handlers(app)
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=[*settings.allowed_hosts, *_LOCAL_HOSTS])
+    app.add_middleware(SecurityHeadersMiddleware)
     app.add_middleware(RequestIdMiddleware)
 
     app.include_router(health.router)
+    app.include_router(auth.router)
+    app.include_router(public.router)
+    app.include_router(admin.router)
     return app

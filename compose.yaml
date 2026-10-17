@@ -19,6 +19,8 @@ x-app: &app
     POSTGRES_HOST: db
     POSTGRES_PORT: "5432"
     MEDIA_ROOT: /app/media
+    # The API port is published on 127.0.0.1 only, so X-Forwarded-* can only come from local proxies or the tunnel.
+    FORWARDED_ALLOW_IPS: "*"
   init: true
   logging: *logging
 
