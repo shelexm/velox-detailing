@@ -43,7 +43,8 @@ services:
   # The only service that runs migrations, once, before api and bot start.
   migrate:
     <<: *app
-    command: ["alembic", "upgrade", "head"]
+    # Schema first, then the idempotent starting data (creates only what is missing).
+    command: ["sh", "-c", "alembic upgrade head && python -m app.cli seed"]
     depends_on:
       db:
         condition: service_healthy
