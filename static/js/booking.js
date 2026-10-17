@@ -134,7 +134,8 @@ export class BookingForm {
     for (const svc of services) {
       const key = svc.group_slug ? `g:${svc.group_slug}` : `s:${svc.slug}`;
       if (!seen.has(key)) {
-        const chip = { key, label: svc.group_title || svc.name, services: [], grouped: Boolean(svc.group_slug) };
+        const label = svc.group_title || svc.name;
+        const chip = { key, label, short: svc.group_short_title || label, services: [], grouped: Boolean(svc.group_slug) };
         seen.set(key, chip);
         chips.push(chip);
       }
@@ -185,8 +186,10 @@ export class BookingForm {
     const box = this.q("[data-services]");
     box.removeAttribute("aria-busy");
     const visible = this.state.showAll ? this.chips : this.chips.slice(0, this.primaryCount);
+    // Phones get the short direction name ("Керамика"), as in the mobile mockup.
     const buttons = visible.map((chip) =>
-      el("button", { type: "button", class: "chip", "aria-pressed": String(chip === this.state.chip), text: chip.label }),
+      el("button", { type: "button", class: "chip", "aria-pressed": String(chip === this.state.chip) },
+        chip.short === chip.label ? chip.label : [el("span", { class: "only-desktop", text: chip.label }), el("span", { class: "only-mobile", text: chip.short })]),
     );
     buttons.forEach((button, i) => button.addEventListener("click", () => this.selectService(visible[i].services[0])));
     if (!this.state.showAll && this.chips.length > this.primaryCount) {
@@ -253,7 +256,8 @@ export class BookingForm {
   }
 
   // ---------- days and times ----------
-  async loadDays(from = null) {
+  // seekFree: on the first load keep fetching two-week chunks until a free day shows up (or the horizon ends).
+  async loadDays(from = null, seekFree = !from) {
     const svc = this.service;
     const params = new URLSearchParams({ service_id: svc.id, days: "14" });
     if (from) params.set("date_from", from);
@@ -271,9 +275,13 @@ export class BookingForm {
         this.loadedUntil = data.days[data.days.length - 1].date;
       }
       this.state.windowStart ??= this.today;
-      if (!this.state.day || !this.days.has(this.state.day)) {
+      // Keep the chosen day while it still has free time (e.g. after switching the service), otherwise jump to the first free one.
+      if (!this.days.get(this.state.day)?.slots.some((s) => s.available)) {
         const firstFree = data.days.find((d) => d.slots.some((s) => s.available));
-        this.state.day = (firstFree || data.days[0])?.date || null;
+        if (!firstFree && seekFree && this.loadedUntil && this.loadedUntil < this.horizonEnd) {
+          return this.loadDays(addDays(this.loadedUntil, 1), true);
+        }
+        this.state.day = firstFree?.date || this.state.day || this.today || null;
         if (firstFree && this.isMobile) this.state.windowStart = this.today;
         else if (firstFree) this.state.windowStart = this.windowFor(firstFree.date);
       }
@@ -288,6 +296,10 @@ export class BookingForm {
 
   get isMobile() {
     return window.matchMedia("(max-width: 900px)").matches;
+  }
+
+  get horizonEnd() {
+    return addDays(this.today, Number(document.body.dataset.horizon || 30));
   }
 
   windowFor(day) {
@@ -306,7 +318,9 @@ export class BookingForm {
 
   renderDays() {
     const box = this.q("[data-days]");
-    const count = this.isMobile ? 14 : 7;
+    // Phones scroll one strip from today through everything loaded (at least two weeks); desktop pages by week.
+    let count = 7;
+    if (this.isMobile) for (count = 14; this.loadedUntil && addDays(this.today, count) <= this.loadedUntil; count++);
     const start = this.isMobile ? this.today : this.state.windowStart;
     if (!start) return;
     const buttons = [];
@@ -327,10 +341,11 @@ export class BookingForm {
     }
     box.replaceChildren(...buttons);
     const first = parseDay(start);
-    this.q("[data-month-legend]").textContent = `3 · ДАТА И ВРЕМЯ · ${MONTHS[first.getMonth()]} ${first.getFullYear()}`;
+    const last = parseDay(addDays(start, count - 1));
+    const month = first.getMonth() === last.getMonth() ? MONTHS[first.getMonth()] : `${MONTHS[first.getMonth()]} / ${MONTHS[last.getMonth()]}`;
+    this.q("[data-month-legend]").textContent = `3 · ДАТА И ВРЕМЯ · ${month} ${last.getFullYear()}`;
     this.q("[data-days-prev]").hidden = start <= this.today;
-    const horizonEnd = addDays(this.today, Number(document.body.dataset.horizon || 30));
-    this.q("[data-days-next]").hidden = addDays(start, 7) > horizonEnd;
+    this.q("[data-days-next]").hidden = addDays(start, 7) > this.horizonEnd;
   }
 
   selectDay(day, start = null) {
@@ -355,7 +370,13 @@ export class BookingForm {
       legend.textContent = `СВОБОДНОЕ ВРЕМЯ · ${dayShort(this.state.day).toUpperCase()}`;
     }
     if (!info || !info.slots.length) {
-      box.replaceChildren(el("p", { class: "times__empty", text: info && !info.open ? "Выходной день. Выберите другую дату." : "На этот день свободного времени нет." }));
+      const anyFree = [...this.days.values()].some((d) => d.slots.some((s) => s.available));
+      const text = !anyFree
+        ? "Свободных дат пока нет. Выберите другого мастера или услугу, либо свяжитесь со студией."
+        : info && !info.open
+          ? "Выходной день. Выберите другую дату."
+          : "На этот день свободного времени нет.";
+      box.replaceChildren(el("p", { class: "times__empty", text }));
     } else {
       box.replaceChildren(
         ...info.slots.map((slot) => {
