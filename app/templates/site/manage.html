@@ -24,7 +24,13 @@
     </div>
     {% if booking.status in ("new", "confirmed") %}
     <div class="manage__cancel" data-manage-cancel-box>
-      <p class="muted">Отменить онлайн можно не позднее чем за {{ studio.cancel_deadline_hours }} {{ plural(studio.cancel_deadline_hours, "час", "часа", "часов") }} до визита. Перенести время можно через Telegram-бота{% if site.phone_display %} или по телефону <a class="mono" href="{{ site.phone_href }}">{{ site.phone_display }}</a>{% endif %}.</p>
+      <p class="muted">Отменить онлайн можно не позднее чем за {{ studio.cancel_deadline_hours }} {{ plural(studio.cancel_deadline_hours, "час", "часа", "часов") }} до визита.
+        {%- set bot = site.bot_url() -%}
+        {%- if bot or site.phone_display %} Перенести время можно
+          {%- if bot %} через <a href="{{ bot }}" target="_blank" rel="noopener">Telegram-бота</a>{% endif %}
+          {%- if bot and site.phone_display %} или{% endif %}
+          {%- if site.phone_display %} по телефону <a class="mono" href="{{ site.phone_href }}">{{ site.phone_display }}</a>{% endif %}.
+        {%- else %} Чтобы перенести время, отмените запись и выберите новое на сайте.{% endif %}</p>
       <button class="btn btn--outline btn--md btn--danger" type="button" data-manage-cancel>ОТМЕНИТЬ ЗАПИСЬ</button>
       <p class="field-error" data-manage-error hidden></p>
     </div>

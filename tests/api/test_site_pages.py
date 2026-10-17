@@ -153,3 +153,13 @@ async def test_manage_page(client: httpx.AsyncClient, session: AsyncSession, sit
     assert page.status_code == 200 and "Керамическое покрытие" in page.text
     assert page.headers["x-robots-tag"] == "noindex"
     assert await session.scalar(select(Booking.id)) is not None
+    # No bot and no phone yet: the reschedule hint must not point at channels that do not exist.
+    assert "Telegram-бота" not in page.text and "отмените запись и выберите новое" in page.text
+
+    site_studio.phone = "+79001234567"
+    site_studio.telegram_bot_username = "velox_test_bot"
+    await session.commit()
+    page = await client.get(f"/booking/{token}")
+    hint = page.text[page.text.index("Отменить онлайн") :][:600]
+    assert 'через <a href="https://t.me/velox_test_bot"' in hint, hint
+    assert 'по телефону <a class="mono" href="tel:+79001234567">' in page.text
