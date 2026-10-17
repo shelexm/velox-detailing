@@ -243,11 +243,20 @@ class ClientDetailOut(ClientListItemOut):
     history: list[ClientVisitOut]
 
 
+class ClientCreateIn(Schema):
+    full_name: str = Field(min_length=1, max_length=120)
+    phone: str = Field(min_length=1, max_length=32)
+    vehicle: str | None = Field(default=None, max_length=120)
+    notes: str | None = Field(default=None, max_length=4000)
+    tags: list[str] = Field(default_factory=list, max_length=12)
+
+
 class ClientUpdateIn(Schema):
     full_name: str | None = Field(default=None, min_length=1, max_length=120)
     notes: str | None = Field(default=None, max_length=4000)
     tags: list[str] | None = Field(default=None, max_length=12)
     reminders_enabled: bool | None = None
+    add_vehicle: str | None = Field(default=None, max_length=120)
 
     @field_validator("tags")
     @classmethod

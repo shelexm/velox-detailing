@@ -17,6 +17,7 @@ from app.schemas.booking import (
     BookingAdminOut,
     BookingDetailOut,
     BookingUpdateIn,
+    ClientCreateIn,
     ClientDetailOut,
     ClientListOut,
     ClientUpdateIn,
@@ -26,7 +27,7 @@ from app.schemas.booking import (
 from app.schemas.studio import StudioSettingsIn, StudioSettingsOut
 from app.services import booking as booking_service
 from app.services import queries
-from app.services.clients import update_client
+from app.services.clients import create_client, update_client
 
 router = APIRouter(prefix="/api/v1/admin/studios/{studio_id}", tags=["admin"])
 
@@ -189,6 +190,12 @@ async def list_clients(
     offset: Annotated[int, Query(ge=0)] = 0,
 ) -> ClientListOut:
     return await queries.list_clients(session, access.studio.id, query=q, segment=segment, limit=limit, offset=offset)
+
+
+@router.post("/clients", status_code=201)
+async def add_client(payload: ClientCreateIn, access: Manager, session: DbSession) -> ClientDetailOut:
+    client = await create_client(session, access.studio.id, **payload.model_dump())
+    return await queries.client_detail(session, access.studio.id, client.id)
 
 
 @router.get("/clients/{client_id}")

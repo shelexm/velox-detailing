@@ -7,7 +7,8 @@ from datetime import datetime
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.errors import NotFoundError
+from app.core.errors import ConflictError, NotFoundError, ValidationFailedError
+from app.core.phone import InvalidPhoneError, normalize_ru_phone
 from app.models import Client, Vehicle
 
 CONSENT_VERSION = "2026-10"
@@ -57,6 +58,50 @@ async def remember_vehicle(session: AsyncSession, *, studio_id: int, client_id: 
     return vehicle
 
 
+async def create_client(
+    session: AsyncSession,
+    studio_id: int,
+    *,
+    full_name: str,
+    phone: str,
+    vehicle: str | None = None,
+    notes: str | None = None,
+    tags: list[str] | None = None,
+) -> Client:
+    """A client card added by the studio (e.g. after a phone call). The phone must be new for this studio."""
+    try:
+        phone = normalize_ru_phone(phone)
+    except InvalidPhoneError as exc:
+        raise ValidationFailedError(details=[{"field": "phone", "message": str(exc)}]) from exc
+    name = " ".join(full_name.split())
+    if not name:
+        raise ValidationFailedError(details=[{"field": "full_name", "message": "Укажите имя"}])
+    existing = await session.scalar(select(Client).where(Client.studio_id == studio_id, Client.phone == phone))
+    if existing is not None:
+        raise ConflictError(
+            "Клиент с этим телефоном уже есть", code="client_exists", details={"client_id": existing.id}
+        )
+    client = Client(
+        studio_id=studio_id,
+        phone=phone,
+        full_name=name,
+        notes=(notes or "").strip() or None,
+        tags=_clean_tags(tags),
+        reminders_enabled=True,
+    )
+    session.add(client)
+    await session.flush()
+    if vehicle and vehicle.strip():
+        await remember_vehicle(session, studio_id=studio_id, client_id=client.id, description=" ".join(vehicle.split()))
+    await session.commit()
+    return client
+
+
+def _clean_tags(tags: list[str] | None) -> list[str]:
+    cleaned = [" ".join(t.split())[:40] for t in tags or [] if t and t.strip()]
+    return list(dict.fromkeys(cleaned))[:12]
+
+
 async def update_client(session: AsyncSession, studio_id: int, client_id: int, **changes: object) -> Client:
     client = await session.scalar(select(Client).where(Client.studio_id == studio_id, Client.id == client_id))
     if client is None:
@@ -64,5 +109,8 @@ async def update_client(session: AsyncSession, studio_id: int, client_id: int, *
     for field in ("full_name", "notes", "tags", "reminders_enabled"):
         if field in changes and changes[field] is not None:
             setattr(client, field, changes[field])
+    vehicle = changes.get("add_vehicle")
+    if isinstance(vehicle, str) and vehicle.strip():
+        await remember_vehicle(session, studio_id=studio_id, client_id=client.id, description=" ".join(vehicle.split()))
     await session.commit()
     return client
