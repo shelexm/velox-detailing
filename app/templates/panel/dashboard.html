@@ -58,7 +58,7 @@
   {% for b in in_studio_now %}
   <a class="now-card" href="{{ panel.url('/bookings/' ~ b.id) }}">
     <span class="now-card__top"><span class="gold">{{ b.resource_name or "Без бокса" }}</span><span class="mono">до {{ b.ends_at.astimezone(panel.tz) | hm }}</span></span>
-    <strong>{{ b.service_name }} · {{ b.client_name or b.contact_name }}</strong>
+    <strong>{{ b.service_name }} · {{ b.contact_name or b.client_name }}</strong>
     <span class="muted">{{ [b.vehicle, b.staff_name] | select | join(" · ") }}</span>
   </a>
   {% else %}
@@ -160,7 +160,7 @@
       </div>
       {% for b in requests[:4] %}
       <div class="req">
-        <div class="req__top"><a class="req__name" href="{{ panel.url('/bookings/' ~ b.id) }}">{{ b.client_name or b.contact_name }}</a><span class="mono muted">{{ ago(b.created_at) }}</span></div>
+        <div class="req__top"><a class="req__name" href="{{ panel.url('/bookings/' ~ b.id) }}">{{ b.contact_name or b.client_name }}</a><span class="mono muted">{{ ago(b.created_at) }}</span></div>
         <span class="req__text">{{ b.service_name }}{% if b.staff_name %} · {{ b.staff_name }}{% endif %} · {{ relative_day(b.starts_at.astimezone(panel.tz).date()) }} · {{ b.starts_at.astimezone(panel.tz) | hm }}</span>
         <div class="req__actions">
           {% if panel.is_manager %}

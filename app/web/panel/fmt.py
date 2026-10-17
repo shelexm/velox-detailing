@@ -79,7 +79,12 @@ def relative_day(day: date, today: date) -> str:
     return day_short(day)
 
 
+def month_name(day: date) -> str:
+    return MONTHS[day.month - 1].capitalize()
+
+
 FILTERS = {
+    "month_name": month_name,
     "hm": hm,
     "day_short": day_short,
     "day_long": day_long,

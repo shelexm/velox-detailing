@@ -103,7 +103,7 @@ def _timeline(
                 segments.append(Segment(pos(cursor), pos(start) - pos(cursor), "free", "свободно"))
             if end > start:
                 who = " · ".join(
-                    x for x in (booking.client_name or booking.contact_name, booking.vehicle, booking.staff_name) if x
+                    x for x in (booking.contact_name or booking.client_name, booking.vehicle, booking.staff_name) if x
                 )
                 index, total = _day_index(booking, day, panel)
                 title = booking.service_name + (f" · день {index} из {total}" if total > 1 else "")
@@ -154,7 +154,7 @@ async def dashboard(
             Row(
                 booking=booking,
                 time_label="в студии" if continuing else fmt.hm(booking.starts_at.astimezone(tz)),
-                title=booking.client_name or booking.contact_name or "Без имени",
+                title=booking.contact_name or booking.client_name or "Без имени",
                 sub=_service_line(booking, today, panel),
                 struck=booking.status in (BookingStatus.CANCELLED, BookingStatus.NO_SHOW),
                 href=_booking_href(panel, booking),

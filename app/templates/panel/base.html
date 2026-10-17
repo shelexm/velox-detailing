@@ -46,7 +46,7 @@
 
 <nav class="pn-tabbar" aria-label="Разделы панели">
   <a class="pn-tabbar__item" href="{{ panel.url('/') }}" {% if active == "dashboard" %}aria-current="page"{% endif %}>{{ icon("grid", 22) }}<span>Сегодня</span></a>
-  <a class="pn-tabbar__item" href="{{ panel.url('/bookings') }}" {% if active == "bookings" %}aria-current="page"{% endif %}>{{ icon("calendar", 22) }}<span>Календарь</span>{% if panel.new_count %}<span class="pn-tabbar__dot" aria-label="есть новые"></span>{% endif %}</a>
+  <a class="pn-tabbar__item" href="{{ panel.url('/bookings?view=day') }}" {% if active == "bookings" %}aria-current="page"{% endif %}>{{ icon("calendar", 22) }}<span>Календарь</span>{% if panel.new_count %}<span class="pn-tabbar__dot" aria-label="есть новые"></span>{% endif %}</a>
   {% if panel.is_manager %}
   <a class="pn-tabbar__add" href="{{ panel.url('/bookings?new=1') }}" aria-label="Новая запись">{{ icon("plus", 26) }}</a>
   <a class="pn-tabbar__item" href="{{ panel.url('/clients') }}" {% if active == "clients" %}aria-current="page"{% endif %}>{{ icon("client", 22) }}<span>Клиенты</span></a>

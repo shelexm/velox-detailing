@@ -1,0 +1,134 @@
+{% extends "panel/base.html" %}
+{% from "panel/_macros.html" import icon, status_pill %}
+{% from "panel/_booking_form.html" import booking_editor, booking_creator %}
+{% block title %}Записи{% endblock %}
+{% set base_args = "view=" ~ view ~ ("&staff=" ~ staff_filter if staff_filter else "") %}
+{% set close_href = panel.url("/bookings?" ~ base_args ~ "&date=" ~ day.isoformat()) %}
+{% block main %}
+<header class="pn-head">
+  <div class="pn-head__text">
+    <span class="pn-eyebrow mono only-desktop">{{ caption }}</span>
+    <h1 class="pn-title"><span class="only-desktop">Записи</span><span class="only-mobile">{{ day | month_name }}</span></h1>
+  </div>
+  <div class="pn-head__actions">
+    <div class="seg" role="group" aria-label="Вид">
+      <a class="seg__item" href="?view=day&date={{ day.isoformat() }}{% if staff_filter %}&staff={{ staff_filter }}{% endif %}" {% if view == "day" %}aria-current="true"{% endif %}>День</a>
+      <a class="seg__item only-desktop" href="?view=week&date={{ day.isoformat() }}{% if staff_filter %}&staff={{ staff_filter }}{% endif %}" {% if view == "week" %}aria-current="true"{% endif %}>Неделя</a>
+      <a class="seg__item only-mobile" href="?view=list&date={{ day.isoformat() }}" {% if view == "list" %}aria-current="true"{% endif %}>Список</a>
+    </div>
+    {% if view != "list" %}
+    <div class="pager only-desktop">
+      <a class="icon-btn" href="?{{ base_args }}&date={{ prev_day }}" aria-label="Назад">{{ icon("chevron-left") }}</a>
+      <a class="btn btn--ghost" href="?{{ base_args }}&date={{ today.isoformat() }}">Сегодня</a>
+      <a class="icon-btn" href="?{{ base_args }}&date={{ next_day }}" aria-label="Вперёд">{{ icon("chevron-right") }}</a>
+    </div>
+    {% endif %}
+    {% if panel.is_manager %}
+    <form class="only-desktop" method="get" data-autosubmit>
+      <input type="hidden" name="view" value="{{ view if view != 'list' else 'week' }}"><input type="hidden" name="date" value="{{ day.isoformat() }}">
+      <label class="visually-hidden" for="staff-filter">Мастер</label>
+      <select class="select select--sm select--auto" id="staff-filter" name="staff">
+        <option value="">Все мастера</option>
+        {% for m in staff_list %}<option value="{{ m.id }}" {% if staff_filter == m.id %}selected{% endif %}>{{ m.short_name }}</option>{% endfor %}
+      </select>
+    </form>
+    <a class="btn btn--primary only-desktop" href="?{{ base_args }}&date={{ day.isoformat() }}&new=1">{{ icon("plus", 16) }}Новая запись</a>
+    {% endif %}
+  </div>
+</header>
+
+{% if view != "list" %}
+<div class="cal-bar">
+  <div class="card__legend">
+    <span class="legend legend--new">Новая</span><span class="legend legend--confirmed">Подтверждена</span><span class="legend legend--done">Завершена</span><span class="legend legend--cancelled">Отменена</span>
+  </div>
+  {% if panel.is_manager %}<span class="muted small only-desktop">Вместимость: {{ capacity }} {{ plural(capacity, "автомобиль", "автомобиля", "автомобилей") }} одновременно · <a class="link" href="{{ panel.url('/slots') }}">настроить</a></span>{% endif %}
+</div>
+
+{# phone: week strip #}
+<nav class="week-strip only-mobile" aria-label="Дни недели">
+  {% for d in week_days %}
+  <a class="week-strip__day {% if d == day %}is-on{% endif %} {% if d == today %}is-today{% endif %}" href="?view=day&date={{ d.isoformat() }}" {% if d == day %}aria-current="date"{% endif %}><span>{{ ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"][d.weekday()] }}</span><strong class="mono">{{ d.day }}</strong></a>
+  {% endfor %}
+</nav>
+{% endif %}
+
+<div class="cal-layout {% if detail or creating %}has-drawer{% endif %}">
+  {% if view == "list" %}
+  <section class="card card--flush">
+    <form class="list-filter" method="get">
+      <input type="hidden" name="view" value="list">
+      <label class="search"><span class="visually-hidden">Поиск</span>{{ icon("search", 18) }}<input class="input" type="search" name="q" value="{{ q }}" placeholder="Имя, телефон или автомобиль" maxlength="100"></label>
+      <div class="chip-row">
+        <a class="chip {% if not status %}is-on{% endif %}" href="?view=list&date={{ day.isoformat() }}">Неделя</a>
+        <a class="chip {% if status == 'new' %}is-on{% endif %}" href="?view=list&status=new">Новые</a>
+        <a class="chip {% if status == 'confirmed' %}is-on{% endif %}" href="?view=list&status=confirmed">Подтверждённые</a>
+        <a class="chip {% if status == 'cancelled' %}is-on{% endif %}" href="?view=list&status=cancelled">Отменённые</a>
+      </div>
+    </form>
+    <div class="blist">
+      {% for b in bookings %}
+      {% set s = b.starts_at.astimezone(panel.tz) %}
+      <a class="blist__row {% if b.status in ('cancelled', 'no_show') %}is-struck{% endif %}" href="{{ panel.url('/bookings?view=list&date=' ~ day.isoformat() ~ ('&status=' ~ status if status else '') ~ '&open=' ~ b.id) }}" data-phone-href="{{ panel.url('/bookings/' ~ b.id) }}">
+        <span class="blist__when mono">{{ s.date() | day_short }}<br>{{ s | hm }}</span>
+        <span class="blist__who"><strong>{{ b.contact_name or b.client_name }}</strong><span>{{ b.service_name }}{% if b.staff_name %} · {{ b.staff_name }}{% endif %}{% if b.vehicle %} · {{ b.vehicle }}{% endif %}</span></span>
+        {{ status_pill(b.status) }}
+      </a>
+      {% else %}
+      <p class="empty">Записей не найдено.</p>
+      {% endfor %}
+    </div>
+  </section>
+  {% else %}
+  <section class="cal {% if view == 'day' %}cal--day{% endif %}" style="--cols: {{ columns | length or 1 }}; --hour: {{ hour_px }}px; --hours: {{ hours | length }}" aria-label="Календарь записей">
+    <div class="cal__head">
+      <span></span>
+      {% for c in columns %}
+      {% if view == "week" %}
+      <a class="cal__col-head {% if c.is_today %}is-today{% endif %} {% if c.closed %}is-closed{% endif %}" href="?view=day&date={{ c.day.isoformat() }}{% if staff_filter %}&staff={{ staff_filter }}{% endif %}"><span><span class="muted">{{ c.label }}</span> <strong>{{ c.sub }}</strong></span><span class="mono muted">{{ c.count or "" }}</span></a>
+      {% else %}
+      <span class="cal__col-head"><span><strong>{{ c.label }}</strong>{% if c.sub %} <span class="muted small">{{ c.sub }}</span>{% endif %}</span><span class="mono muted">{{ c.count or "" }}</span></span>
+      {% endif %}
+      {% else %}
+      <span class="cal__col-head muted">Нет активных боксов: добавьте их в разделе «Слоты»</span>
+      {% endfor %}
+    </div>
+    {% if view == "week" and spans %}
+    <div class="cal__lane">
+      <span class="cal__lane-label muted">в студии</span>
+      <div class="cal__spans" style="--rows: {{ span_rows }}">
+        {% for s in spans %}
+        <a class="cal__span cal__span--{{ s.booking.status }}" style="grid-column: {{ s.start_col + 1 }} / {{ s.end_col + 2 }}; grid-row: {{ s.row + 1 }}" href="?{{ base_args }}&date={{ day.isoformat() }}&open={{ s.booking.id }}" data-phone-href="{{ panel.url('/bookings/' ~ s.booking.id) }}"><span class="cal__dot" aria-hidden="true"></span>{{ s.booking.service_name }} · {{ s.booking.contact_name or s.booking.client_name }}{% if s.booking.vehicle %} · {{ s.booking.vehicle }}{% endif %}</a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+    <div class="cal__body">
+      <div class="cal__times">{% for h in hours %}<span class="mono">{{ "%02d" | format(h) }}:00</span>{% endfor %}</div>
+      {% for c in columns %}
+      <div class="cal__col {% if c.is_today %}is-today{% endif %} {% if c.closed %}is-closed{% endif %}">
+        {% if c.closed %}<span class="cal__closed">выходной</span>{% endif %}
+        {% for b in c.blocks %}
+        {% set bk = b.booking %}
+        <a class="cal__block cal__block--{{ bk.status }} {% if b.lanes > 2 %}is-narrow{% endif %} {% if detail and detail.id == bk.id %}is-open{% endif %}" style="top: {{ b.top }}px; height: {{ b.height }}px; left: calc({{ b.left }}% + 2px); width: calc({{ b.width }}% - 4px)" href="?{{ base_args }}&date={{ day.isoformat() }}&open={{ bk.id }}" data-phone-href="{{ panel.url('/bookings/' ~ bk.id) }}" title="{{ b.time_label }} · {{ bk.contact_name or bk.client_name }} · {{ bk.service_name }}">
+          <span class="cal__time mono">{{ b.time_label }}</span>
+          <strong>{{ bk.contact_name or bk.client_name }}</strong>
+          <span class="cal__service">{{ bk.service_name }}{% if view == "day" and bk.staff_name %} · {{ bk.staff_name }}{% endif %}</span>
+        </a>
+        {% endfor %}
+        {% if c.is_today and now_top is not none %}<span class="cal__now" style="top: {{ now_top }}px" aria-hidden="true"></span>{% endif %}
+        {% if view == "day" and day == today and now_top is not none %}<span class="cal__now" style="top: {{ now_top }}px" aria-hidden="true"></span>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if detail %}
+  {{ booking_editor(detail, allowed, options, status_order, source_labels, panel, close_href=close_href) }}
+  {% elif creating %}
+  {{ booking_creator(options, panel, today, close_href, day) }}
+  {% endif %}
+</div>
+{% endblock %}
+{% block scripts %}<script type="module" src="{{ static_url('js/bookings.js') }}"></script>{% endblock %}

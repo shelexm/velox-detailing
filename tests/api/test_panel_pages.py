@@ -7,7 +7,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import CSRF_COOKIE
-from app.models import Booking, Service, Studio
+from app.models import Booking, Service, Staff, Studio
 from app.models.enums import Role
 from tests.api.conftest import PASSWORD, first_free_slot, login
 
@@ -94,3 +94,73 @@ async def test_change_password(client: httpx.AsyncClient, session: AsyncSession,
     assert CSRF_COOKIE in fresh.cookies
     await fresh.aclose()
     assert await session.scalar(select(Booking.id)) is None
+
+
+async def _site_booking(
+    client: httpx.AsyncClient, session: AsyncSession, slug: str, name: str, phone: str = "+79001112233"
+) -> dict:
+    service = await session.scalar(select(Service.id).where(Service.slug == slug))
+    start = await first_free_slot(client, "velox", service)
+    created = await client.post(
+        "/api/v1/public/studios/velox/bookings",
+        json={"service_id": service, "starts_at": start, "name": name, "phone": phone, "consent": True},
+    )
+    assert created.status_code == 201, created.text
+    return {"start": start, "number": created.json()["number"]}
+
+
+async def test_bookings_calendar_views(
+    client: httpx.AsyncClient, session: AsyncSession, studio: Studio, make_user
+) -> None:
+    await make_user("owner@velox.test", studio)
+    await login(client, "owner@velox.test")
+    light = await _site_booking(client, session, "light-polish", "Марина")
+    ceramic = await _site_booking(client, session, "ceramic-coating", "Алексей", "+79005550000")  # several days
+    day = light["start"][:10]
+    booking_id = await session.scalar(select(Booking.id).where(Booking.number == light["number"]))
+
+    week = await client.get(f"/admin/{studio.id}/bookings?date={day}", headers=HTML)
+    assert week.status_code == 200, week.text
+    assert "Марина" in week.text and "cal__block--new" in week.text
+    ceramic_week = await client.get(f"/admin/{studio.id}/bookings?date={ceramic['start'][:10]}", headers=HTML)
+    assert "в студии" in ceramic_week.text and "Алексей" in ceramic_week.text  # multi-day lane
+
+    day_view = await client.get(f"/admin/{studio.id}/bookings?view=day&date={day}", headers=HTML)
+    assert day_view.status_code == 200 and "Бокс 1" in day_view.text and "Марина" in day_view.text
+
+    listing = await client.get(f"/admin/{studio.id}/bookings?status=new", headers=HTML)
+    assert listing.status_code == 200 and "Марина" in listing.text and "Алексей" in listing.text
+    found = await client.get(f"/admin/{studio.id}/bookings?view=list&q=Мари", headers=HTML)
+    assert "Марина" in found.text and "Алексей" not in found.text
+
+    opened = await client.get(f"/admin/{studio.id}/bookings?date={day}&open={booking_id}", headers=HTML)
+    assert opened.status_code == 200 and f"ЗАПИСЬ № {light['number']}" in opened.text
+    assert "data-booking-editor" in opened.text and "Отменить запись" in opened.text
+
+    creating = await client.get(f"/admin/{studio.id}/bookings?new=1", headers=HTML)
+    assert creating.status_code == 200 and "data-booking-create" in creating.text
+
+    page = await client.get(f"/admin/{studio.id}/bookings/{booking_id}", headers=HTML)
+    assert page.status_code == 200 and "Подтвердить запись" in page.text
+    assert (await client.get(f"/admin/{studio.id}/bookings/999999", headers=HTML)).status_code == 404
+
+
+async def test_master_calendar_is_read_only_and_scoped(
+    client: httpx.AsyncClient, session: AsyncSession, studio: Studio, make_user
+) -> None:
+    light = await _site_booking(client, session, "light-polish", "Марина")
+    booking = await session.scalar(select(Booking).where(Booking.number == light["number"]))
+    other_staff = await session.scalar(
+        select(Staff.id).where(Staff.studio_id == studio.id, Staff.id != booking.staff_id)
+    )
+    await make_user("master@velox.test", studio, role=Role.MASTER, staff_id=booking.staff_id)
+    await login(client, "master@velox.test")
+    own = await client.get(f"/admin/{studio.id}/bookings/{booking.id}", headers=HTML)
+    assert own.status_code == 200 and "data-booking-form" not in own.text  # no edit form for masters
+
+    client.cookies.clear()
+    await make_user("master2@velox.test", studio, role=Role.MASTER, staff_id=other_staff)
+    await login(client, "master2@velox.test")
+    assert (await client.get(f"/admin/{studio.id}/bookings/{booking.id}", headers=HTML)).status_code == 404
+    week = await client.get(f"/admin/{studio.id}/bookings?date={light['start'][:10]}", headers=HTML)
+    assert week.status_code == 200 and "Марина" not in week.text

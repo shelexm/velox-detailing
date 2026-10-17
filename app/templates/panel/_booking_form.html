@@ -1,0 +1,185 @@
+{% from "panel/_macros.html" import icon, status_pill, STATUS_LABELS %}
+
+{# Edit panel of one booking; used in the calendar side panel and as the phone page. #}
+{% macro booking_editor(detail, allowed, options, status_order, source_labels, panel, close_href="", page=false) -%}
+{% set local_start = detail.starts_at.astimezone(panel.tz) %}
+{% set local_end = detail.ends_at.astimezone(panel.tz) %}
+<section class="drawer {% if page %}drawer--page{% endif %}" aria-labelledby="bk-title" data-booking-editor data-api="{{ panel.api }}/bookings/{{ detail.id }}"
+  data-original='{{ {"status": detail.status, "contact_name": detail.contact_name or "", "vehicle": detail.vehicle or "", "service_id": detail.service_id, "staff_id": detail.staff_id or "", "date": local_start.date().isoformat(), "time": local_start.strftime("%H:%M"), "client_comment": detail.client_comment or "", "internal_note": detail.internal_note or "", "version": detail.version} | tojson }}'>
+  <div class="drawer__head">
+    <div>
+      {% if not page %}<span class="drawer__eyebrow mono">ЗАПИСЬ № {{ detail.number }}</span>{% endif %}
+      <h2 class="drawer__title" id="bk-title">{{ detail.contact_name or detail.client_name or "Без имени" }}</h2>
+      {% if page %}<span class="muted">{{ detail.vehicle or "" }}{% if detail.client_visits %}{% if detail.vehicle %} · {% endif %}{{ detail.client_visits }} {{ plural(detail.client_visits, "визит", "визита", "визитов") }}{% endif %}</span>{% endif %}
+    </div>
+    {% if close_href %}<a class="icon-btn icon-btn--round" href="{{ close_href }}" aria-label="Закрыть">{{ icon("close", 18) }}</a>{% endif %}
+  </div>
+  {% if panel.is_manager %}
+  <form class="drawer__body" data-booking-form novalidate>
+    <div class="form-alert" data-form-alert hidden>{{ icon("alert", 18) }}<span data-form-alert-text></span></div>
+    <fieldset class="fld fld--plain">
+      <legend class="fld__label">Статус</legend>
+      <div class="seg seg--status" role="radiogroup">
+        {% for s in status_order %}
+        {% set enabled = s == detail.status or s in allowed %}
+        {% if s != "no_show" or enabled %}
+        <label class="seg__item {% if not enabled %}is-disabled{% endif %}"><input type="radio" name="status" value="{{ s }}" {% if s == detail.status %}checked{% endif %} {% if not enabled %}disabled{% endif %}>{{ STATUS_LABELS[s] }}</label>
+        {% endif %}
+        {% endfor %}
+      </div>
+      <span class="fld__error" data-error-for="status" hidden></span>
+    </fieldset>
+    <div class="fld">
+      <label class="fld__label" for="bk-name">Клиент</label>
+      <input class="input" id="bk-name" name="contact_name" value="{{ detail.contact_name or detail.client_name or '' }}" maxlength="120" autocomplete="off">
+      <span class="fld__error" data-error-for="contact_name" hidden></span>
+    </div>
+    <div class="fld-row">
+      <div class="fld">
+        <span class="fld__label">Телефон</span>
+        {% if detail.phone %}<a class="input input--mono input--link" href="tel:{{ detail.phone | replace(' ', '') | replace('-', '') }}">{{ detail.phone }}</a>{% else %}<span class="input input--static muted">нет</span>{% endif %}
+      </div>
+      <div class="fld">
+        <label class="fld__label" for="bk-car">Автомобиль</label>
+        <input class="input" id="bk-car" name="vehicle" value="{{ detail.vehicle or '' }}" maxlength="120" autocomplete="off">
+      </div>
+    </div>
+    <div class="fld">
+      <label class="fld__label" for="bk-service">Услуга</label>
+      <select class="select" id="bk-service" name="service_id" data-type="int">
+        {% for s in options.services %}<option value="{{ s.id }}" {% if s.id == detail.service_id %}selected{% endif %}>{{ s.name }}</option>{% endfor %}
+        {% if detail.service_id not in options.services | map(attribute="id") | list %}<option value="{{ detail.service_id }}" selected>{{ detail.service_name }} (снята)</option>{% endif %}
+      </select>
+    </div>
+    <div class="fld">
+      <label class="fld__label" for="bk-staff">Мастер</label>
+      <select class="select" id="bk-staff" name="staff_id" data-type="int">
+        <option value="">Подберёт студия</option>
+        {% for m in options.staff %}<option value="{{ m.id }}" {% if m.id == detail.staff_id %}selected{% endif %}>{{ m.short_name }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="fld-row">
+      <div class="fld">
+        <label class="fld__label" for="bk-date">Дата</label>
+        <input class="input input--mono" id="bk-date" name="date" type="date" value="{{ local_start.date().isoformat() }}" required>
+      </div>
+      <div class="fld">
+        <label class="fld__label" for="bk-time">Начало{% if local_end.date() == local_start.date() %} · до {{ local_end | hm }}{% else %} · до {{ local_end.date() | day_short }} {{ local_end | hm }}{% endif %}</label>
+        <input class="input input--mono" id="bk-time" name="time" type="time" step="900" value="{{ local_start.strftime('%H:%M') }}" required>
+      </div>
+    </div>
+    <span class="fld__error" data-error-for="starts_at" hidden></span>
+    <div class="fld">
+      <label class="fld__label" for="bk-comment">Комментарий клиента</label>
+      <textarea class="input input--area" id="bk-comment" name="client_comment" maxlength="1000" rows="2">{{ detail.client_comment or "" }}</textarea>
+    </div>
+    <div class="fld">
+      <label class="fld__label" for="bk-note">Заметка студии <span class="muted">· клиент не видит</span></label>
+      <textarea class="input input--area" id="bk-note" name="internal_note" maxlength="2000" rows="2">{{ detail.internal_note or "" }}</textarea>
+    </div>
+    {% if detail.events %}
+    <details class="history">
+      <summary>История ({{ detail.events | length }})</summary>
+      <ol class="history__list">
+        {% for e in detail.events | reverse %}
+        <li><span class="mono muted">{{ e.created_at.astimezone(panel.tz).strftime("%d.%m %H:%M") }}</span>
+          <span>{% if e.kind == "created" %}Создана{% elif e.kind == "status_changed" %}Статус: {{ STATUS_LABELS.get(e.to_status, e.to_status) }}{% elif e.kind == "rescheduled" %}Перенесена{% elif e.kind == "updated" %}Изменены данные{% else %}{{ e.kind }}{% endif %}{% if e.actor_name %} · {{ e.actor_name }}{% elif e.actor_type == "client" %} · клиент{% elif e.actor_type == "system" %} · система{% endif %}</span></li>
+        {% endfor %}
+      </ol>
+    </details>
+    {% endif %}
+    <div class="drawer__actions">
+      <button class="btn btn--primary btn--lg" type="submit">Сохранить</button>
+      {% if detail.phone %}<a class="icon-btn icon-btn--lg" href="tel:{{ detail.phone | replace(' ', '') | replace('-', '') }}" aria-label="Позвонить">{{ icon("phone", 20) }}</a>{% endif %}
+    </div>
+    {% if "cancelled" in allowed %}
+    <button class="btn btn--link-danger" type="button" data-api="{{ panel.api }}/bookings/{{ detail.id }}/status" data-body='{"status": "cancelled", "version": {{ detail.version }}}' data-confirm="Отменить запись № {{ detail.number }}?" data-confirm-text="Клиент получит уведомление, время освободится." data-confirm-ok="Отменить запись" data-done="Запись отменена" data-reload>Отменить запись</button>
+    {% endif %}
+    <p class="drawer__meta">Создана {{ detail.created_at.astimezone(panel.tz).strftime("%d.%m в %H:%M") }} · {{ source_labels.get(detail.source, detail.source) }}</p>
+  </form>
+  {% else %}
+  <div class="drawer__body">
+    <dl class="kv">
+      <div><dt>Статус</dt><dd>{{ status_pill(detail.status) }}</dd></div>
+      <div><dt>Услуга</dt><dd>{{ detail.service_name }}</dd></div>
+      <div><dt>Когда</dt><dd class="mono">{{ local_start.date() | day_short }} · {{ local_start | hm }}–{{ local_end | hm }}</dd></div>
+      <div><dt>Бокс</dt><dd>{{ detail.resource_name or "без бокса" }}</dd></div>
+      <div><dt>Автомобиль</dt><dd>{{ detail.vehicle or "не указан" }}</dd></div>
+      {% if detail.client_comment %}<div><dt>Комментарий</dt><dd>{{ detail.client_comment }}</dd></div>{% endif %}
+    </dl>
+  </div>
+  {% endif %}
+</section>
+{%- endmacro %}
+
+{# New booking created by the studio (by phone or at the desk). #}
+{% macro booking_creator(options, panel, today, close_href, day) -%}
+<section class="drawer" aria-labelledby="new-title">
+  <div class="drawer__head">
+    <div><span class="drawer__eyebrow mono">НОВАЯ ЗАПИСЬ</span><h2 class="drawer__title" id="new-title">Записать клиента</h2></div>
+    <a class="icon-btn icon-btn--round" href="{{ close_href }}" aria-label="Закрыть">{{ icon("close", 18) }}</a>
+  </div>
+  <form class="drawer__body" data-booking-create data-api="{{ panel.api }}" data-redirect-base="{{ panel.url('/bookings') }}" novalidate>
+    <div class="form-alert" data-form-alert hidden>{{ icon("alert", 18) }}<span data-form-alert-text></span></div>
+    <div class="fld">
+      <label class="fld__label" for="nb-service">Услуга</label>
+      <select class="select" id="nb-service" name="service_id" data-type="int" required>
+        {% for s in options.services %}<option value="{{ s.id }}">{{ s.name }}{% if s.price_from %} · {{ s.price_from | rub }}{% endif %}</option>{% endfor %}
+      </select>
+      <span class="fld__error" data-error-for="service_id" hidden></span>
+    </div>
+    <div class="fld">
+      <label class="fld__label" for="nb-staff">Мастер</label>
+      <select class="select" id="nb-staff" name="staff_id" data-type="int">
+        <option value="">Любой свободный</option>
+        {% for m in options.staff %}<option value="{{ m.id }}">{{ m.short_name }}</option>{% endfor %}
+      </select>
+      <span class="fld__error" data-error-for="staff_id" hidden></span>
+    </div>
+    <div class="fld-row">
+      <div class="fld">
+        <label class="fld__label" for="nb-date">Дата</label>
+        <input class="input input--mono" id="nb-date" name="date" type="date" value="{{ day.isoformat() }}" min="{{ today.isoformat() }}" required>
+      </div>
+      <div class="fld">
+        <label class="fld__label" for="nb-time">Время</label>
+        <input class="input input--mono" id="nb-time" name="time" type="time" step="900" required>
+      </div>
+    </div>
+    <div class="fld">
+      <span class="fld__label">Свободно в этот день</span>
+      <div class="chip-row" data-free-slots aria-live="polite"><span class="muted small">Выберите услугу и дату</span></div>
+      <span class="fld__error" data-error-for="starts_at" hidden></span>
+    </div>
+    <div class="fld-row">
+      <div class="fld">
+        <label class="fld__label" for="nb-name">Имя клиента</label>
+        <input class="input" id="nb-name" name="contact_name" maxlength="120" required autocomplete="off">
+        <span class="fld__error" data-error-for="contact_name" hidden></span>
+      </div>
+      <div class="fld">
+        <label class="fld__label" for="nb-phone">Телефон</label>
+        <input class="input input--mono" id="nb-phone" name="phone" type="tel" inputmode="tel" placeholder="+7 900 000-00-00" maxlength="20" required autocomplete="off">
+        <span class="fld__error" data-error-for="phone" hidden></span>
+      </div>
+    </div>
+    <div class="fld">
+      <label class="fld__label" for="nb-car">Автомобиль <span class="muted">· необязательно</span></label>
+      <input class="input" id="nb-car" name="vehicle" maxlength="120" autocomplete="off">
+    </div>
+    <div class="fld">
+      <label class="fld__label" for="nb-comment">Комментарий</label>
+      <textarea class="input input--area" id="nb-comment" name="client_comment" maxlength="1000" rows="2"></textarea>
+    </div>
+    <div class="fld-row">
+      <fieldset class="fld fld--plain"><legend class="fld__label">Статус</legend>
+        <div class="seg seg--block"><label class="seg__item"><input type="radio" name="status" value="confirmed" checked>Подтверждена</label><label class="seg__item"><input type="radio" name="status" value="new">Новая</label></div>
+      </fieldset>
+      <fieldset class="fld fld--plain"><legend class="fld__label">Откуда</legend>
+        <div class="seg seg--block"><label class="seg__item"><input type="radio" name="source" value="phone" checked>Звонок</label><label class="seg__item"><input type="radio" name="source" value="admin">В студии</label></div>
+      </fieldset>
+    </div>
+    <div class="drawer__actions"><button class="btn btn--primary btn--lg" type="submit">Записать</button></div>
+  </form>
+</section>
+{%- endmacro %}

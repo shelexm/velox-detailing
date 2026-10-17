@@ -1,0 +1,23 @@
+{% extends "panel/base.html" %}
+{% from "panel/_macros.html" import icon, status_pill %}
+{% from "panel/_booking_form.html" import booking_editor %}
+{% block title %}Запись № {{ detail.number }}{% endblock %}
+{% block main %}
+{% set day = detail.starts_at.astimezone(panel.tz).date() %}
+<div class="page-back">
+  <a class="icon-btn icon-btn--plain" href="{{ panel.url('/bookings?view=day&date=' ~ day.isoformat()) }}" aria-label="К календарю">{{ icon("chevron-left", 22) }}</a>
+  <span class="mono muted">ЗАПИСЬ № {{ detail.number }}</span>
+  <span></span>
+</div>
+<div class="booking-card-top">
+  {{ status_pill(detail.status) }}
+  {% if detail.status == "new" and panel.is_manager %}
+  <div class="booking-quick">
+    {% if detail.phone %}<a class="btn btn--ghost btn--lg" href="tel:{{ detail.phone | replace(' ', '') | replace('-', '') }}">{{ icon("phone", 18) }}Позвонить</a>{% endif %}
+    <button class="btn btn--primary btn--lg" type="button" data-api="{{ panel.api }}/bookings/{{ detail.id }}/status" data-body='{"status": "confirmed", "version": {{ detail.version }}}' data-done="Запись подтверждена" data-reload>Подтвердить запись</button>
+  </div>
+  {% endif %}
+</div>
+{{ booking_editor(detail, allowed, options, status_order, source_labels, panel, page=true) }}
+{% endblock %}
+{% block scripts %}<script type="module" src="{{ static_url('js/bookings.js') }}"></script>{% endblock %}
