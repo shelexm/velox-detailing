@@ -61,6 +61,8 @@ CSP = "; ".join(
         "default-src 'self'",
         "script-src 'self'",
         "style-src 'self'",
+        # Inline style attributes only (focal points of photos); style elements stay restricted.
+        "style-src-attr 'unsafe-inline'",
         "img-src 'self' data: blob:",
         "font-src 'self'",
         "connect-src 'self'",

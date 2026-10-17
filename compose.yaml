@@ -47,6 +47,8 @@ services:
     <<: *app
     # Schema first, then the idempotent starting data (creates only what is missing).
     command: ["sh", "-c", "alembic upgrade head && python -m app.cli seed"]
+    volumes:
+      - media:/app/media
     depends_on:
       db:
         condition: service_healthy

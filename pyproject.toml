@@ -22,6 +22,7 @@ dependencies = [
     "pillow>=13.0",
     "aiogram>=3.31",
     "tzdata>=2026.5",
+    "segno>=1.6",
 ]
 
 [project.optional-dependencies]
