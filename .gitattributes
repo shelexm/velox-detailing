@@ -1,0 +1,15 @@
+* text=auto eol=lf
+*.sh text eol=lf
+*.py text eol=lf
+Dockerfile text eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.avif binary
+*.woff2 binary
+
+# Original design bundles are multi-megabyte single-line files: keep them byte-exact, no text diffs.
+design-reference/*.html -text -diff
+design-reference/extracted/assets/** -diff
