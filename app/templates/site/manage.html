@@ -1,0 +1,34 @@
+{% extends "site/base.html" %}
+{% from "site/_macros.html" import icon %}
+{% set header_solid = True %}
+{% block title %}Запись № {{ booking.number }} · {{ studio.name }}{% endblock %}
+{% block body_class %}page-inner{% endblock %}
+{% block floating %}{% endblock %}
+{% block main %}
+{% set tz = studio.timezone %}
+{% set status_text = {"hold": "Оформляется", "new": "Ждёт подтверждения", "confirmed": "Подтверждена", "done": "Завершена", "no_show": "Визит не состоялся", "cancelled": "Отменена", "expired": "Не завершена"} %}
+<div class="wrap page-pad">
+  <section class="manage" data-manage data-token="{{ token }}" data-studio="{{ studio.slug }}">
+    <span class="eyebrow">ЗАПИСЬ № {{ booking.number }}</span>
+    <h1 class="h2">{{ booking.service_name }}</h1>
+    <p class="status-pill status-pill--{{ booking.status }}" data-manage-status>{{ status_text[booking.status] }}</p>
+    <dl class="kv">
+      <div><dt>Когда</dt><dd class="mono" data-local-datetime="{{ booking.starts_at.isoformat() }}" data-tz="{{ tz }}">{{ booking.starts_at.isoformat() }}</dd></div>
+      {% if booking.price_from %}<div><dt>Ориентир</dt><dd class="mono">{{ booking.price_from | rub }}</dd></div>{% endif %}
+      {% if site.address_line %}<div><dt>Адрес</dt><dd>{{ site.address_line }}</dd></div>{% endif %}
+    </dl>
+    <div class="manage__actions">
+      <a class="btn btn--outline btn--md" href="/api/v1/public/studios/{{ studio.slug }}/bookings/manage/{{ token }}/calendar.ics">{{ icon("calendar", 16) }}ДОБАВИТЬ В КАЛЕНДАРЬ</a>
+      {% if studio.route_url %}<a class="btn btn--outline btn--md" href="{{ studio.route_url }}" target="_blank" rel="noopener">{{ icon("route", 16) }}КАК ДОБРАТЬСЯ</a>{% endif %}
+      {% if site.bot_url() %}<a class="btn btn--outline btn--md btn--gold-line" href="{{ site.bot_url('booking_' ~ token) }}" target="_blank" rel="noopener">{{ icon("tg-line", 16) }}НАПОМИНАНИЯ В TELEGRAM</a>{% endif %}
+    </div>
+    {% if booking.status in ("new", "confirmed") %}
+    <div class="manage__cancel" data-manage-cancel-box>
+      <p class="muted">Отменить онлайн можно не позднее чем за {{ studio.cancel_deadline_hours }} {{ plural(studio.cancel_deadline_hours, "час", "часа", "часов") }} до визита. Перенести время можно через Telegram-бота{% if site.phone_display %} или по телефону <a class="mono" href="{{ site.phone_href }}">{{ site.phone_display }}</a>{% endif %}.</p>
+      <button class="btn btn--outline btn--md btn--danger" type="button" data-manage-cancel>ОТМЕНИТЬ ЗАПИСЬ</button>
+      <p class="field-error" data-manage-error hidden></p>
+    </div>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

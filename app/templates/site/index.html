@@ -1,0 +1,7 @@
+{% extends "site/base.html" %}
+{% block main %}
+{% include "site/sections/hero.html" %}
+{% for key in site.order if site.shown(key) and key not in ("hero", "footer", "seo") %}
+{% include "site/sections/" ~ key ~ ".html" %}
+{% endfor %}
+{% endblock %}

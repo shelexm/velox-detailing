@@ -1,0 +1,38 @@
+{% from "site/_macros.html" import logo, icon, tg_badge %}
+{% set seo = site.section("seo") %}
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>{% block title %}{{ seo.title }}{% endblock %}</title>
+<meta name="description" content="{% block description %}{{ seo.description }}{% endblock %}">
+<meta name="theme-color" content="#070708">
+<meta name="color-scheme" content="dark">
+<link rel="canonical" href="{{ base_url }}{{ request.url.path }}">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="ru_RU">
+<meta property="og:title" content="{{ self.title() }}">
+<meta property="og:description" content="{{ self.description() }}">
+<meta property="og:url" content="{{ base_url }}{{ request.url.path }}">
+{% set og_image = media_src(media, site.section("hero").image_id, 1600) %}
+{% if og_image %}<meta property="og:image" content="{{ base_url }}{{ og_image }}">{% endif %}
+<link rel="icon" href="{{ static_url('img/favicon.svg') }}" type="image/svg+xml">
+<link rel="preload" href="/static/fonts/onest-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/static/fonts/unbounded-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="{{ static_url('css/site.css') }}">
+{% block head %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}" {{ script_data }}>
+<a class="skip-link" href="#main">Перейти к содержанию</a>
+{% include "site/_header.html" %}
+<main id="main">
+{% block main %}{% endblock %}
+</main>
+{% include "site/_footer.html" %}
+{% block floating %}{% include "site/_floating.html" %}{% endblock %}
+<dialog class="sheet" id="service-dialog" aria-label="Подробнее об услуге"><div class="sheet__body" data-dialog-body></div></dialog>
+<script type="module" src="{{ static_url('js/site.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

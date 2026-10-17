@@ -1,0 +1,11 @@
+{% extends "site/base.html" %}
+{% set header_solid = True %}
+{% block title %}{{ view.group.title }} · {{ studio.name }}{% endblock %}
+{% block description %}{{ (view.group.detail.description if view.group.detail else none) or view.group.summary or site.section("seo").description }}{% endblock %}
+{% block body_class %}page-inner{% endblock %}
+{% block main %}
+<div class="wrap page-pad">
+  <nav class="crumbs mono" aria-label="Навигация"><a href="/#services">УСЛУГИ</a><span aria-hidden="true">/</span><span>{{ view.group.title | upper }}</span></nav>
+  <div class="svc-page">{% include "site/_service_body.html" %}</div>
+</div>
+{% endblock %}

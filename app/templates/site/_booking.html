@@ -1,0 +1,110 @@
+{% from "site/_macros.html" import icon, tg_badge %}
+
+{% macro booking_form(p, mode, s) -%}
+{% set consent = s.consent_text | e | replace("политикой обработки данных", '<a href="/privacy">политикой обработки данных</a>') %}
+<form class="bk bk--{{ mode }}" novalidate data-booking-form data-mode="{{ mode }}" aria-describedby="{{ p }}-summary">
+  {% if mode == "wizard" %}
+  <div class="bk-wizard__head">
+    <div class="bk-wizard__top">
+      <span class="mono bk-wizard__step" data-wizard-label>ЗАПИСЬ · ШАГ 1 ИЗ 3</span>
+      <button class="icon-btn" type="button" aria-label="Закрыть" data-sheet-close>{{ icon("close", 20) }}</button>
+    </div>
+    <div class="bk-wizard__progress" aria-hidden="true"><span class="is-on"></span><span></span><span></span></div>
+    <h2 class="bk-wizard__title" data-wizard-title tabindex="-1">Что нужно автомобилю?</h2>
+  </div>
+  {% endif %}
+  <div class="bk__scroll">
+    <div class="form-alert" role="alert" data-form-alert hidden>
+      {{ icon("alert", 20) }}
+      <div><strong data-alert-title>Не получилось отправить заявку</strong><span data-alert-text></span></div>
+    </div>
+
+    <fieldset class="bk__fs" data-wizard-step="1">
+      <legend class="bk__legend mono">1 · УСЛУГА</legend>
+      <div class="chips" data-services aria-busy="true"><span class="skeleton-chip"></span><span class="skeleton-chip"></span><span class="skeleton-chip"></span></div>
+      <div class="chips chips--sub" data-variants hidden></div>
+      <span class="mono gold bk__meta" data-service-meta aria-live="polite"></span>
+    </fieldset>
+
+    <fieldset class="bk__fs" data-wizard-step="1">
+      <legend class="bk__legend mono">2 · МАСТЕР</legend>
+      <div class="masters" data-masters></div>
+      <div class="note-box" data-no-master hidden>{{ icon("info", 18) }}<span>Для этой услуги мастера назначает студия, выбирать не нужно.</span></div>
+    </fieldset>
+
+    <div class="bk__picked" data-wizard-step="2" data-wizard-only>
+      <div><strong data-picked-service></strong><span data-picked-meta></span></div>
+      <button class="link link--underline" type="button" data-wizard-goto="1">Изменить</button>
+    </div>
+
+    <fieldset class="bk__fs" data-wizard-step="2">
+      <legend class="bk__legend mono" data-month-legend>3 · ДАТА И ВРЕМЯ</legend>
+      <div class="days-wrap">
+        <button class="icon-btn days-nav" type="button" aria-label="Предыдущие дни" data-days-prev hidden>{{ icon("chevron-left") }}</button>
+        <div class="days" data-days role="group" aria-label="Дата"></div>
+        <button class="icon-btn days-nav" type="button" aria-label="Следующие дни" data-days-next>{{ icon("chevron-right") }}</button>
+      </div>
+      <span class="mono bk__legend bk__legend--times" data-times-legend hidden></span>
+      <div class="times" data-times role="group" aria-label="Время" aria-live="polite"></div>
+      <p class="bk__hint" data-time-hint hidden></p>
+      <span class="field-error" data-error="starts_at" hidden>{{ icon("alert", 14) }}Выберите свободное время</span>
+      <div class="state-box" data-slot-taken hidden>
+        <span class="mono state-box__label">ОШИБКА СЕРВЕРА · СЛОТ ЗАНЯЛИ</span>
+        <p data-slot-taken-text></p>
+        <div class="state-box__actions"><button class="btn btn--primary btn--sm" type="button" data-pick-alternative></button><button class="btn btn--outline btn--sm" type="button" data-other-day>ДРУГОЙ ДЕНЬ</button></div>
+      </div>
+    </fieldset>
+
+    <fieldset class="bk__fs" data-wizard-step="3">
+      <legend class="bk__legend mono">4 · КОНТАКТЫ</legend>
+      <div class="fields">
+        <div class="field">
+          <label for="{{ p }}-name">Имя</label>
+          <input id="{{ p }}-name" class="input" name="name" type="text" autocomplete="given-name" placeholder="Как к вам обращаться" maxlength="120" aria-describedby="{{ p }}-name-error">
+          <span class="field-error" id="{{ p }}-name-error" data-error="name" hidden>{{ icon("alert", 14) }}Укажите имя</span>
+        </div>
+        <div class="field">
+          <label for="{{ p }}-phone">Телефон</label>
+          <input id="{{ p }}-phone" class="input input--mono" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+7 900 000-00-00" maxlength="20" aria-describedby="{{ p }}-phone-error">
+          <span class="field-error" id="{{ p }}-phone-error" data-error="phone" hidden>{{ icon("alert", 14) }}Введите номер полностью: 10 цифр после +7</span>
+        </div>
+        <div class="field">
+          <label for="{{ p }}-car">Автомобиль <span class="muted">· необязательно</span></label>
+          <input id="{{ p }}-car" class="input" name="vehicle" type="text" placeholder="Марка и модель" maxlength="120">
+        </div>
+      </div>
+      <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <div class="state-box" data-offline hidden>
+        <span class="mono state-box__label">НЕТ СВЯЗИ</span>
+        <p>Заявка не ушла, данные сохранены. Попробуйте ещё раз{% if site.phone_display %} или позвоните: <a class="mono" href="{{ site.phone_href }}">{{ site.phone_display }}</a>{% endif %}.</p>
+      </div>
+    </fieldset>
+  </div>
+
+  <div class="bk__foot">
+    <div class="bk__summary-wrap">
+      <span class="bk__summary" id="{{ p }}-summary" data-summary></span>
+      <span class="bk__consent">{{ consent | safe }}</span>
+    </div>
+    <div class="bk__buttons">
+      {% if mode == "wizard" %}<button class="icon-btn bk__back" type="button" aria-label="Назад" data-wizard-back hidden>{{ icon("chevron-left") }}</button>{% endif %}
+      <button class="btn btn--primary btn--lg bk__submit" type="submit" data-submit>{{ s.submit_label }}</button>
+    </div>
+  </div>
+</form>
+
+<div class="bk-done" data-booking-done hidden role="status" tabindex="-1">
+  <div class="bk-done__icon">{{ icon("done", 28) }}</div>
+  <div class="bk-done__text">
+    <h3 class="bk-done__title">{{ s.success_title }}</h3>
+    <p data-done-text data-template="{{ s.success_text }}"></p>
+  </div>
+  <dl class="kv kv--done" data-done-list></dl>
+  <div class="bk-done__actions">
+    <a class="btn btn--outline btn--md" href="#" data-done-calendar>{{ icon("calendar", 16) }}ДОБАВИТЬ В КАЛЕНДАРЬ</a>
+    <a class="btn btn--outline btn--md" href="#" data-done-manage>ИЗМЕНИТЬ ЗАПИСЬ</a>
+    {% if site.bot_url() %}<a class="btn btn--outline btn--md btn--gold-line" href="#" target="_blank" rel="noopener" data-done-telegram>{{ icon("tg-line", 16) }}НАПОМИНАНИЯ В TELEGRAM</a>{% endif %}
+    {% if mode == "wizard" %}<button class="btn btn--primary btn--md" type="button" data-sheet-close>ГОТОВО</button>{% endif %}
+  </div>
+</div>
+{%- endmacro %}

@@ -1,0 +1,56 @@
+{% from "site/_macros.html" import icon, section_head %}
+{% set s = site.section("works") %}
+{% set first = site.cases[0] %}
+{% set any_example = site.cases | selectattr("is_example") | list %}
+<section class="section section--works section--alt" id="works">
+  <div class="wrap section__inner">
+    {{ section_head(s) }}
+    <div class="works" data-works>
+      <div class="works__stage">
+        <div class="ba" data-ba>
+          {% for case in site.cases %}
+          <div class="ba__case{% if loop.first %} is-active{% endif %}" data-case="{{ loop.index0 }}"{% if not loop.first %} hidden{% endif %}>
+            {{ picture(media, case.after_image_id, sizes="(max-width: 900px) 100vw, 860px", cls="ba__after", loading="eager" if loop.first else "lazy") }}
+            <div class="ba__before" data-ba-before>{{ picture(media, case.before_image_id, sizes="(max-width: 900px) 100vw, 860px", loading="eager" if loop.first else "lazy") }}</div>
+          </div>
+          {% endfor %}
+          <span class="ba__tag ba__tag--before mono" data-ba-label="before">{{ first.before_label }}</span>
+          <span class="ba__tag ba__tag--after mono" data-ba-label="after">{{ first.after_label }}</span>
+          {% if any_example %}<span class="ba__example mono" data-ba-example{% if not first.is_example %} hidden{% endif %}>{{ s.example_label }}</span>{% endif %}
+          <div class="ba__line" aria-hidden="true" data-ba-line></div>
+          <div class="ba__handle" aria-hidden="true" data-ba-handle>{{ icon("drag", 24) }}</div>
+          <input class="ba__range" type="range" min="0" max="100" step="1" value="50" aria-label="Линия сравнения до и после" data-ba-range>
+        </div>
+        <div class="works__hint mono only-desktop"><span>{{ s.drag_hint }}</span><span data-case-index>01 / {{ "%02d" | format(site.cases | length) }}</span></div>
+      </div>
+      <div class="works__side">
+        {% for case in site.cases %}
+        <div class="works__info" data-case-info="{{ loop.index0 }}"{% if not loop.first %} hidden{% endif %}>
+          <div class="works__text">
+            <h3 class="h3">{{ case.title }}</h3>
+            {% if case.description %}<p>{{ case.description }}</p>{% endif %}
+          </div>
+          {% set rows = [("Автомобиль", case.car), ("Работы", case.works), ("Срок", case.term)] | selectattr(1) | list %}
+          {% if rows %}
+          <dl class="kv only-desktop">{% for label, value in rows %}<div><dt>{{ label }}</dt><dd>{{ value }}</dd></div>{% endfor %}</dl>
+          <p class="works__meta mono only-mobile">{{ [case.works, case.term] | select | join(" · ") | upper }}</p>
+          {% endif %}
+        </div>
+        {% endfor %}
+        {% if site.cases | length > 1 %}
+        <div class="works__picker" role="group" aria-label="Выбор работы">
+          {% for case in site.cases %}
+          <button class="case-btn" type="button" aria-pressed="{{ 'true' if loop.first else 'false' }}" data-case-pick="{{ loop.index0 }}"
+                  data-before="{{ case.before_label }}" data-after="{{ case.after_label }}" data-example="{{ 'true' if case.is_example else 'false' }}">
+            <span class="case-btn__thumb">{{ picture(media, case.after_image_id, sizes="76px", decorative=True) }}</span>
+            <span class="case-btn__title only-desktop">{{ case.title }}</span>
+            <span class="case-btn__title only-mobile">{{ case.short_title or case.title }}</span>
+            <span class="case-btn__num mono">{{ "%02d" | format(loop.index) }}</span>
+          </button>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>

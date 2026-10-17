@@ -1,0 +1,23 @@
+{% extends "site/base.html" %}
+{% set header_solid = True %}
+{% block title %}Источники изображений · {{ studio.name }}{% endblock %}
+{% block body_class %}page-inner{% endblock %}
+{% block main %}
+<div class="wrap page-pad prose">
+  <span class="eyebrow">ДОКУМЕНТЫ</span>
+  <h1 class="h2">Источники изображений</h1>
+  <p>Часть фотографий на сайте взята из открытых источников с разрешённым использованием. Ниже указаны авторы и лицензии.</p>
+  <ul class="credits">
+    {% for m in assets %}
+    <li class="credits__item">
+      {{ picture(media, m.id, sizes="120px", decorative=True) }}
+      <div>
+        <strong>{{ m.alt or m.original_name }}</strong>
+        <span>{% if m.author %}Автор: {% if m.author_url %}<a href="{{ m.author_url }}" target="_blank" rel="noopener nofollow">{{ m.author }}</a>{% else %}{{ m.author }}{% endif %}. {% endif %}{% if m.source_url %}<a href="{{ m.source_url }}" target="_blank" rel="noopener nofollow">Источник</a>. {% endif %}Лицензия: {% if m.license_url %}<a href="{{ m.license_url }}" target="_blank" rel="noopener nofollow">{{ m.license }}</a>{% else %}{{ m.license }}{% endif %}.</span>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+  <p class="muted">Шрифты Unbounded, Onest и JetBrains Mono распространяются по лицензии SIL Open Font License 1.1 (<a href="/static/fonts/OFL.txt">текст лицензии</a>).</p>
+</div>
+{% endblock %}

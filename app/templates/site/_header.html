@@ -1,0 +1,57 @@
+{% from "site/_macros.html" import logo, icon, tg_badge %}
+{% set nav = [
+  ("services", "#services", "Услуги"),
+  ("works", "#works", "Работы"),
+  ("prices", "#prices", "Цены"),
+  ("materials", "#tech", "Технологии"),
+  ("gift", "#gift", "Сертификаты"),
+  ("contacts", "#booking", "Контакты"),
+] %}
+{% set nav_items = [] %}
+{% for key, anchor, label in nav if site.shown(key) %}{% set _ = nav_items.append((anchor, label)) %}{% endfor %}
+<header class="site-header{% if header_solid %} is-solid{% endif %}" data-header>
+  <div class="wrap site-header__bar">
+    <a class="logo" href="/#top" aria-label="{{ studio.name }}, на главную">{{ logo(sub=True) }}</a>
+    <nav class="site-nav" aria-label="Основное меню">
+      {% for anchor, label in nav_items %}<a href="/{{ anchor }}">{{ label }}</a>{% endfor %}
+    </nav>
+    <div class="site-header__actions">
+      {% if site.phone_display %}
+      <a class="link mono site-header__phone" href="{{ site.phone_href }}">{{ site.phone_display }}</a>
+      <a class="icon-btn site-header__call" href="{{ site.phone_href }}" aria-label="Позвонить">{{ icon("phone", 20) }}</a>
+      {% endif %}
+      <a class="btn btn--sm btn--outline site-header__cta" href="/#booking" data-book>ЗАПИСАТЬСЯ</a>
+      <button class="icon-btn site-header__burger" type="button" aria-controls="mobile-menu" aria-expanded="false" aria-label="Открыть меню" data-menu-open><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+
+<dialog class="mobile-menu" id="mobile-menu" aria-label="Меню">
+  <div class="mobile-menu__top">
+    <span class="logo">{{ logo() }}</span>
+    <button class="icon-btn" type="button" aria-label="Закрыть меню" data-menu-close>{{ icon("close", 22) }}</button>
+  </div>
+  <ul class="mobile-menu__list">
+    {% for anchor, label in nav_items %}
+    <li><a href="/{{ anchor }}" data-menu-link><span class="mobile-menu__num">{{ "%02d" | format(loop.index) }}</span><span class="mobile-menu__label">{{ label }}</span>{{ icon("chevron-right") }}</a></li>
+    {% endfor %}
+  </ul>
+  <div class="mobile-menu__bottom">
+    <a class="btn btn--primary btn--block" href="/#booking" data-book data-menu-link>ЗАПИСАТЬСЯ</a>
+    {% if site.bot_url() %}
+    <a class="btn btn--outline btn--block btn--gold-line" href="{{ site.bot_url() }}" target="_blank" rel="noopener"><span class="tg-dot tg-dot--sm">{{ tg_badge(12) }}</span>ЗАПИСАТЬСЯ ЧЕРЕЗ TELEGRAM</a>
+    {% endif %}
+    {% set quick = [] %}
+    {% if site.phone_href %}{% set _ = quick.append((site.phone_href, "phone", "Звонок", False)) %}{% endif %}
+    {% if studio.route_url %}{% set _ = quick.append((studio.route_url, "route", "Маршрут", True)) %}{% endif %}
+    {% if studio.whatsapp_url %}{% set _ = quick.append((studio.whatsapp_url, "whatsapp", "WhatsApp", True)) %}{% endif %}
+    {% if quick %}
+    <div class="mobile-menu__quick mobile-menu__quick--{{ quick | length }}">
+      {% for href, ico, label, ext in quick %}<a class="quick-btn" href="{{ href }}"{% if ext %} target="_blank" rel="noopener"{% endif %}>{{ icon(ico, 15) }}{{ label }}</a>{% endfor %}
+    </div>
+    {% endif %}
+    {% if site.address_line or site.hours %}
+    <div class="mobile-menu__meta">{% if site.address_line %}<span>{{ site.address_line }}</span>{% endif %}{% if site.hours %}<span class="mono">{{ site.hours[0][1] }}</span>{% endif %}</div>
+    {% endif %}
+  </div>
+</dialog>

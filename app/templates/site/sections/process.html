@@ -1,0 +1,22 @@
+{% set s = site.section("process") %}
+<section class="section section--process" id="process">
+  <div class="wrap section__inner">
+    <div class="section-head section-head--stack">
+      <span class="eyebrow">{{ s.eyebrow }}</span>
+      <h2 class="h2">{{ s.title }}</h2>
+    </div>
+    <ol class="steps">
+      {% for step in s.steps %}
+      <li class="step reveal{% if loop.first %} step--first{% endif %}">
+        <span class="step__dot" aria-hidden="true"></span>
+        <span class="step__num">{{ "%02d" | format(loop.index) }}</span>
+        <div class="step__body">
+          <h3>{{ step.title }}</h3>
+          <p>{{ step.text }}</p>
+          {% if step.duration %}<span class="mono step__dur">{{ step.duration }}</span>{% endif %}
+        </div>
+      </li>
+      {% endfor %}
+    </ol>
+  </div>
+</section>

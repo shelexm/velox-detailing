@@ -1,0 +1,26 @@
+{% from "site/_macros.html" import section_head %}
+{% set s = site.section("materials") %}
+<section class="section section--materials section--alt" id="tech">
+  <div class="wrap section__inner">
+    {{ section_head(s) }}
+    <div class="mosaic">
+      {% for tile in s.tiles %}
+      <figure class="tile reveal{% if loop.first %} tile--main{% endif %}{% if loop.index == 4 %} tile--extra{% endif %}">
+        {{ picture(media, tile.image_id, sizes="(max-width: 900px) 100vw, 40vw") }}
+        <div class="tile__shade" aria-hidden="true"></div>
+        <figcaption>
+          <span class="eyebrow eyebrow--sm">{{ tile.eyebrow }}</span>
+          <span class="tile__title">{{ tile.title }}</span>
+          {% if tile.text %}<span class="tile__text">{{ tile.text }}</span>{% endif %}
+        </figcaption>
+      </figure>
+      {% endfor %}
+      {% if s.equipment %}
+      <div class="equipment">
+        <span class="eyebrow eyebrow--sm">{{ s.equipment_title }}</span>
+        <ul>{% for row in s.equipment %}<li><span>{{ row.name }}</span><span class="mono">{{ row.value }}</span></li>{% endfor %}</ul>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</section>

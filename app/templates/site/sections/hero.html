@@ -1,0 +1,42 @@
+{% from "site/_macros.html" import icon, tg_badge %}
+{% set s = site.section("hero") %}
+<section class="hero" id="top">
+  <div class="hero__media">{{ art_picture(media, s.image_id, s.mobile_image_id, img_cls="hero__img") }}</div>
+  <div class="hero__sweep" aria-hidden="true"></div>
+  <div class="hero__glow" aria-hidden="true"></div>
+  <div class="hero__shade" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+
+  <div class="wrap hero__content">
+    <div class="hero__copy">
+      <div class="hero__eyebrow anim-in" data-delay="1">
+        <span class="hero__eyebrow-line" aria-hidden="true"></span>
+        <span class="eyebrow">{{ s.eyebrow }}{% if studio.city %} · {{ studio.city | upper }}{% endif %}</span>
+      </div>
+      <h1 class="hero__title">
+        {% for line in s.title_lines %}<span class="anim-in" data-delay="{{ loop.index + 1 }}">{{ line }}</span>{% endfor %}
+      </h1>
+      <p class="hero__lead anim-in only-desktop" data-delay="5">{{ s.lead }}</p>
+      <p class="hero__lead anim-in only-mobile" data-delay="5">{{ s.lead_mobile or s.lead }}</p>
+      <div class="hero__actions anim-in" data-delay="6">
+        <a class="btn btn--primary btn--lg" href="#booking" data-book>{{ s.cta_primary }} {{ icon("arrow") }}</a>
+        {% if site.bot_url() %}<a class="hero__tg-tile" href="{{ site.bot_url() }}" target="_blank" rel="noopener" aria-label="Записаться через Telegram">{{ icon("tg-line", 18) }}<span>Telegram</span></a>{% endif %}
+        {% if site.shown("works") %}<a class="btn btn--outline btn--lg hero__works" href="#works">{{ s.cta_secondary }}</a>{% endif %}
+      </div>
+      {% if site.bot_url() %}
+      <a class="link hero__tg anim-in" data-delay="7" href="{{ site.bot_url() }}" target="_blank" rel="noopener"><span class="hero__tg-ring">{{ icon("tg-line", 14) }}</span>{{ s.cta_telegram }} {{ icon("arrow", 16) }}</a>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if s.quality %}
+  <div class="hero__quality anim-in" data-delay="8">
+    <div class="wrap hero__quality-row">
+      <dl class="quality">
+        {% for item in s.quality %}<div class="quality__item"><dt class="eyebrow eyebrow--sm">{{ item.label }}</dt><dd>{{ item.text }}</dd></div>{% endfor %}
+      </dl>
+      <span class="hero__quality-gap" aria-hidden="true"></span>
+    </div>
+  </div>
+  {% endif %}
+</section>

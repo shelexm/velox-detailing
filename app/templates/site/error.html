@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ status }} · VÉLOX Detailing Studio</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="/static/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/static/css/site.css">
+</head>
+<body class="page-error">
+<main class="error-page wrap">
+  <span class="eyebrow">ОШИБКА {{ status }}</span>
+  <h1 class="h2">{% if status == 404 %}Страница не найдена{% else %}Что-то пошло не так{% endif %}</h1>
+  <p class="lead">{{ message }}</p>
+  <a class="btn btn--primary btn--lg" href="/">НА ГЛАВНУЮ</a>
+</main>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{% from "site/_macros.html" import icon, tg_badge %}
+{% if site.bot_url() %}
+<a class="tg-float" href="{{ site.bot_url() }}" target="_blank" rel="noopener" aria-label="Записаться через Telegram-бот">
+  <span class="tg-dot tg-dot--ping">{{ tg_badge(20) }}</span>
+  <span class="tg-float__label"><span>Записаться в Telegram</span><span class="mono">@{{ site.bot_username }}</span></span>
+</a>
+{% endif %}
+<div class="sticky-bar" data-sticky-bar>
+  {% if site.phone_href %}<a class="sticky-bar__icon" href="{{ site.phone_href }}" aria-label="Позвонить">{{ icon("phone", 20, "gold") }}</a>{% endif %}
+  <a class="btn btn--primary sticky-bar__cta" href="/#booking" data-book>ЗАПИСАТЬСЯ</a>
+  {% if site.bot_url() %}<a class="sticky-bar__tg" href="{{ site.bot_url() }}" target="_blank" rel="noopener" aria-label="Записаться через Telegram">{{ icon("tg-line", 18, "gold") }}<span>Telegram</span></a>{% endif %}
+</div>

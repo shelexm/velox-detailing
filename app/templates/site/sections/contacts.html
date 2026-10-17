@@ -1,0 +1,70 @@
+{% from "site/_macros.html" import icon, tg_badge %}
+{% from "site/_booking.html" import booking_form with context %}
+{% set s = site.section("contacts") %}
+<section class="section section--booking section--alt" id="booking">
+  <div class="wrap section__inner">
+    <div class="section-head section-head--stack">
+      <span class="eyebrow">{{ s.eyebrow }}</span>
+      <h2 class="h2"><span class="only-desktop">{{ s.title }}</span><span class="only-mobile">{{ s.title_mobile or s.title }}</span></h2>
+    </div>
+    <div class="booking-layout">
+      <div class="contacts">
+        {% if media.get(s.map_image_id) %}
+        <div class="contacts__map">
+          {{ picture(media, s.map_image_id, sizes="(max-width: 900px) 100vw, 520px") }}
+          {% if site.address_line %}<div class="contacts__map-card only-desktop"><strong>{{ studio.name }}</strong><span>{{ site.address_line }}</span></div>{% endif %}
+          {% if studio.route_url %}<a class="btn btn--outline btn--xs contacts__route" href="{{ studio.route_url }}" target="_blank" rel="noopener">{{ icon("route", 16, "gold") }}Маршрут</a>{% endif %}
+        </div>
+        {% endif %}
+        <dl class="kv kv--contacts">
+          {% if site.address_line %}
+          <div><dt class="mono">АДРЕС</dt><dd><span>{{ site.address_line }}</span>{% if studio.address_note %}<span class="muted">{{ studio.address_note }}</span>{% endif %}{% if studio.route_url and not media.get(s.map_image_id) %}<a class="link link--arrow" href="{{ studio.route_url }}" target="_blank" rel="noopener">Маршрут {{ icon("arrow", 16) }}</a>{% endif %}</dd></div>
+          {% endif %}
+          {% if site.phone_display %}
+          <div class="kv__row--phone"><dt class="mono">ТЕЛЕФОН</dt><dd><a class="link mono contacts__phone" href="{{ site.phone_href }}">{{ site.phone_display }}</a><a class="icon-btn icon-btn--round only-mobile" href="{{ site.phone_href }}" aria-label="Позвонить">{{ icon("phone", 18, "gold") }}</a></dd></div>
+          {% endif %}
+          {% if site.bot_url() or studio.whatsapp_url %}
+          <div><dt class="mono">МЕССЕНДЖЕРЫ</dt><dd class="contacts__messengers">
+            {% if site.bot_url() %}<a class="btn btn--outline btn--xs btn--gold-line" href="{{ site.bot_url() }}" target="_blank" rel="noopener">{{ icon("tg-line", 16, "gold") }}Telegram-бот</a>{% endif %}
+            {% if studio.whatsapp_url %}<a class="btn btn--outline btn--xs" href="{{ studio.whatsapp_url }}" target="_blank" rel="noopener">{{ icon("whatsapp", 16, "gold") }}WhatsApp</a>{% endif %}
+          </dd></div>
+          {% endif %}
+          {% if site.bot_url() %}
+          <div class="only-desktop"><dt class="mono">TELEGRAM-БОТ</dt><dd><a class="link mono" href="{{ site.bot_url() }}" target="_blank" rel="noopener">t.me/{{ site.bot_username }}</a></dd></div>
+          {% endif %}
+          {% if studio.email %}
+          <div><dt class="mono">E-MAIL</dt><dd><a class="link" href="mailto:{{ studio.email }}">{{ studio.email }}</a></dd></div>
+          {% endif %}
+          {% if site.hours or studio.schedule_text %}
+          <div><dt class="mono">ГРАФИК</dt><dd class="hours">
+            {% if studio.schedule_text %}<span>{{ studio.schedule_text }}</span>{% else %}{% for label, span in site.hours %}<span class="hours__row"><span>{{ label }}</span><span class="mono">{{ span }}</span></span>{% endfor %}{% endif %}
+          </dd></div>
+          {% endif %}
+        </dl>
+      </div>
+
+      <div class="booking-card" data-booking>
+        {% if site.bot_url() %}
+        <div class="booking-tabs" role="group" aria-label="Способ записи">
+          <span class="booking-tabs__item is-current" aria-current="true">{{ icon("calendar", 16, "gold") }}<span class="only-desktop">{{ s.tab_online }}</span><span class="only-mobile">Онлайн</span></span>
+          <a class="booking-tabs__item" href="{{ site.bot_url() }}" target="_blank" rel="noopener"><span class="tg-dot tg-dot--sm">{{ tg_badge(12) }}</span><span class="only-desktop">{{ s.tab_telegram }}</span><span class="only-mobile">Через Telegram</span>{{ icon("external", 14, "muted only-desktop") }}</a>
+        </div>
+        {% endif %}
+        {% if studio.online_booking_enabled %}
+        {{ booking_form("bk", "inline", s) }}
+        {% else %}
+        <div class="booking-off">
+          <p>Онлайн-запись временно недоступна.{% if site.phone_display %} Запишитесь по телефону <a class="mono" href="{{ site.phone_href }}">{{ site.phone_display }}</a>{% endif %}{% if site.bot_url() %} или через <a href="{{ site.bot_url() }}" target="_blank" rel="noopener">Telegram</a>{% endif %}.</p>
+        </div>
+        {% endif %}
+        <noscript><p class="booking-off">Для онлайн-записи включите JavaScript{% if site.phone_display %} или позвоните: {{ site.phone_display }}{% endif %}.</p></noscript>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% if studio.online_booking_enabled %}
+<dialog class="sheet sheet--booking" id="booking-sheet" aria-label="Запись онлайн">
+  {{ booking_form("bks", "wizard", s) }}
+</dialog>
+{% endif %}

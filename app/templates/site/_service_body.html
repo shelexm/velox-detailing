@@ -1,0 +1,71 @@
+{% from "site/_macros.html" import icon %}
+{% set g = view.group %}
+{% set d = g.detail or {} %}
+{% set gallery = (d.gallery or []) | selectattr("image_id") | list %}
+{% if not gallery and g.image_id %}{% set gallery = [{"image_id": g.image_id, "label": ""}] %}{% endif %}
+{% set online = view.online_services %}
+{% set first_variant = online[0] if online else none %}
+<article class="svc-detail" data-service-detail>
+  <div class="svc-detail__gallery" data-gallery>
+    <div class="svc-detail__main">
+      {% for item in gallery %}
+      <div class="svc-detail__slide" data-slide="{{ loop.index0 }}"{% if not loop.first %} hidden{% endif %}>
+        {{ picture(media, item.image_id, sizes="(max-width: 900px) 100vw, 640px", loading="eager" if loop.first else "lazy") }}
+        {% if item.label %}<span class="ba__tag mono svc-detail__label">{{ item.label }}</span>{% endif %}
+      </div>
+      {% endfor %}
+      {% if gallery %}<button class="icon-btn svc-detail__expand" type="button" aria-label="Открыть фото на весь экран" data-gallery-full>{{ icon("expand", 18) }}</button>{% endif %}
+    </div>
+    {% if gallery | length > 1 %}
+    <div class="svc-detail__thumbs" role="group" aria-label="Фотографии">
+      {% for item in gallery %}
+      <button class="svc-detail__thumb" type="button" aria-pressed="{{ 'true' if loop.first else 'false' }}" data-slide-pick="{{ loop.index0 }}" aria-label="Фото {{ loop.index }}">
+        {{ picture(media, item.image_id, sizes="160px", decorative=True) }}
+        {% if item.label %}<span class="mono">{{ item.label }}</span>{% endif %}
+      </button>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="svc-detail__info">
+    <span class="eyebrow">УСЛУГА {{ "%02d" | format(view.number) }} / {{ "%02d" | format(total) }}</span>
+    <h1 class="svc-detail__title" tabindex="-1">{{ g.title }}</h1>
+    {% if d.description or g.summary %}<p class="svc-detail__lead">{{ d.description or g.summary }}</p>{% endif %}
+
+    {% if view.services | length > 1 %}
+    <div class="variants" role="group" aria-label="Вариант услуги">
+      {% for svc in view.services %}
+      <button class="variant" type="button" aria-pressed="{{ 'true' if svc is sameas (first_variant or view.services[0]) else 'false' }}" data-variant="{{ svc.slug }}" data-online="{{ 'true' if svc.online_booking else 'false' }}">
+        <strong>{{ svc.name }}</strong>
+        {% if svc.short_description %}<span>{{ svc.short_description }}</span>{% endif %}
+        <span class="mono">{{ svc.price_from | rub }}{% if svc.duration_label %} · {{ svc.duration_label }}{% endif %}</span>
+      </button>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if d.includes %}
+    <div class="includes">
+      <span class="mono includes__label">ЧТО ВХОДИТ</span>
+      <ol>{% for item in d.includes %}<li><span class="mono gold">{{ "%02d" | format(loop.index) }}</span>{{ item }}</li>{% endfor %}</ol>
+    </div>
+    {% endif %}
+
+    {% set facts = [("СРОК", d.term or g.duration_label), ("СТОИМОСТЬ", d.cost or g.price_label), ("ГАРАНТИЯ", d.guarantee)] | selectattr(1) | list %}
+    {% if facts %}
+    <dl class="facts facts--{{ facts | length }}">{% for label, value in facts %}<div><dt class="mono">{{ label }}</dt><dd{% if label == "СТОИМОСТЬ" %} class="mono"{% endif %}>{{ value }}</dd></div>{% endfor %}</dl>
+    {% endif %}
+
+    {% if d.upsell %}<p class="upsell">{{ icon("drop", 18, "gold") }}<span>{{ d.upsell }}</span></p>{% endif %}
+
+    <div class="svc-detail__foot">
+      <span class="note">{{ d.footnote or site.section("services").note }}</span>
+      <div class="svc-detail__actions">
+        {% set ask = site.bot_url() or site.phone_href %}
+        {% if ask %}<a class="btn btn--outline btn--md" href="{{ ask }}"{% if site.bot_url() %} target="_blank" rel="noopener"{% endif %}>ЗАДАТЬ ВОПРОС</a>{% endif %}
+        {% if first_variant %}<a class="btn btn--primary btn--md" href="/#booking" data-book data-book-service="{{ first_variant.slug }}" data-detail-book>ЗАПИСАТЬСЯ</a>{% endif %}
+      </div>
+    </div>
+  </div>
+</article>

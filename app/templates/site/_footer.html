@@ -1,0 +1,38 @@
+{% from "site/_macros.html" import logo, icon %}
+{% set footer = site.section("footer") %}
+<footer class="site-footer">
+  <div class="wrap site-footer__inner">
+    <div class="site-footer__cols">
+      <div class="site-footer__brand">
+        <span class="logo logo--footer">{{ logo() }}</span>
+        {% if footer.about %}<p>{{ footer.about }}</p>{% endif %}
+      </div>
+      {% if site.groups %}
+      <nav class="site-footer__col only-desktop" aria-label="Услуги">
+        <span class="site-footer__label">УСЛУГИ</span>
+        {% for g in site.groups[:4] %}<a class="link link--muted" href="/services/{{ g.group.slug }}">{{ g.group.title }}</a>{% endfor %}
+      </nav>
+      {% endif %}
+      <nav class="site-footer__col site-footer__studio" aria-label="Студия">
+        <span class="site-footer__label only-desktop">СТУДИЯ</span>
+        {% if site.shown("services") %}<a class="link link--muted only-mobile" href="/#services">Услуги</a>{% endif %}
+        {% if site.shown("works") %}<a class="link link--muted" href="/#works">Работы</a>{% endif %}
+        {% if site.shown("prices") %}<a class="link link--muted" href="/#prices">Цены</a>{% endif %}
+        {% if site.shown("materials") %}<a class="link link--muted only-desktop" href="/#tech">Технологии</a>{% endif %}
+        {% if site.shown("gift") %}<a class="link link--muted" href="/#gift">Сертификаты</a>{% endif %}
+      </nav>
+      <div class="site-footer__col only-desktop">
+        <span class="site-footer__label">КОНТАКТЫ</span>
+        {% if site.phone_display %}<a class="link mono" href="{{ site.phone_href }}">{{ site.phone_display }}</a>{% endif %}
+        {% if site.bot_url() %}<a class="link link--muted link--icon" href="{{ site.bot_url() }}" target="_blank" rel="noopener">{{ icon("tg-line", 14, "gold") }}Telegram: @{{ site.bot_username }}</a>{% endif %}
+        {% if site.address_line %}<span class="muted">{{ site.address_line }}</span>{% endif %}
+        <span class="muted">{{ site.schedule_short }}</span>
+      </div>
+    </div>
+    <div class="site-footer__legal">
+      <span>© {{ site.year }} {{ studio.name }}{% if site.legal_line %} · {{ site.legal_line }}{% endif %}</span>
+      {% if site.bot_url() %}<a class="only-mobile" href="{{ site.bot_url() }}" target="_blank" rel="noopener">Telegram: @{{ site.bot_username }}</a>{% endif %}
+      <span class="site-footer__links"><a href="/credits">Источники фото</a><a href="/privacy">Политика конфиденциальности</a></span>
+    </div>
+  </div>
+</footer>

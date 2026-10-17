@@ -1,0 +1,11 @@
+{% from "site/_macros.html" import icon %}
+{% set s = site.section("final_cta") %}
+<section class="final-cta" id="final">
+  {{ picture(media, s.image_id, sizes="100vw", cls="final-cta__media") }}
+  <div class="final-cta__shade" aria-hidden="true"></div>
+  <div class="wrap final-cta__content">
+    <h2 class="final-cta__title">{{ s.title }}</h2>
+    {% if s.lead %}<p class="lead only-desktop">{{ s.lead }}</p>{% endif %}
+    <a class="btn btn--primary btn--xl" href="#booking" data-book data-book-service="inspection">{{ s.cta }} {{ icon("arrow", 18, "only-desktop") }}</a>
+  </div>
+</section>

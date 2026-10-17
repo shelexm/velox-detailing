@@ -1,0 +1,56 @@
+{% from "site/_macros.html" import icon, section_head %}
+{% set s = site.section("prices") %}
+<section class="section section--prices" id="prices">
+  <div class="wrap section__inner">
+    {{ section_head(s) }}
+    {% if site.price_categories %}
+    <div class="price-cols" data-price-accordion>
+      {% for cat in site.price_categories %}
+      <details class="price-cat"{% if loop.first %} open{% endif %} data-price-cat>
+        <summary class="price-cat__head mono">
+          <span class="price-cat__name">{{ cat.category.name | upper }}</span>
+          <span class="price-cat__col only-desktop">{{ s.column_label }}</span>
+          <span class="price-cat__from only-mobile">{{ cat.min_price | rub }}{{ icon("chevron-down", 18, "gold price-cat__chevron") }}</span>
+        </summary>
+        <div class="price-cat__rows">
+          {% for svc in cat.services %}
+          <div class="price-row">
+            <div class="price-row__name"><span>{{ svc.name }}</span>{% if svc.short_description %}<span class="price-row__desc only-desktop">{{ svc.short_description }}</span>{% endif %}<span class="price-row__desc only-mobile">{{ svc.duration_label }}</span></div>
+            <span class="price-row__dur mono only-desktop">{{ svc.duration_label or "" }}</span>
+            <span class="price-row__price mono">{{ svc.price_from | rub }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </details>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if site.packages %}
+    <div class="packages">
+      <div class="packages__title"><span class="mono">{{ s.packages_title }}</span><span class="rule" aria-hidden="true"></span></div>
+      <div class="packages__grid">
+        {% for pkg in site.packages %}
+        <article class="pkg reveal{% if pkg.badge %} pkg--featured{% endif %}">
+          <div class="pkg__head">
+            <h3 class="h3 h3--sm">{{ pkg.name }}</h3>
+            {% if pkg.badge %}<span class="mono pkg__badge">{{ pkg.badge }}</span>{% else %}<span class="mono pkg__dur">{{ pkg.duration_label | upper }}</span>{% endif %}
+          </div>
+          {% if pkg.items %}
+          <ul class="pkg__items">{% for item in pkg.items %}<li>{{ item }}</li>{% endfor %}</ul>
+          <p class="pkg__summary">{{ pkg.items | join(" · ") }}</p>
+          {% endif %}
+          {% if pkg.note %}<p class="pkg__note">{{ pkg.note }}</p>{% endif %}
+          <div class="pkg__foot">
+            <span class="mono pkg__price">{{ pkg.price_from | rub }}</span>
+            {% if pkg.badge %}<span class="mono pkg__dur pkg__dur--foot">{{ pkg.duration_label | upper }}</span>{% endif %}
+            {% if pkg.online_booking %}<a class="btn btn--md {{ 'btn--primary' if pkg.badge else 'btn--outline' }} pkg__cta" href="#booking" data-book data-book-service="{{ pkg.slug }}">{{ s.choose_label }}</a>{% endif %}
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+      {% if s.packages_note %}<p class="note">{{ s.packages_note }}</p>{% endif %}
+    </div>
+    {% endif %}
+  </div>
+</section>

@@ -1,0 +1,40 @@
+{% from "site/_macros.html" import icon, logo %}
+{% set s = site.section("gift") %}
+{% set chosen = site.gifts[1] if site.gifts | length > 1 else site.gifts[0] %}
+<section class="section section--gift" id="gift" data-gift>
+  <div class="wrap gift">
+    <div class="gift__visual">
+      <div class="gift__glow" aria-hidden="true"></div>
+      <div class="gift__back only-desktop" aria-hidden="true"></div>
+      <div class="cert">
+        <div class="cert__sweep" aria-hidden="true"></div>
+        <div class="cert__frame" aria-hidden="true"></div>
+        <div class="cert__content">
+          <div class="cert__top">
+            <span class="logo">{{ logo(sub=True, cls="logo-mark--cert") }}</span>
+            <span class="mono gold cert__title">{{ s.card_title }}</span>
+          </div>
+          <div class="cert__value">
+            <span class="cert__amount" data-gift-value>{{ chosen.value_text }}</span>
+            <span class="cert__sub" data-gift-sub>{{ chosen.subtitle or "" }}</span>
+          </div>
+          <div class="cert__bottom mono"><span>{{ s.number_sample }}</span><span>{{ s.validity }}</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="gift__copy">
+      <span class="eyebrow">{{ s.eyebrow }}</span>
+      <h2 class="h2 h2--52">{{ s.title }}</h2>
+      {% if s.lead %}<p class="lead only-desktop">{{ s.lead }}</p>{% endif %}
+      <div class="chips gift__chips" role="group" aria-label="Номинал сертификата">
+        {% for g in site.gifts %}
+        <button class="chip chip--square{% if loop.last and site.gifts | length is odd %} chip--wide{% endif %}" type="button" aria-pressed="{{ 'true' if g is sameas chosen else 'false' }}"
+                data-gift-pick data-value="{{ g.value_text }}" data-sub="{{ g.subtitle or '' }}">{{ g.label }}</button>
+        {% endfor %}
+      </div>
+      <div class="gift__cta">
+        <a class="btn btn--primary btn--lg" href="{{ site.bot_url('gift') or '#booking' }}"{% if site.bot_url() %} target="_blank" rel="noopener"{% endif %}>{{ s.cta }} {{ icon("arrow") }}</a>
+      </div>
+    </div>
+  </div>
+</section>

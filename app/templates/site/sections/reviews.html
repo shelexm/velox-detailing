@@ -1,0 +1,29 @@
+{% from "site/_macros.html" import icon, stars %}
+{% set s = site.section("reviews") %}
+<section class="section section--reviews section--alt" id="reviews">
+  <div class="wrap section__inner">
+    <div class="section-head section-head--row">
+      <div class="section-head__title">
+        <span class="eyebrow">{{ s.eyebrow }}</span>
+        <h2 class="h2">{{ s.title }}</h2>
+      </div>
+      {% if s.all_reviews_url %}<a class="link link--arrow" href="{{ s.all_reviews_url }}" target="_blank" rel="noopener">{{ s.all_reviews_label }} {{ icon("arrow") }}</a>{% endif %}
+    </div>
+    <div class="reviews" data-reviews>
+      {% for review in site.reviews %}
+      <figure class="review reveal">
+        <div class="review__top">
+          {% if review.rating %}{{ stars(review.rating) }}{% else %}<span></span>{% endif %}
+          {% if review.is_demo %}<span class="mono review__demo">{{ s.demo_label }}</span>{% endif %}
+        </div>
+        <blockquote>«{{ review.text }}»</blockquote>
+        <figcaption>
+          {% if review.author_name or review.car %}<span class="review__who"><strong>{{ review.author_name or "" }}</strong>{% if review.car %}<span>{{ review.car }}</span>{% endif %}</span>{% endif %}
+          {% if review.service_label %}<span class="mono review__svc">{{ review.service_label }}</span>{% endif %}
+        </figcaption>
+      </figure>
+      {% endfor %}
+    </div>
+    {% if site.reviews | length > 1 %}<div class="dots only-mobile" aria-hidden="true" data-review-dots>{% for r in site.reviews %}<span{% if loop.first %} class="is-active"{% endif %}></span>{% endfor %}</div>{% endif %}
+  </div>
+</section>

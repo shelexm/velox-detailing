@@ -1,0 +1,42 @@
+{% from "site/_macros.html" import icon, tg_badge %}
+{% set s = site.section("telegram") %}
+<section class="section section--telegram section--alt" id="telegram">
+  <div class="telegram__glow" aria-hidden="true"></div>
+  <div class="wrap telegram">
+    <div class="telegram__copy">
+      <div class="telegram__eyebrow"><span class="tg-dot tg-dot--md">{{ tg_badge(16) }}</span><span class="eyebrow">{{ s.eyebrow }}</span></div>
+      <h2 class="h2 h2--52">{{ s.title }}</h2>
+      <p class="lead">{{ s.lead }}</p>
+      {% if s.features %}
+      <ul class="telegram__features only-desktop">
+        {% for f in s.features %}<li><span class="mono gold">{{ "%02d" | format(loop.index) }}</span><span><strong>{{ f.title }}</strong><span>{{ f.text }}</span></span></li>{% endfor %}
+      </ul>
+      {% endif %}
+      <div class="telegram__cta only-desktop">
+        <a class="btn btn--primary btn--lg" href="{{ site.bot_url() }}" target="_blank" rel="noopener">{{ tg_badge(18) }}{{ s.cta }}</a>
+        <span class="mono telegram__handle">@{{ site.bot_username }}</span>
+      </div>
+    </div>
+    <div class="telegram__visual">
+      <div class="chat-mock" aria-hidden="true">
+        <div class="chat-mock__head"><span class="chat-mock__avatar">V</span><span class="chat-mock__title"><strong>{{ studio.name }}</strong><span>бот</span></span></div>
+        <div class="chat-mock__body">
+          <span class="chat-mock__date only-desktop">Сегодня</span>
+          <div class="chat-mock__bubble">Приветствуем! Подберём услугу для вашего автомобиля и поможем записаться.<span class="mono">12:01</span></div>
+          <div class="chat-mock__buttons">
+            <span class="chat-mock__btn chat-mock__btn--gold">Записаться на услугу</span>
+            <span class="chat-mock__btn">Посмотреть услуги и цены</span>
+            <div class="chat-mock__row"><span class="chat-mock__btn">Мои записи</span><span class="chat-mock__btn">Администратор</span></div>
+          </div>
+        </div>
+        <div class="chat-mock__foot only-desktop"><span class="chat-mock__menu">Меню</span><span class="chat-mock__input">Сообщение</span></div>
+      </div>
+      <div class="telegram__qr only-desktop">
+        <div class="qr" aria-hidden="true">{{ qr_svg(site.bot_url()) }}</div>
+        <span class="telegram__qr-hint">{{ s.qr_hint }}</span>
+      </div>
+    </div>
+    <a class="btn btn--primary btn--block only-mobile" href="{{ site.bot_url() }}" target="_blank" rel="noopener">{{ tg_badge(18) }}ОТКРЫТЬ БОТА В TELEGRAM</a>
+    <span class="mono telegram__handle only-mobile">@{{ site.bot_username }}</span>
+  </div>
+</section>

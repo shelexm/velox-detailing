@@ -1,0 +1,25 @@
+{% from "site/_macros.html" import feature_icon %}
+{% set s = site.section("about") %}
+<section class="section section--about" id="about">
+  <div class="wrap about">
+    <div class="about__intro">
+      <span class="eyebrow">{{ s.eyebrow }}</span>
+      <h2 class="h2">{{ s.title }}</h2>
+      {% if s.lead %}<p class="lead only-desktop">{{ s.lead }}</p>{% endif %}
+      {% if media.get(s.image_id) %}
+      <figure class="about__figure only-desktop reveal">
+        {{ picture(media, s.image_id, sizes="(max-width: 1440px) 45vw, 620px") }}
+        {% if s.image_caption %}<figcaption class="mono"><span class="rule-short" aria-hidden="true"></span>{{ s.image_caption }}</figcaption>{% endif %}
+      </figure>
+      {% endif %}
+    </div>
+    <div class="features">
+      {% for item in s["items"] %}
+      <div class="feature">
+        <span class="feature__icon">{{ feature_icon(item.icon) }}</span>
+        <div class="feature__text"><h3>{{ item.title }}</h3><p>{{ item.text }}</p></div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>

@@ -1,0 +1,64 @@
+{% macro logo(sub=False, cls="") -%}
+<span class="logo-mark {{ cls }}"><span class="logo-word"><span>V</span><span class="logo-e">E<span class="logo-accent" aria-hidden="true"></span></span><span>L</span><span>O</span><span>X</span></span>{% if sub %}<span class="logo-sub">DETAILING STUDIO</span>{% endif %}</span>
+{%- endmacro %}
+
+{% macro icon(name, size=18, cls="") -%}
+{%- set paths = {
+  "arrow": '<path d="M4 12h15M14 6l6 6-6 6"/>',
+  "check": '<path d="M4 12.5l5 5L20 6.5"/>',
+  "done": '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  "tg-line": '<path d="M21 4L3 11l6 2 2 6 3-4 5 4z"/>',
+  "phone": '<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/>',
+  "chevron-right": '<path d="M9 6l6 6-6 6"/>',
+  "chevron-left": '<path d="M15 6l-6 6 6 6"/>',
+  "chevron-down": '<path d="M6 9l6 6 6-6"/>',
+  "close": '<path d="M5 5l14 14M19 5L5 19"/>',
+  "route": '<path d="M3 11l18-8-8 18-2-8z"/>',
+  "whatsapp": '<path d="M4 20l1.3-4A8 8 0 1 1 8 18.7z"/>',
+  "calendar": '<rect x="3.5" y="5" width="17" height="15.5" rx="1"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
+  "drag": '<path d="M9 7l-5 5 5 5M15 7l5 5-5 5"/>',
+  "alert": '<circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5v.5"/>',
+  "info": '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>',
+  "external": '<path d="M7 17L17 7M9 7h8v8"/>',
+  "expand": '<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>',
+  "drop": '<path d="M12 3c3 4 5.5 7 5.5 10a5.5 5.5 0 0 1-11 0c0-3 2.5-6 5.5-10z"/>',
+} -%}
+<svg class="icon {{ cls }}" aria-hidden="true" width="{{ size }}" height="{{ size }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">{{ paths[name] | safe }}</svg>
+{%- endmacro %}
+
+{% macro tg_badge(size=20) -%}
+<svg class="icon" aria-hidden="true" width="{{ size }}" height="{{ size }}" viewBox="0 0 24 24"><path d="M20.5 4.5L3.5 11.2l5.6 1.9 1.9 5.9 3.1-3.8 4.9 3.6z" fill="currentColor"/></svg>
+{%- endmacro %}
+
+{% macro feature_icon(name) -%}
+{%- set shapes = {
+  "master": '<circle cx="16" cy="11" r="5"/><path d="M6 27c1.5-5 5.5-8 10-8s8.5 3 10 8"/>',
+  "gauge": '<circle cx="16" cy="16" r="9"/><circle cx="16" cy="16" r="3"/><path d="M16 4v3M16 25v3M4 16h3M25 16h3"/>',
+  "drop": '<path d="M16 4c4 5 7 9 7 13a7 7 0 0 1-14 0c0-4 3-8 7-13z"/><path d="M13 19a3 3 0 0 0 3 3"/>',
+  "plan": '<path d="M5 22l6-6 4 4 11-11"/><path d="M20 9h6v6"/>',
+  "check": '<circle cx="14" cy="14" r="8"/><path d="M20 20l7 7"/><path d="M10.5 14l2.5 2.5 4.5-5"/>',
+  "shield": '<path d="M16 4l10 4v7c0 6.5-4.3 11-10 13-5.7-2-10-6.5-10-13V8z"/><path d="M11.5 16l3 3 6-6.5"/>',
+} -%}
+<svg class="feature-icon" aria-hidden="true" width="30" height="30" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.3">{{ shapes.get(name, shapes["check"]) | safe }}</svg>
+{%- endmacro %}
+
+{% macro stars(rating) -%}
+<span class="stars" role="img" aria-label="Оценка {{ rating }} из 5">{% for i in range(5) %}<svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" class="{{ 'star-on' if i < rating else 'star-off' }}"><path d="M12 2.5l2.9 6.3 6.9.7-5.2 4.6 1.5 6.8L12 17.4 5.9 20.9l1.5-6.8L2.2 9.5l6.9-.7z"/></svg>{% endfor %}</span>
+{%- endmacro %}
+
+{% macro section_head(s, align="split", lead=True, extra="") -%}
+<div class="section-head section-head--{{ align }}">
+  <div class="section-head__title">
+    {% if s.eyebrow %}<span class="eyebrow">{{ s.eyebrow }}</span>{% endif %}
+    <h2 class="h2">{% if s.title_mobile %}<span class="only-desktop">{{ s.title }}</span><span class="only-mobile">{{ s.title_mobile }}</span>{% else %}{{ s.title }}{% endif %}</h2>
+  </div>
+  {% if lead and (s.lead or extra) %}
+  <div class="section-head__aside">
+    {% if s.lead %}
+      {% if s.lead_mobile %}<p class="lead only-desktop">{{ s.lead }}</p><p class="lead only-mobile">{{ s.lead_mobile }}</p>{% else %}<p class="lead">{{ s.lead }}</p>{% endif %}
+    {% endif %}
+    {{ extra }}
+  </div>
+  {% endif %}
+</div>
+{%- endmacro %}

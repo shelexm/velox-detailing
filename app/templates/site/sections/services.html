@@ -1,0 +1,45 @@
+{% from "site/_macros.html" import icon, section_head %}
+{% set s = site.section("services") %}
+{% set extra %}{% if site.shown("prices") %}<a class="link link--arrow" href="#prices">{{ s.prices_link }} {{ icon("arrow") }}</a>{% endif %}{% endset %}
+<section class="section section--services" id="services">
+  <div class="wrap section__inner">
+    {{ section_head(s, extra=extra) }}
+    <div class="svc-grid">
+      {% for view in site.groups %}
+      {% set g = view.group %}
+      {% set prices = view.services | selectattr("price_from") | map(attribute="price_from") | list %}
+      {% set price = g.price_label or ((prices | min) | rub if prices else "") %}
+      <article class="svc-card reveal{% if g.is_wide %} svc-card--wide{% endif %}{% if g.badge %} svc-card--featured{% endif %}">
+        <a class="svc-card__overlay" href="/services/{{ g.slug }}" data-service-link aria-label="{{ g.title }}: подробнее"></a>
+        <div class="svc-card__media">
+          {{ picture(media, g.image_id, sizes="(max-width: 900px) 96px, (max-width: 1440px) 33vw, 460px", img_cls="svc-card__img") }}
+          <span class="svc-card__num mono">{{ "%02d" | format(view.number) }}</span>
+          {% if g.badge %}<span class="svc-card__badge-mobile mono">{{ g.badge }}</span>{% endif %}
+        </div>
+        <div class="svc-card__body">
+          <div class="svc-card__head">
+            <h3 class="h3">{{ g.title }}</h3>
+            {% if g.badge %}<span class="svc-card__badge mono">{{ g.badge }}</span>{% endif %}
+            <span class="svc-card__chevron" aria-hidden="true">{{ icon("arrow" if g.badge else "chevron-right") }}</span>
+          </div>
+          {% if g.summary %}<p class="svc-card__text">{{ g.summary }}</p>{% endif %}
+          {% if g.tagline %}<p class="svc-card__tagline">{{ g.tagline }}</p>{% endif %}
+          {% if price or g.duration_label %}
+          <div class="svc-card__meta mono">{% if price %}<span class="gold">{{ price }}</span>{% endif %}{% if g.duration_label %}<span>{{ g.duration_label }}</span>{% endif %}</div>
+          {% endif %}
+          {% if g.features %}
+          <ul class="checklist{% if g.is_wide %} checklist--cols{% endif %}">
+            {% for f in g.features %}<li>{{ icon("check", 12) }}{{ f }}</li>{% endfor %}
+          </ul>
+          {% endif %}
+          <div class="svc-card__actions">
+            {% if g.is_wide and view.online_services %}<a class="btn btn--primary btn--md" href="#booking" data-book data-book-service="{{ view.online_services[0].slug }}">{{ s.book_label }}</a>{% endif %}
+            <a class="link link--arrow svc-card__more" href="/services/{{ g.slug }}" data-service-link>{{ s.more_label }} {{ icon("arrow") }}</a>
+          </div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    {% if s.note %}<p class="note">{{ s.note }}</p>{% endif %}
+  </div>
+</section>
