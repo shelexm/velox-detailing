@@ -30,12 +30,17 @@ class Staff(IdMixin, TimestampMixin, Base):
     """A master. One master works on one car at a time (enforced on bookings)."""
 
     __tablename__ = "staff"
-    __table_args__ = (UniqueConstraint("studio_id", "id"),)
+    __table_args__ = (
+        UniqueConstraint("studio_id", "id"),
+        CheckConstraint("since_year IS NULL OR since_year BETWEEN 1980 AND 2100", name="since_year"),
+    )
 
     studio_id: Mapped[int] = studio_fk()
     full_name: Mapped[str] = mapped_column(String(200))
     short_name: Mapped[str] = mapped_column(String(64))
     title: Mapped[str | None] = mapped_column(String(120))
+    phone: Mapped[str | None] = mapped_column(String(16))  # for the studio only, never shown on the site
+    since_year: Mapped[int | None] = mapped_column(Integer)  # "в студии с 2019"
     specializations: Mapped[list[str]] = mapped_column(ARRAY(String(60)), default=list)
     # False: the client cannot pick this master online, only the studio assigns them.
     client_selectable: Mapped[bool] = mapped_column(Boolean, default=True)
