@@ -28,6 +28,7 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
 from app.core.config import Settings
+from app.core.ratelimit import Limiters
 from app.db.base import Base
 from app.db.migrations import alembic_config
 from app.db.session import create_engine, create_sessionmaker
@@ -101,6 +102,7 @@ async def app(settings: Settings, engine: AsyncEngine) -> AsyncIterator[FastAPI]
 
 @pytest.fixture
 async def client(app: FastAPI, engine: AsyncEngine) -> AsyncIterator[httpx.AsyncClient]:
+    app.state.limiters = Limiters()  # rate limits must not leak between tests
     transport = httpx.ASGITransport(app=app, raise_app_exceptions=False)
     async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as http:
         yield http
