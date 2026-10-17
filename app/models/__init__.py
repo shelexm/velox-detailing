@@ -1,5 +1,6 @@
 """Import every model so Base.metadata is complete for Alembic and tests."""
 
+from app.models.auth import StudioMembership, User, UserSession
 from app.models.booking import Booking, BookingEvent, Client, NotificationOutbox, Vehicle
 from app.models.catalog import Resource, Service, ServiceCategory, ServiceGroup, ServiceStaff, Staff
 from app.models.schedule import SpecialDay, StaffAbsence, StaffHours, StudioBreak, StudioHours, TimeBlock
@@ -22,6 +23,9 @@ __all__ = [
     "Studio",
     "StudioBreak",
     "StudioHours",
+    "StudioMembership",
     "TimeBlock",
+    "User",
+    "UserSession",
     "Vehicle",
 ]
