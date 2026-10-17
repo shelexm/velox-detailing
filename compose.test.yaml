@@ -1,0 +1,40 @@
+# Isolated test stack: its own project name, its own throw-away database on tmpfs.
+#   docker compose -f compose.test.yaml run --rm --build tests
+#   docker compose -f compose.test.yaml down
+# It never touches the volumes of the main `velox` project.
+
+name: velox-test
+
+services:
+  db-test:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: velox_test
+      POSTGRES_USER: velox_test
+      POSTGRES_PASSWORD: velox_test_only
+    command: ["postgres", "-c", "fsync=off", "-c", "synchronous_commit=off", "-c", "full_page_writes=off"]
+    tmpfs:
+      - /var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:55432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U velox_test -d velox_test"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  tests:
+    build:
+      context: .
+      target: test
+    environment:
+      APP_ENV: test
+      POSTGRES_HOST: db-test
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: velox_test
+      POSTGRES_USER: velox_test
+      POSTGRES_PASSWORD: velox_test_only
+    depends_on:
+      db-test:
+        condition: service_healthy
+    command: ["pytest", "--cov=app", "--cov-report=term-missing:skip-covered"]
