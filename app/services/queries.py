@@ -97,6 +97,7 @@ async def public_services(session: AsyncSession, studio_id: int, *, online_only:
                 duration_days=service.duration_days,
                 group_slug=group.slug if group else None,
                 group_title=group.title if group else None,
+                group_short_title=group.short_title if group else None,
                 staff_selection=service.staff_selection,
                 staff=staff_by_service.get(service.id, []) if selectable else [],
                 badge=service.badge,

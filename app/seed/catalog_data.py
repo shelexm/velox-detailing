@@ -62,6 +62,15 @@ CATEGORIES = [
 ]
 
 # Landing page cards ("01 - УСЛУГИ И ПАКЕТЫ") and their detail pages.
+# Chip labels in the mobile booking form (3.html).
+GROUP_SHORT_TITLES = {
+    "polishing": "Полировка",
+    "ceramic": "Керамика",
+    "ppf": "Плёнка",
+    "interior": "Химчистка",
+    "complex": "Комплекс",
+}
+
 GROUPS = [
     {
         "slug": "polishing",

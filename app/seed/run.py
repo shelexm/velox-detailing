@@ -107,6 +107,10 @@ async def seed_catalog(session: AsyncSession, studio: Studio) -> None:
                 sort_order=order,
             )
             session.add(groups[item["slug"]])
+    for slug, group in groups.items():
+        # Filled once (also for studios seeded before the field existed); edits in the panel stay.
+        if group.short_title is None and slug in data.GROUP_SHORT_TITLES:
+            group.short_title = data.GROUP_SHORT_TITLES[slug]
     await session.flush()
 
     existing = set(await session.scalars(select(Service.slug).where(Service.studio_id == sid)))

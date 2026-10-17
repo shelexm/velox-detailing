@@ -75,6 +75,7 @@ class ServiceGroup(IdMixin, TimestampMixin, Base):
     studio_id: Mapped[int] = studio_fk()
     slug: Mapped[str] = mapped_column(String(64))
     title: Mapped[str] = mapped_column(String(120))
+    short_title: Mapped[str | None] = mapped_column(String(40))  # chip label in the mobile booking form
     summary: Mapped[str | None] = mapped_column(String(300))
     tagline: Mapped[str | None] = mapped_column(String(120))  # short line for the mobile list
     features: Mapped[list[str]] = mapped_column(JSONB, default=list)

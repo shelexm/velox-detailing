@@ -37,6 +37,7 @@ async def test_services_for_the_form(client: httpx.AsyncClient, studio: Studio) 
     assert [m["short_name"] for m in services["light-polish"]["staff"]] == ["Андрей К.", "Максим Р."]
     assert services["interior-cleaning"]["staff"] == []  # the studio assigns the master
     assert services["light-polish"]["group_slug"] == "polishing"
+    assert services["light-polish"]["group_short_title"] == "Полировка"
 
 
 async def test_book_then_slot_is_taken(client: httpx.AsyncClient, session: AsyncSession, studio: Studio) -> None:

@@ -49,6 +49,7 @@ class ServicePublicOut(Schema):
     duration_days: int | None
     group_slug: str | None = None
     group_title: str | None = None
+    group_short_title: str | None = None
     staff_selection: StaffSelection
     staff: list[StaffPublicOut] = Field(default_factory=list)
     badge: str | None = None
