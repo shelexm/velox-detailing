@@ -155,3 +155,12 @@ async def test_manage_page(client: httpx.AsyncClient, session: AsyncSession, sit
     hint = page.text[page.text.index("Отменить онлайн") :][:600]
     assert 'через <a href="https://t.me/velox_test_bot"' in hint, hint
     assert 'по телефону <a class="mono" href="tel:+79001234567">' in page.text
+
+
+async def test_static_cache_headers(client: httpx.AsyncClient) -> None:
+    module = await client.get("/static/js/panel.js")
+    assert module.status_code == 200 and module.headers["cache-control"] == "no-cache"
+    versioned = await client.get("/static/js/panel.js?v=abc")
+    assert "immutable" in versioned.headers["cache-control"]
+    style = await client.get("/static/css/panel.css")
+    assert style.headers["cache-control"] == "public, max-age=3600"

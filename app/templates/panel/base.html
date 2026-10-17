@@ -68,7 +68,8 @@
     </div>
   </form>
 </dialog>
-<script type="module" src="{{ static_url('js/panel.js') }}"></script>
+{# Loaded without a version: page modules import the same URL, so there is exactly one instance. #}
+<script type="module" src="/static/js/panel.js"></script>
 {% block scripts %}{% endblock %}
 </body>
 </html>
