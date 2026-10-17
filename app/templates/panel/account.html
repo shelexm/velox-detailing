@@ -1,0 +1,27 @@
+{% extends "panel/base.html" %}
+{% from "panel/_macros.html" import icon, field %}
+{% block title %}Учётная запись{% endblock %}
+{% block main %}
+<header class="pn-head">
+  <div class="pn-head__text"><span class="pn-eyebrow mono">{{ panel.role_label | upper }}</span><h1 class="pn-title">Учётная запись</h1></div>
+</header>
+<div class="pn-cols pn-cols--narrow">
+  <section class="card">
+    <h2 class="card__title">Профиль</h2>
+    <dl class="kv">
+      <div><dt>Имя</dt><dd>{{ panel.user.full_name or "не указано" }}</dd></div>
+      <div><dt>E-mail</dt><dd>{{ panel.user.email }}</dd></div>
+      <div><dt>Студия</dt><dd>{{ panel.studio.name }}</dd></div>
+    </dl>
+    {% if panel.memberships | length > 1 %}<a class="link" href="/admin">Другая студия</a>{% endif %}
+  </section>
+  <section class="card">
+    <h2 class="card__title">Сменить пароль</h2>
+    <form class="form" data-form data-action="/api/v1/auth/password" data-method="POST" data-success="Пароль изменён. Другие устройства вышли из панели." data-reset novalidate>
+      {{ field("current_password", "Текущий пароль", type="password", required=true, attrs='autocomplete="current-password"') }}
+      {{ field("new_password", "Новый пароль", type="password", required=true, hint="Не короче 12 символов", attrs='autocomplete="new-password" minlength="12"') }}
+      <div class="form__actions"><button class="btn btn--primary" type="submit">Сохранить пароль</button></div>
+    </form>
+  </section>
+</div>
+{% endblock %}

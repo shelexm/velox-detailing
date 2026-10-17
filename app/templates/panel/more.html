@@ -1,0 +1,14 @@
+{% extends "panel/base.html" %}
+{% from "panel/_macros.html" import icon, avatar %}
+{% block title %}Меню{% endblock %}
+{% block main %}
+<header class="pn-head"><div class="pn-head__text"><span class="pn-eyebrow mono">{{ panel.studio.name }}</span><h1 class="pn-title">Меню</h1></div></header>
+<nav class="more-list" aria-label="Все разделы">
+  {% for item in panel.nav() + panel.content_nav() %}
+  <a class="more-list__item" href="{{ item.href }}">{{ icon(item.icon, 20) }}<span>{{ item.label }}</span>{% if item.badge %}<span class="pn-badge">{{ item.badge }}</span>{% endif %}{{ icon("chevron-right", 18) }}</a>
+  {% endfor %}
+  <a class="more-list__item" href="{{ panel.url('/account') }}">{{ avatar(panel.initials, "sm") }}<span>{{ panel.user.full_name or panel.user.email }}<small>{{ panel.role_label }}</small></span>{{ icon("chevron-right", 18) }}</a>
+  <a class="more-list__item" href="/" target="_blank" rel="noopener">{{ icon("external", 20) }}<span>Открыть сайт</span></a>
+  <button class="more-list__item" type="button" data-logout>{{ icon("logout", 20) }}<span>Выйти</span></button>
+</nav>
+{% endblock %}

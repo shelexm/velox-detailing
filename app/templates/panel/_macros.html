@@ -1,0 +1,91 @@
+{% macro icon(name, size=18, cls="") -%}
+<svg class="ic {{ cls }}" aria-hidden="true" width="{{ size }}" height="{{ size }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+{%- if name == "grid" %}<rect x="3" y="3" width="7.5" height="7.5"/><rect x="13.5" y="3" width="7.5" height="7.5"/><rect x="3" y="13.5" width="7.5" height="7.5"/><rect x="13.5" y="13.5" width="7.5" height="7.5"/>
+{%- elif name == "calendar" %}<rect x="3.5" y="5" width="17" height="15.5" rx="1"/><path d="M3.5 10h17M8 3v4M16 3v4"/>
+{%- elif name == "clock" %}<circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.5 2"/>
+{%- elif name == "drop" %}<path d="M12 3c3.5 4.5 6 8 6 11a6 6 0 0 1-12 0c0-3 2.5-6.5 6-11z"/>
+{%- elif name == "users" %}<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.7 3.4-6 6.5-6s5.7 2.3 6.5 6"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.5c1.8.8 3 2.7 3.5 5.5"/>
+{%- elif name == "sliders" %}<path d="M4 6h16M4 12h16M4 18h16"/><circle cx="8" cy="6" r="1.6" fill="currentColor"/><circle cx="15" cy="12" r="1.6" fill="currentColor"/><circle cx="10" cy="18" r="1.6" fill="currentColor"/>
+{%- elif name == "client" %}<rect x="4" y="3" width="16" height="18" rx="1"/><circle cx="12" cy="10" r="3"/><path d="M7.5 17.5c.8-2 2.5-3 4.5-3s3.7 1 4.5 3"/>
+{%- elif name == "external" %}<path d="M14 4h6v6M20 4l-9 9M18 14v6H4V6h6"/>
+{%- elif name == "plus" %}<path d="M12 5v14M5 12h14"/>
+{%- elif name == "minus" %}<path d="M5 12h14"/>
+{%- elif name == "phone" %}<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a1 1 0 0 1-1 1A16 16 0 0 1 4 5a1 1 0 0 1 1-1z"/>
+{%- elif name == "send" %}<path d="M21 3 3 10.5l7 2.5 2.5 7L21 3zM10 13l4-4"/>
+{%- elif name == "close" %}<path d="M6 6l12 12M18 6 6 18"/>
+{%- elif name == "chevron-left" %}<path d="m15 5-7 7 7 7"/>
+{%- elif name == "chevron-right" %}<path d="m9 5 7 7-7 7"/>
+{%- elif name == "chevron-down" %}<path d="m5 9 7 7 7-7"/>
+{%- elif name == "chevron-up" %}<path d="m5 15 7-7 7 7"/>
+{%- elif name == "search" %}<circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/>
+{%- elif name == "check" %}<path d="m5 12.5 4.5 4.5L19 7.5"/>
+{%- elif name == "trash" %}<path d="M4 7h16M9 7V4h6v3M6.5 7l1 13h9l1-13M10 11v6M14 11v6"/>
+{%- elif name == "image" %}<rect x="3.5" y="4.5" width="17" height="15" rx="1"/><circle cx="9" cy="10" r="1.8"/><path d="m4 18 5.5-5.5 4 4 2.5-2.5 4.5 4.5"/>
+{%- elif name == "more" %}<circle cx="5" cy="12" r="1.2" fill="currentColor"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/><circle cx="19" cy="12" r="1.2" fill="currentColor"/>
+{%- elif name == "bell" %}<path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15L6 16zM10 20.5a2 2 0 0 0 4 0"/>
+{%- elif name == "layout" %}<rect x="3.5" y="4" width="17" height="16" rx="1"/><path d="M3.5 9h17M9 9v11"/>
+{%- elif name == "compare" %}<rect x="3.5" y="5" width="17" height="14" rx="1"/><path d="M12 3v18M9 12H6M18 12h-3"/>
+{%- elif name == "quote" %}<path d="M5 18c2.5-1 4-3 4-6V7H4.5v5H9M15 18c2.5-1 4-3 4-6V7h-4.5v5H19"/>
+{%- elif name == "settings" %}<circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/>
+{%- elif name == "key" %}<circle cx="8" cy="15" r="4"/><path d="m11 12 9-9M16.5 6.5l2.5 2.5M14 9l2 2"/>
+{%- elif name == "logout" %}<path d="M10 4H5v16h5M14 8l4 4-4 4M18 12H9"/>
+{%- elif name == "camera" %}<path d="M4 8h3l1.5-2.5h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>
+{%- elif name == "info" %}<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.5v.5"/>
+{%- elif name == "alert" %}<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5.5M12 16v.5"/>
+{%- elif name == "car" %}<path d="M3 15.5v-3l2-4.5h9l4 4.5h2.5a1 1 0 0 1 1 1v2h-2"/><path d="M8.5 15.5h6"/><circle cx="6.5" cy="15.5" r="1.8"/><circle cx="16.5" cy="15.5" r="1.8"/>
+{%- elif name == "menu" %}<path d="M4 7h16M4 12h16M4 17h16"/>
+{%- elif name == "upload" %}<path d="M12 16V4M7 9l5-5 5 5M4 16v4h16v-4"/>
+{%- elif name == "arrow-up" %}<path d="M12 19V5M6 11l6-6 6 6"/>
+{%- elif name == "arrow-down" %}<path d="M12 5v14M6 13l6 6 6-6"/>
+{%- elif name == "eye" %}<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/>
+{%- elif name == "eye-off" %}<path d="M4 4l16 16M10 6a9 9 0 0 1 2-.5c6 0 9.5 6.5 9.5 6.5a17 17 0 0 1-2.6 3.4M6.6 7.6A16 16 0 0 0 2.5 12S6 18.5 12 18.5a9 9 0 0 0 4-1"/>
+{%- elif name == "edit" %}<path d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4"/>
+{%- elif name == "copy" %}<rect x="8" y="8" width="12" height="12" rx="1"/><path d="M16 8V4H4v12h4"/>
+{%- endif -%}
+</svg>
+{%- endmacro %}
+
+{% macro logo(sub="ПАНЕЛЬ СТУДИИ") -%}
+<span class="pn-logo">
+  <span class="pn-logo__word" aria-label="VÉLOX"><span>V</span><span class="pn-logo__e">E<span aria-hidden="true"></span></span><span>L</span><span>O</span><span>X</span></span>
+  {% if sub %}<span class="pn-logo__sub mono">{{ sub }}</span>{% endif %}
+</span>
+{%- endmacro %}
+
+{% set STATUS_LABELS = {"hold": "Удержание", "new": "Новая", "confirmed": "Подтверждена", "done": "Завершена", "no_show": "Неявка", "cancelled": "Отменена", "expired": "Истекла"} %}
+
+{% macro status_pill(status) -%}
+<span class="pill pill--{{ status }}">
+  {%- if status in ("new", "hold") %}<span class="pill__dot" aria-hidden="true"></span>
+  {%- elif status in ("confirmed", "done") %}{{ icon("check", 12) }}
+  {%- else %}{{ icon("close", 12) }}{% endif -%}
+  {{ STATUS_LABELS.get(status, status) }}</span>
+{%- endmacro %}
+
+{% macro avatar(text, size="md") -%}
+<span class="avatar avatar--{{ size }}" aria-hidden="true">{{ text }}</span>
+{%- endmacro %}
+
+{% macro toggle(name, checked, label, hint="", attrs="") -%}
+<label class="switch-row">
+  <span class="switch-row__text"><span class="switch-row__label">{{ label }}</span>{% if hint %}<span class="switch-row__hint">{{ hint }}</span>{% endif %}</span>
+  <input class="switch" type="checkbox" role="switch" name="{{ name }}" data-type="bool" {% if checked %}checked{% endif %} {{ attrs }}>
+</label>
+{%- endmacro %}
+
+{% macro field(name, label, value="", type="text", hint="", required=false, maxlength=none, placeholder="", attrs="", cls="") -%}
+<div class="fld {{ cls }}">
+  <label class="fld__label" for="f-{{ name }}">{{ label }}</label>
+  {% if type == "textarea" %}
+  <textarea class="input input--area" id="f-{{ name }}" name="{{ name }}" {% if maxlength %}maxlength="{{ maxlength }}"{% endif %} placeholder="{{ placeholder }}" {% if required %}required{% endif %} {{ attrs }}>{{ value if value is not none else "" }}</textarea>
+  {% else %}
+  <input class="input" id="f-{{ name }}" name="{{ name }}" type="{{ type }}" value="{{ value if value is not none else '' }}" {% if maxlength %}maxlength="{{ maxlength }}"{% endif %} placeholder="{{ placeholder }}" {% if required %}required{% endif %} {{ attrs }}>
+  {% endif %}
+  {% if hint %}<span class="fld__hint">{{ hint }}</span>{% endif %}
+  <span class="fld__error" data-error-for="{{ name }}" hidden></span>
+</div>
+{%- endmacro %}
+
+{% macro empty(text, action="") -%}
+<div class="empty"><p>{{ text }}</p>{% if action %}{{ action }}{% endif %}</div>
+{%- endmacro %}

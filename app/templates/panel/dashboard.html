@@ -1,0 +1,200 @@
+{% extends "panel/base.html" %}
+{% from "panel/_macros.html" import icon, status_pill %}
+{% block title %}Главная{% endblock %}
+{% block main %}
+<header class="pn-head">
+  <div class="pn-head__text">
+    <span class="pn-eyebrow mono">{{ today | date_caption }}</span>
+    <h1 class="pn-title"><span class="only-desktop">{{ greeting }}</span><span class="only-mobile">Сегодня</span></h1>
+  </div>
+  <div class="pn-head__actions">
+    <div class="seg only-desktop" role="group" aria-label="Период статистики">
+      {% for key, label in period_labels.items() %}
+      <a class="seg__item" href="?period={{ key }}" {% if key == period %}aria-current="true"{% endif %}>{{ label }}</a>
+      {% endfor %}
+    </div>
+    {% if panel.is_manager %}
+    <a class="btn btn--primary only-desktop" href="{{ panel.url('/bookings?new=1') }}">{{ icon("plus", 16) }}Новая запись</a>
+    {% endif %}
+    <a class="icon-btn icon-btn--round only-mobile" href="{{ panel.url('/bookings?status=new') }}" aria-label="Новые заявки: {{ requests | length }}">{{ icon("bell", 20) }}{% if requests %}<span class="icon-btn__dot"></span>{% endif %}</a>
+  </div>
+</header>
+
+{# ---------- KPI ---------- #}
+<div class="kpis">
+  <div class="kpi">
+    <span class="kpi__label">Записей сегодня</span>
+    <span class="kpi__value"><span class="kpi__num">{{ today_total }}</span>{% if counts.new %}<span class="kpi__note kpi__note--blue">{{ counts.new }} {{ plural(counts.new, "новая", "новые", "новых") }}</span>{% endif %}</span>
+    <span class="kpi__foot only-desktop">{{ counts.confirmed }} {{ plural(counts.confirmed, "подтверждена", "подтверждены", "подтверждено") }}{% if counts.cancelled %} · {{ counts.cancelled }} {{ plural(counts.cancelled, "отмена", "отмены", "отмен") }}{% endif %}</span>
+    <span class="kpi__foot only-mobile">{{ plural(today_total, "запись", "записи", "записей") }}</span>
+  </div>
+  <a class="kpi kpi--blue only-mobile" href="{{ panel.url('/bookings?status=new') }}">
+    <span class="kpi__value"><span class="kpi__num">{{ requests | length }}</span></span>
+    <span class="kpi__foot">ждут ответа</span>
+  </a>
+  {% if clients %}
+  <div class="kpi only-desktop">
+    <span class="kpi__label">Клиентов в базе</span>
+    <span class="kpi__value"><span class="kpi__num">{{ clients.total }}</span>{% if clients.new_30_days %}<span class="kpi__note kpi__note--gold">+{{ clients.new_30_days }} за месяц</span>{% endif %}</span>
+    <span class="kpi__foot">{{ clients.repeat_percent }} %: повторные визиты</span>
+  </div>
+  {% endif %}
+  <div class="kpi">
+    <span class="kpi__label">Загрузка {{ period_gen }}</span>
+    <span class="kpi__value"><span class="kpi__num">{{ stats.load_percent }} %</span><span class="kpi__note only-desktop">{{ stats.busy_slots }} из {{ stats.total_slots }} {{ plural(stats.total_slots, "слота", "слотов", "слотов") }}</span></span>
+    <span class="meter only-desktop" aria-hidden="true"><span style="width: {{ [stats.load_percent, 100] | min }}%"></span></span>
+    <span class="kpi__foot only-mobile">{{ period_labels[period] | lower }}</span>
+  </div>
+  <div class="kpi only-desktop">
+    <span class="kpi__label">Выполнено {{ period_for }}</span>
+    <span class="kpi__value"><span class="kpi__num">{{ stats.done }}</span><span class="kpi__note">{{ plural(stats.done, "работа", "работы", "работ") }}</span></span>
+    <span class="kpi__foot">{{ stats.cancelled }} {{ plural(stats.cancelled, "отмена", "отмены", "отмен") }} · {{ stats.no_show }} {{ plural(stats.no_show, "неявка", "неявки", "неявок") }}</span>
+  </div>
+</div>
+
+{# ---------- mobile: now in the studio ---------- #}
+<section class="only-mobile m-block" aria-labelledby="now-title">
+  <h2 class="m-block__title mono" id="now-title">СЕЙЧАС В СТУДИИ</h2>
+  {% for b in in_studio_now %}
+  <a class="now-card" href="{{ panel.url('/bookings/' ~ b.id) }}">
+    <span class="now-card__top"><span class="gold">{{ b.resource_name or "Без бокса" }}</span><span class="mono">до {{ b.ends_at.astimezone(panel.tz) | hm }}</span></span>
+    <strong>{{ b.service_name }} · {{ b.client_name or b.contact_name }}</strong>
+    <span class="muted">{{ [b.vehicle, b.staff_name] | select | join(" · ") }}</span>
+  </a>
+  {% else %}
+  <p class="muted m-block__empty">Сейчас в работе нет автомобилей.</p>
+  {% endfor %}
+  <h2 class="m-block__title mono">ДАЛЬШЕ СЕГОДНЯ</h2>
+  {% for row in later_today %}
+  <a class="m-row {% if row.struck %}is-struck{% endif %}" href="{{ panel.url('/bookings/' ~ row.booking.id) }}">
+    <span class="m-row__time mono">{{ row.time_label }}</span>
+    <span class="m-row__text"><strong>{{ row.title }}</strong><span>{{ row.sub }}{% if row.booking.staff_name %} · {{ row.booking.staff_name }}{% endif %}</span></span>
+    {{ status_pill(row.booking.status) }}
+  </a>
+  {% else %}
+  <p class="muted m-block__empty">До конца дня записей нет.</p>
+  {% endfor %}
+</section>
+
+<div class="dash only-desktop">
+  <div class="dash__main">
+    <section class="card" aria-labelledby="today-title">
+      <div class="card__head">
+        <h2 class="card__title" id="today-title">Сегодня в студии</h2>
+        <div class="card__legend">
+          <span class="legend legend--busy">Занято</span>
+          <span class="legend legend--free">Свободно</span>
+          <a class="link" href="{{ panel.url('/bookings?view=day&date=' ~ today.isoformat()) }}">Открыть календарь</a>
+        </div>
+      </div>
+      {% if timeline %}
+      <div class="tl-scroll">
+        <div class="tl" style="--hours: {{ hours | length }}">
+          <span></span>
+          {% for h in hours %}<span class="tl__hour mono">{{ "%02d" | format(h) }}</span>{% endfor %}
+          {% for name, segments in timeline %}
+          <span class="tl__name">{{ name }}</span>
+          <div class="tl__lane">
+            {% for s in segments %}
+            {% if s.kind == "free" %}
+            <span class="tl__seg tl__seg--free" style="left: {{ s.left }}%; width: {{ s.width }}%">{% if s.width > 7 %}свободно{% endif %}</span>
+            {% else %}
+            <a class="tl__seg tl__seg--{{ s.kind }}" style="left: {{ s.left }}%; width: {{ s.width }}%" href="{{ s.href }}" title="{{ s.title }} · {{ s.sub }}"><strong>{{ s.title }}</strong><span>{{ s.sub }}</span></a>
+            {% endif %}
+            {% endfor %}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% elif not hours %}
+      <p class="muted">Сегодня студия закрыта{% if not timeline %} или не настроены боксы{% endif %}.</p>
+      {% endif %}
+      <div class="day-list">
+        {% for row in rows %}
+        <a class="day-list__row {% if row.struck %}is-struck{% endif %}" href="{{ row.href }}">
+          <span class="day-list__time mono">{{ row.time_label }}</span>
+          <span class="day-list__who"><strong>{{ row.title }}</strong><span>{{ row.sub }}</span></span>
+          <span class="day-list__staff">{{ row.booking.staff_name or "мастер не назначен" }}</span>
+          {{ status_pill(row.booking.status) }}
+        </a>
+        {% else %}
+        <p class="muted day-list__empty">На сегодня записей нет.</p>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="card card--stats" aria-labelledby="stats-title">
+      <div class="card__head card__head--full">
+        <h2 class="card__title" id="stats-title">Записи {{ period_for }}</h2>
+        <span class="mono muted">{{ stats.start | day_short }} – {{ stats_last_day | day_short }}</span>
+      </div>
+      <div class="bars-wrap">
+        <div class="bars" role="img" aria-label="Записей по периодам: {% for label, count, _, _ in stats.per_bucket %}{{ label }} {{ count }}{% if not loop.last %}, {% endif %}{% endfor %}" style="--cols: {{ stats.per_bucket | length }}">
+          {% for label, count, current, future in stats.per_bucket %}
+          <div class="bars__col {% if current %}is-current{% elif future %}is-future{% endif %}">
+            <span class="bars__num mono">{{ count }}</span>
+            <span class="bars__bar" style="height: {{ (100 * count / peak) | round(0) if peak else 0 }}%"></span>
+          </div>
+          {% endfor %}
+        </div>
+        <div class="bars__labels" style="--cols: {{ stats.per_bucket | length }}">
+          {% for label, _, current, _ in stats.per_bucket %}<span {% if current %}class="gold-light"{% endif %}>{{ label }}</span>{% endfor %}
+        </div>
+      </div>
+      <div class="by-service">
+        <span class="mono by-service__title">ПО УСЛУГАМ</span>
+        {% for name, count in stats.by_service %}
+        <div class="by-service__row"><span>{{ name }}</span><span class="mono">{{ count }}</span></div>
+        {% else %}
+        <span class="muted">Пока нет записей.</span>
+        {% endfor %}
+      </div>
+    </section>
+  </div>
+
+  <div class="dash__side">
+    <section class="card" aria-labelledby="req-title">
+      <div class="card__head">
+        <h2 class="card__title" id="req-title">Новые заявки</h2>
+        {% if requests %}<span class="pn-badge">{{ requests | length }}</span>{% endif %}
+      </div>
+      {% for b in requests[:4] %}
+      <div class="req">
+        <div class="req__top"><a class="req__name" href="{{ panel.url('/bookings/' ~ b.id) }}">{{ b.client_name or b.contact_name }}</a><span class="mono muted">{{ ago(b.created_at) }}</span></div>
+        <span class="req__text">{{ b.service_name }}{% if b.staff_name %} · {{ b.staff_name }}{% endif %} · {{ relative_day(b.starts_at.astimezone(panel.tz).date()) }} · {{ b.starts_at.astimezone(panel.tz) | hm }}</span>
+        <div class="req__actions">
+          {% if panel.is_manager %}
+          <button class="btn btn--primary btn--sm" type="button" data-api="{{ panel.api }}/bookings/{{ b.id }}/status" data-body='{"status": "confirmed", "version": {{ b.version }}}' data-done="Запись подтверждена" data-reload>Подтвердить</button>
+          {% endif %}
+          {% if b.phone %}<a class="btn btn--ghost btn--sm" href="tel:{{ b.phone | replace(' ', '') | replace('-', '') }}">Позвонить</a>{% endif %}
+        </div>
+      </div>
+      {% else %}
+      <p class="muted">Новых заявок нет. Записи с сайта и из бота появятся здесь.</p>
+      {% endfor %}
+      {% if requests | length > 4 %}<a class="link" href="{{ panel.url('/bookings?status=new') }}">Все новые заявки ({{ new_total }})</a>{% endif %}
+    </section>
+
+    <section class="card" aria-labelledby="days-title">
+      <div class="card__head">
+        <h2 class="card__title" id="days-title">Ближайшие дни</h2>
+        <span class="muted small">свободно / всего слотов</span>
+      </div>
+      <div class="days-load">
+        {% for d in upcoming %}
+        <a class="days-load__row" href="{{ panel.url('/bookings?view=day&date=' ~ d.day.isoformat()) }}">
+          <span>{{ d.day | day_short }}</span>
+          {% if d.is_open and d.total %}
+          <span class="meter" aria-hidden="true"><span style="width: {{ (100 * d.share) | round(0) }}%"></span></span>
+          <span class="mono days-load__num {% if d.free == 0 %}gold-light{% endif %}">{% if d.free == 0 %}занято{% else %}{{ d.free }} / {{ d.total }}{% endif %}</span>
+          {% else %}
+          <span class="meter meter--off" aria-hidden="true"></span>
+          <span class="mono days-load__num muted">выходной</span>
+          {% endif %}
+        </a>
+        {% endfor %}
+      </div>
+    </section>
+  </div>
+</div>
+{% endblock %}

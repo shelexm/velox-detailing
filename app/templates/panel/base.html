@@ -1,0 +1,74 @@
+{% from "panel/_macros.html" import icon, logo, avatar %}
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#070708">
+<title>{% block title %}Панель{% endblock %} · {{ panel.studio.name if panel else "VÉLOX" }}</title>
+<link rel="icon" href="{{ static_url('img/favicon.svg') }}" type="image/svg+xml">
+<link rel="preload" href="/static/fonts/onest-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="{{ static_url('css/panel.css') }}">
+</head>
+<body class="pn {% block body_class %}{% endblock %}" {{ script_data }}>
+<a class="skip-link" href="#main">К содержимому</a>
+{% if panel %}
+<div class="pn-shell">
+  <aside class="pn-side" aria-label="Меню панели">
+    <a class="pn-side__brand" href="{{ panel.url('/') }}">{{ logo() }}</a>
+    <nav class="pn-nav" aria-label="Разделы панели">
+      {% for item in panel.nav() %}
+      <a class="pn-nav__item" href="{{ item.href }}" {% if active == item.key %}aria-current="page"{% endif %}>{{ icon(item.icon) }}<span class="pn-nav__label">{{ item.label }}</span>{% if item.badge %}<span class="pn-badge" aria-label="{{ item.badge }} новых">{{ item.badge }}</span>{% endif %}</a>
+      {% endfor %}
+      {% set extra = panel.content_nav() %}
+      {% if extra %}
+      <span class="pn-nav__group mono">САЙТ</span>
+      {% for item in extra %}
+      <a class="pn-nav__item" href="{{ item.href }}" {% if active == item.key %}aria-current="page"{% endif %}>{{ icon(item.icon) }}<span class="pn-nav__label">{{ item.label }}</span></a>
+      {% endfor %}
+      {% endif %}
+    </nav>
+    <div class="pn-side__foot">
+      <a class="pn-side__site" href="/" target="_blank" rel="noopener">{{ icon("external", 16) }}Открыть сайт</a>
+      <div class="pn-user">
+        {{ avatar(panel.initials) }}
+        <a class="pn-user__text" href="{{ panel.url('/account') }}"><span class="pn-user__name">{{ panel.user.full_name or panel.user.email }}</span><span class="pn-user__role">{{ panel.role_label }}{% if panel.memberships | length > 1 %} · {{ panel.studio.name }}{% endif %}</span></a>
+        <button class="icon-btn" type="button" data-logout aria-label="Выйти">{{ icon("logout", 18) }}</button>
+      </div>
+    </div>
+  </aside>
+
+  <main class="pn-main" id="main" tabindex="-1">
+    {% block main %}{% endblock %}
+  </main>
+</div>
+
+<nav class="pn-tabbar" aria-label="Разделы панели">
+  <a class="pn-tabbar__item" href="{{ panel.url('/') }}" {% if active == "dashboard" %}aria-current="page"{% endif %}>{{ icon("grid", 22) }}<span>Сегодня</span></a>
+  <a class="pn-tabbar__item" href="{{ panel.url('/bookings') }}" {% if active == "bookings" %}aria-current="page"{% endif %}>{{ icon("calendar", 22) }}<span>Календарь</span>{% if panel.new_count %}<span class="pn-tabbar__dot" aria-label="есть новые"></span>{% endif %}</a>
+  {% if panel.is_manager %}
+  <a class="pn-tabbar__add" href="{{ panel.url('/bookings?new=1') }}" aria-label="Новая запись">{{ icon("plus", 26) }}</a>
+  <a class="pn-tabbar__item" href="{{ panel.url('/clients') }}" {% if active == "clients" %}aria-current="page"{% endif %}>{{ icon("client", 22) }}<span>Клиенты</span></a>
+  {% endif %}
+  <a class="pn-tabbar__item" href="{{ panel.url('/more') }}" {% if active not in ("dashboard", "bookings", "clients") %}aria-current="page"{% endif %}>{{ icon("more", 22) }}<span>Ещё</span></a>
+</nav>
+{% else %}
+<main class="pn-solo" id="main" tabindex="-1">{% block solo %}{% endblock %}</main>
+{% endif %}
+
+<div class="toast-zone" aria-live="polite" data-toasts></div>
+<dialog class="confirm" data-confirm aria-labelledby="confirm-title">
+  <form method="dialog" class="confirm__box">
+    <h2 class="confirm__title" id="confirm-title" data-confirm-title></h2>
+    <p class="confirm__text" data-confirm-text></p>
+    <div class="confirm__actions">
+      <button class="btn btn--ghost" value="cancel">Отмена</button>
+      <button class="btn btn--danger" value="ok" data-confirm-ok>Да</button>
+    </div>
+  </form>
+</dialog>
+<script type="module" src="{{ static_url('js/panel.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

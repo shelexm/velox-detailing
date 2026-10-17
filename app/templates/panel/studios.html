@@ -1,0 +1,22 @@
+{% extends "panel/base.html" %}
+{% from "panel/_macros.html" import icon, logo %}
+{% block title %}Студии{% endblock %}
+{% block body_class %}pn--login{% endblock %}
+{% block solo %}
+<section class="login">
+  <div class="login__brand">{{ logo() }}</div>
+  <div class="login__form">
+    <h1 class="login__title">Выберите студию</h1>
+    {% if rows %}
+    <ul class="studio-list">
+      {% for membership, studio in rows %}
+      <li><a class="studio-list__item" href="/admin/{{ studio.id }}/"><span>{{ studio.name }}</span>{{ icon("chevron-right") }}</a></li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="login__note">У учётной записи {{ user.email }} нет доступа ни к одной студии. Попросите владельца студии выдать доступ.</p>
+    {% endif %}
+    <button class="btn btn--ghost btn--block" type="button" data-logout>Выйти</button>
+  </div>
+</section>
+{% endblock %}

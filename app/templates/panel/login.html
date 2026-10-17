@@ -1,0 +1,23 @@
+{% extends "panel/base.html" %}
+{% from "panel/_macros.html" import icon, logo %}
+{% block title %}Вход{% endblock %}
+{% block body_class %}pn--login{% endblock %}
+{% block solo %}
+<section class="login">
+  <div class="login__brand">{{ logo() }}</div>
+  <form class="login__form" data-login data-next="{{ next_url }}" novalidate>
+    <h1 class="login__title">Вход в панель</h1>
+    <div class="form-alert" data-form-alert hidden>{{ icon("alert", 18) }}<span data-form-alert-text></span></div>
+    <div class="fld">
+      <label class="fld__label" for="login-email">E-mail</label>
+      <input class="input" id="login-email" name="email" type="email" autocomplete="username" required maxlength="254" autofocus>
+    </div>
+    <div class="fld">
+      <label class="fld__label" for="login-password">Пароль</label>
+      <input class="input" id="login-password" name="password" type="password" autocomplete="current-password" required maxlength="256">
+    </div>
+    <button class="btn btn--primary btn--lg btn--block" type="submit">Войти</button>
+    <p class="login__note">Доступ выдаёт владелец студии. Забыли пароль: попросите владельца сбросить его в разделе «Доступ».</p>
+  </form>
+</section>
+{% endblock %}

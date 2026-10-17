@@ -17,7 +17,8 @@ from app.core.ratelimit import Limiters
 from app.core.security import SecurityHeadersMiddleware
 from app.db.migrations import migration_heads
 from app.db.session import create_engine, create_sessionmaker
-from app.web import site
+from app.web import panel, site
+from app.web.panel.common import LoginRequired, login_redirect
 from app.web.static import CachedStaticFiles
 
 # Container health checks always call the app on the loopback interface.
@@ -58,7 +59,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(auth.router)
     app.include_router(public.router)
     app.include_router(admin.router)
+    app.include_router(panel.router)
     app.include_router(site.router)
     app.mount("/static", CachedStaticFiles(directory=BASE_DIR / "static"), name="static")
     app.state.html_error_renderer = site.render_error
+    app.add_exception_handler(LoginRequired, login_redirect)
     return app

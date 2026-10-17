@@ -224,6 +224,17 @@ async def list_bookings(
     return [BookingAdminOut(**_booking_out(*row)) for row in rows]
 
 
+async def new_requests(
+    session: AsyncSession, studio_id: int, *, staff_id: int | None = None, limit: int = 6
+) -> list[BookingAdminOut]:
+    """Bookings waiting for the studio's answer, newest first."""
+    stmt = _booking_query(studio_id).where(Booking.status == BookingStatus.NEW)
+    if staff_id is not None:
+        stmt = stmt.where(Booking.staff_id == staff_id)
+    rows = (await session.execute(stmt.order_by(Booking.created_at.desc()).limit(limit))).all()
+    return [BookingAdminOut(**_booking_out(*row)) for row in rows]
+
+
 async def booking_detail(
     session: AsyncSession, studio_id: int, booking_id: int, *, staff_id: int | None = None
 ) -> BookingDetailOut:
