@@ -140,6 +140,31 @@ async def ingest_image(
     return asset
 
 
+async def replace_file(
+    session: AsyncSession, asset: MediaAsset, *, media_root: Path, data: bytes, original_name: str | None
+) -> MediaAsset:
+    """New file for the same library entry: every place that uses the image shows the new one."""
+    processed = await asyncio.to_thread(process_image, data, max_bytes=MAX_UPLOAD_BYTES)
+    old_directory = media_root / str(asset.studio_id) / asset.storage_key
+    storage_key = uuid.uuid4().hex
+    directory = media_root / str(asset.studio_id) / storage_key
+    variants = await asyncio.to_thread(_write_files, directory, data, processed)
+    asset.storage_key = storage_key
+    asset.original_name = (original_name or "")[:200] or None
+    asset.mime = f"image/{'jpeg' if processed.original_ext == 'jpg' else processed.original_ext}"
+    asset.width, asset.height = processed.width, processed.height
+    asset.bytes = len(data)
+    asset.sha256 = hashlib.sha256(data).hexdigest()
+    asset.variants = variants
+    try:
+        await session.commit()
+    except Exception:
+        shutil.rmtree(directory, ignore_errors=True)
+        raise
+    await asyncio.to_thread(shutil.rmtree, old_directory, True)
+    return asset
+
+
 def media_url(asset: MediaAsset, file_name: str) -> str:
     return f"/media/{asset.studio_id}/{asset.storage_key}/{file_name}"
 
