@@ -1,7 +1,8 @@
 {% from "site/_macros.html" import icon, tg_badge %}
 
 {% macro booking_form(p, mode, s) -%}
-{% set consent = s.consent_text | e | replace("политикой обработки данных", '<a href="/privacy">политикой обработки данных</a>') %}
+{% set link_text = "политикой обработки данных" %}
+{% set consent_parts = s.consent_text.split(link_text, 1) %}
 <form class="bk bk--{{ mode }}" novalidate data-booking-form data-mode="{{ mode }}" aria-describedby="{{ p }}-summary">
   {% if mode == "wizard" %}
   <div class="bk-wizard__head">
@@ -84,7 +85,7 @@
   <div class="bk__foot">
     <div class="bk__summary-wrap">
       <span class="bk__summary" id="{{ p }}-summary" data-summary></span>
-      <span class="bk__consent">{{ consent | safe }}</span>
+      <span class="bk__consent">{{ consent_parts[0] }}{% if consent_parts | length > 1 %}<a href="/privacy">{{ link_text }}</a>{{ consent_parts[1] }}{% else %} <a href="/privacy">Политика конфиденциальности</a>{% endif %}</span>
     </div>
     <div class="bk__buttons">
       {% if mode == "wizard" %}<button class="icon-btn bk__back" type="button" aria-label="Назад" data-wizard-back hidden>{{ icon("chevron-left") }}</button>{% endif %}
