@@ -1,0 +1,106 @@
+# Local and production stack. Start with:  docker compose up --build
+# Secrets come from .env (copy .env.example). Nothing here publishes PostgreSQL outside the host.
+
+name: velox
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
+
+x-app: &app
+  build:
+    context: .
+    target: runtime
+  image: velox-app:latest
+  env_file: .env
+  environment:
+    POSTGRES_HOST: db
+    POSTGRES_PORT: "5432"
+    MEDIA_ROOT: /app/media
+  init: true
+  logging: *logging
+
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?set POSTGRES_DB in .env}
+      POSTGRES_USER: ${POSTGRES_USER:?set POSTGRES_USER in .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    restart: unless-stopped
+    stop_grace_period: 30s
+    logging: *logging
+
+  # The only service that runs migrations, once, before api and bot start.
+  migrate:
+    <<: *app
+    command: ["alembic", "upgrade", "head"]
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+    healthcheck:
+      disable: true
+
+  api:
+    <<: *app
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    ports:
+      - "127.0.0.1:${API_PORT:-8000}:8000"
+    volumes:
+      - media:/app/media
+    restart: unless-stopped
+    stop_grace_period: 20s
+
+  bot:
+    <<: *app
+    command: ["python", "-m", "app.bot"]
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    volumes:
+      - media:/app/media:ro
+    # Exits with code 0 when TELEGRAM_BOT_TOKEN is empty, restarts only on crashes.
+    restart: on-failure
+    stop_grace_period: 20s
+    healthcheck:
+      disable: true
+
+  backup:
+    image: postgres:17-alpine
+    entrypoint: ["/bin/sh", "/backup-loop.sh"]
+    environment:
+      PGHOST: db
+      PGDATABASE: ${POSTGRES_DB}
+      PGUSER: ${POSTGRES_USER}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      BACKUP_INTERVAL_SECONDS: ${BACKUP_INTERVAL_SECONDS:-86400}
+      BACKUP_KEEP_DAYS: ${BACKUP_KEEP_DAYS:-14}
+    volumes:
+      - ./scripts/backup-loop.sh:/backup-loop.sh:ro
+      - ${BACKUP_DIR:-./backups}:/backups
+      - media:/media:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    logging: *logging
+
+volumes:
+  pgdata:
+  media:

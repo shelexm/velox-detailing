@@ -66,7 +66,7 @@ EXTENSIONS = {
 
 
 def script_block(document: str, kind: str) -> str | None:
-    match = re.search(r'<script type="__bundler/%s">(.*?)</script>' % re.escape(kind), document, re.S)
+    match = re.search(rf'<script type="__bundler/{re.escape(kind)}">(.*?)</script>', document, re.S)
     return match.group(1) if match else None
 
 
@@ -119,7 +119,13 @@ def main() -> int:
                     target.write_bytes(data)
                 info = assets.setdefault(
                     filename,
-                    {"file": f"assets/{filename}", "mime": entry["mime"], "bytes": len(data), "sha256": digest, "used_in": []},
+                    {
+                        "file": f"assets/{filename}",
+                        "mime": entry["mime"],
+                        "bytes": len(data),
+                        "sha256": digest,
+                        "used_in": [],
+                    },
                 )
                 if slug not in info["used_in"]:
                     info["used_in"].append(slug)
@@ -129,7 +135,9 @@ def main() -> int:
             for uuid, path in uuid_to_file.items():
                 template = template.replace(uuid, path)
 
-            resource_map = {item["id"]: uuid_to_file[item["uuid"]] for item in ext_resources if item["uuid"] in uuid_to_file}
+            resource_map = {
+                item["id"]: uuid_to_file[item["uuid"]] for item in ext_resources if item["uuid"] in uuid_to_file
+            }
             resource_script = "<script>window.__resources = " + json.dumps(resource_map) + ";</script>"
             head = re.search(r"<head[^>]*>", template, re.I)
             if head:
@@ -159,7 +167,7 @@ def main() -> int:
     )
     links = "\n".join(
         f'<li><a href="{b["file"]}">{html.escape(b["board_title"] or b["slug"])}</a> '
-        f'<small>{b["source"]}, {b["width"]}x{b["height"]}</small></li>'
+        f"<small>{b['source']}, {b['width']}x{b['height']}</small></li>"
         for b in boards
     )
     (OUT_DIR / "index.html").write_text(
