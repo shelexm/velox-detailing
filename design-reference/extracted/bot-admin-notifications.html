@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="ru"><head><script>window.__resources = {"https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js": "assets/d949f1c3687aedad.js", "https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js": "assets/35f4f974f4b2bcd4.js"};</script>
+<meta charset="utf-8">
+<title>Telegram-бот VÉLOX — уведомления администратору</title>
+<script src="assets/654b7f6201e7e08c.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>/* cyrillic-ext */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPx3cwhsk.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/e17cfd15fb96909d.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPxPcwhsk.woff2) format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPx_cwhsk.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/db5ff4db83e58042.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/83c005d49d8a6a50.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPx3cwhsk.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/e17cfd15fb96909d.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPxPcwhsk.woff2) format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPx_cwhsk.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/db5ff4db83e58042.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/83c005d49d8a6a50.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/onest/v11/gNMKW3F-SZuj7xmS-HY6EQ.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/68e5e01d6265bd68.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* math */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/onest/v11/gNMKW3F-SZuj7xnj-HY6EQ.woff2) format('woff2');
+  unicode-range: U+0302-0303, U+0305, U+0307-0308, U+0310, U+0312, U+0315, U+031A, U+0326-0327, U+032C, U+032F-0330, U+0332-0333, U+0338, U+033A, U+0346, U+034D, U+0391-03A1, U+03A3-03A9, U+03B1-03C9, U+03D1, U+03D5-03D6, U+03F0-03F1, U+03F4-03F5, U+2016-2017, U+2034-2038, U+203C, U+2040, U+2043, U+2047, U+2050, U+2057, U+205F, U+2070-2071, U+2074-209F, U+20D0-20DC, U+20E1, U+20E5-20EF, U+2100-2112, U+2114-2115, U+2117-2121, U+2123-214F, U+2190, U+2192, U+2194-21AE, U+21B0-21E5, U+21F1-21F2, U+21F4-2211, U+2213-2214, U+2216-22FF, U+2308-230B, U+2310, U+2319, U+231C-2321, U+2336-237A, U+237C, U+2395, U+239B-23B7, U+23D0, U+23DC-23E1, U+2474-2475, U+25AF, U+25B3, U+25B7, U+25BD, U+25C1, U+25CA, U+25CC, U+25FB, U+266D-266F, U+27C0-27FF, U+2900-2AFF, U+2B0E-2B11, U+2B30-2B4C, U+2BFE, U+3030, U+FF5B, U+FF5D, U+1D400-1D7FF, U+1EE00-1EEFF;
+}
+/* symbols */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/2ec2d45d2ec0770e.woff2") format('woff2');
+  unicode-range: U+0001-000C, U+000E-001F, U+007F-009F, U+20DD-20E0, U+20E2-20E4, U+2150-218F, U+2190, U+2192, U+2194-2199, U+21AF, U+21E6-21F0, U+21F3, U+2218-2219, U+2299, U+22C4-22C6, U+2300-243F, U+2440-244A, U+2460-24FF, U+25A0-27BF, U+2800-28FF, U+2921-2922, U+2981, U+29BF, U+29EB, U+2B00-2BFF, U+4DC0-4DFF, U+FFF9-FFFB, U+10140-1018E, U+10190-1019C, U+101A0, U+101D0-101FD, U+102E0-102FB, U+10E60-10E7E, U+1D2C0-1D2D3, U+1D2E0-1D37F, U+1F000-1F0FF, U+1F100-1F1AE, U+1F1E6-1F1FF, U+1F30D-1F30F, U+1F315, U+1F31C, U+1F31E, U+1F320-1F32C, U+1F336, U+1F378, U+1F37D, U+1F382, U+1F393-1F39F, U+1F3A7-1F3A8, U+1F3AC-1F3AF, U+1F3C2, U+1F3C4-1F3C6, U+1F3CA-1F3CE, U+1F3D4-1F3E0, U+1F3ED, U+1F3F1-1F3F3, U+1F3F5-1F3F7, U+1F408, U+1F415, U+1F41F, U+1F426, U+1F43F, U+1F441-1F442, U+1F444, U+1F446-1F449, U+1F44C-1F44E, U+1F453, U+1F46A, U+1F47D, U+1F4A3, U+1F4B0, U+1F4B3, U+1F4B9, U+1F4BB, U+1F4BF, U+1F4C8-1F4CB, U+1F4D6, U+1F4DA, U+1F4DF, U+1F4E3-1F4E6, U+1F4EA-1F4ED, U+1F4F7, U+1F4F9-1F4FB, U+1F4FD-1F4FE, U+1F503, U+1F507-1F50B, U+1F50D, U+1F512-1F513, U+1F53E-1F54A, U+1F54F-1F5FA, U+1F610, U+1F650-1F67F, U+1F687, U+1F68D, U+1F691, U+1F694, U+1F698, U+1F6AD, U+1F6B2, U+1F6B9-1F6BA, U+1F6BC, U+1F6C6-1F6CF, U+1F6D3-1F6D7, U+1F6E0-1F6EA, U+1F6F0-1F6F3, U+1F6F7-1F6FC, U+1F700-1F80B, U+1F810-1F847, U+1F850-1F859, U+1F860-1F887, U+1F890-1F8AD, U+1F8B0-1F8BB, U+1F8C0-1F8C1, U+1F8D0-1F8D8, U+1F900-1F90B, U+1F93B, U+1F946, U+1F984, U+1F996, U+1F9E9, U+1FA00-1FA6F, U+1FA70-1FA7C, U+1FA80-1FAC6, U+1FAC8, U+1FACC-1FADD, U+1FADF-1FAEB, U+1FAEF-1FAFA, U+1FB00-1FBFF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/onest/v11/gNMKW3F-SZuj7xmQ-HY6EQ.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/14e7d3079b75860e.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/052df74533250c2e.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/onest/v11/gNMKW3F-SZuj7xmS-HY6EQ.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/68e5e01d6265bd68.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* math */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/onest/v11/gNMKW3F-SZuj7xnj-HY6EQ.woff2) format('woff2');
+  unicode-range: U+0302-0303, U+0305, U+0307-0308, U+0310, U+0312, U+0315, U+031A, U+0326-0327, U+032C, U+032F-0330, U+0332-0333, U+0338, U+033A, U+0346, U+034D, U+0391-03A1, U+03A3-03A9, U+03B1-03C9, U+03D1, U+03D5-03D6, U+03F0-03F1, U+03F4-03F5, U+2016-2017, U+2034-2038, U+203C, U+2040, U+2043, U+2047, U+2050, U+2057, U+205F, U+2070-2071, U+2074-209F, U+20D0-20DC, U+20E1, U+20E5-20EF, U+2100-2112, U+2114-2115, U+2117-2121, U+2123-214F, U+2190, U+2192, U+2194-21AE, U+21B0-21E5, U+21F1-21F2, U+21F4-2211, U+2213-2214, U+2216-22FF, U+2308-230B, U+2310, U+2319, U+231C-2321, U+2336-237A, U+237C, U+2395, U+239B-23B7, U+23D0, U+23DC-23E1, U+2474-2475, U+25AF, U+25B3, U+25B7, U+25BD, U+25C1, U+25CA, U+25CC, U+25FB, U+266D-266F, U+27C0-27FF, U+2900-2AFF, U+2B0E-2B11, U+2B30-2B4C, U+2BFE, U+3030, U+FF5B, U+FF5D, U+1D400-1D7FF, U+1EE00-1EEFF;
+}
+/* symbols */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/2ec2d45d2ec0770e.woff2") format('woff2');
+  unicode-range: U+0001-000C, U+000E-001F, U+007F-009F, U+20DD-20E0, U+20E2-20E4, U+2150-218F, U+2190, U+2192, U+2194-2199, U+21AF, U+21E6-21F0, U+21F3, U+2218-2219, U+2299, U+22C4-22C6, U+2300-243F, U+2440-244A, U+2460-24FF, U+25A0-27BF, U+2800-28FF, U+2921-2922, U+2981, U+29BF, U+29EB, U+2B00-2BFF, U+4DC0-4DFF, U+FFF9-FFFB, U+10140-1018E, U+10190-1019C, U+101A0, U+101D0-101FD, U+102E0-102FB, U+10E60-10E7E, U+1D2C0-1D2D3, U+1D2E0-1D37F, U+1F000-1F0FF, U+1F100-1F1AE, U+1F1E6-1F1FF, U+1F30D-1F30F, U+1F315, U+1F31C, U+1F31E, U+1F320-1F32C, U+1F336, U+1F378, U+1F37D, U+1F382, U+1F393-1F39F, U+1F3A7-1F3A8, U+1F3AC-1F3AF, U+1F3C2, U+1F3C4-1F3C6, U+1F3CA-1F3CE, U+1F3D4-1F3E0, U+1F3ED, U+1F3F1-1F3F3, U+1F3F5-1F3F7, U+1F408, U+1F415, U+1F41F, U+1F426, U+1F43F, U+1F441-1F442, U+1F444, U+1F446-1F449, U+1F44C-1F44E, U+1F453, U+1F46A, U+1F47D, U+1F4A3, U+1F4B0, U+1F4B3, U+1F4B9, U+1F4BB, U+1F4BF, U+1F4C8-1F4CB, U+1F4D6, U+1F4DA, U+1F4DF, U+1F4E3-1F4E6, U+1F4EA-1F4ED, U+1F4F7, U+1F4F9-1F4FB, U+1F4FD-1F4FE, U+1F503, U+1F507-1F50B, U+1F50D, U+1F512-1F513, U+1F53E-1F54A, U+1F54F-1F5FA, U+1F610, U+1F650-1F67F, U+1F687, U+1F68D, U+1F691, U+1F694, U+1F698, U+1F6AD, U+1F6B2, U+1F6B9-1F6BA, U+1F6BC, U+1F6C6-1F6CF, U+1F6D3-1F6D7, U+1F6E0-1F6EA, U+1F6F0-1F6F3, U+1F6F7-1F6FC, U+1F700-1F80B, U+1F810-1F847, U+1F850-1F859, U+1F860-1F887, U+1F890-1F8AD, U+1F8B0-1F8BB, U+1F8C0-1F8C1, U+1F8D0-1F8D8, U+1F900-1F90B, U+1F93B, U+1F946, U+1F984, U+1F996, U+1F9E9, U+1FA00-1FA6F, U+1FA70-1FA7C, U+1FA80-1FAC6, U+1FAC8, U+1FACC-1FADD, U+1FADF-1FAEB, U+1FAEF-1FAFA, U+1FB00-1FBFF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/onest/v11/gNMKW3F-SZuj7xmQ-HY6EQ.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/14e7d3079b75860e.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/052df74533250c2e.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/onest/v11/gNMKW3F-SZuj7xmS-HY6EQ.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("assets/68e5e01d6265bd68.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* math */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/onest/v11/gNMKW3F-SZuj7xnj-HY6EQ.woff2) format('woff2');
+  unicode-range: U+0302-0303, U+0305, U+0307-0308, U+0310, U+0312, U+0315, U+031A, U+0326-0327, U+032C, U+032F-0330, U+0332-0333, U+0338, U+033A, U+0346, U+034D, U+0391-03A1, U+03A3-03A9, U+03B1-03C9, U+03D1, U+03D5-03D6, U+03F0-03F1, U+03F4-03F5, U+2016-2017, U+2034-2038, U+203C, U+2040, U+2043, U+2047, U+2050, U+2057, U+205F, U+2070-2071, U+2074-209F, U+20D0-20DC, U+20E1, U+20E5-20EF, U+2100-2112, U+2114-2115, U+2117-2121, U+2123-214F, U+2190, U+2192, U+2194-21AE, U+21B0-21E5, U+21F1-21F2, U+21F4-2211, U+2213-2214, U+2216-22FF, U+2308-230B, U+2310, U+2319, U+231C-2321, U+2336-237A, U+237C, U+2395, U+239B-23B7, U+23D0, U+23DC-23E1, U+2474-2475, U+25AF, U+25B3, U+25B7, U+25BD, U+25C1, U+25CA, U+25CC, U+25FB, U+266D-266F, U+27C0-27FF, U+2900-2AFF, U+2B0E-2B11, U+2B30-2B4C, U+2BFE, U+3030, U+FF5B, U+FF5D, U+1D400-1D7FF, U+1EE00-1EEFF;
+}
+/* symbols */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("assets/2ec2d45d2ec0770e.woff2") format('woff2');
+  unicode-range: U+0001-000C, U+000E-001F, U+007F-009F, U+20DD-20E0, U+20E2-20E4, U+2150-218F, U+2190, U+2192, U+2194-2199, U+21AF, U+21E6-21F0, U+21F3, U+2218-2219, U+2299, U+22C4-22C6, U+2300-243F, U+2440-244A, U+2460-24FF, U+25A0-27BF, U+2800-28FF, U+2921-2922, U+2981, U+29BF, U+29EB, U+2B00-2BFF, U+4DC0-4DFF, U+FFF9-FFFB, U+10140-1018E, U+10190-1019C, U+101A0, U+101D0-101FD, U+102E0-102FB, U+10E60-10E7E, U+1D2C0-1D2D3, U+1D2E0-1D37F, U+1F000-1F0FF, U+1F100-1F1AE, U+1F1E6-1F1FF, U+1F30D-1F30F, U+1F315, U+1F31C, U+1F31E, U+1F320-1F32C, U+1F336, U+1F378, U+1F37D, U+1F382, U+1F393-1F39F, U+1F3A7-1F3A8, U+1F3AC-1F3AF, U+1F3C2, U+1F3C4-1F3C6, U+1F3CA-1F3CE, U+1F3D4-1F3E0, U+1F3ED, U+1F3F1-1F3F3, U+1F3F5-1F3F7, U+1F408, U+1F415, U+1F41F, U+1F426, U+1F43F, U+1F441-1F442, U+1F444, U+1F446-1F449, U+1F44C-1F44E, U+1F453, U+1F46A, U+1F47D, U+1F4A3, U+1F4B0, U+1F4B3, U+1F4B9, U+1F4BB, U+1F4BF, U+1F4C8-1F4CB, U+1F4D6, U+1F4DA, U+1F4DF, U+1F4E3-1F4E6, U+1F4EA-1F4ED, U+1F4F7, U+1F4F9-1F4FB, U+1F4FD-1F4FE, U+1F503, U+1F507-1F50B, U+1F50D, U+1F512-1F513, U+1F53E-1F54A, U+1F54F-1F5FA, U+1F610, U+1F650-1F67F, U+1F687, U+1F68D, U+1F691, U+1F694, U+1F698, U+1F6AD, U+1F6B2, U+1F6B9-1F6BA, U+1F6BC, U+1F6C6-1F6CF, U+1F6D3-1F6D7, U+1F6E0-1F6EA, U+1F6F0-1F6F3, U+1F6F7-1F6FC, U+1F700-1F80B, U+1F810-1F847, U+1F850-1F859, U+1F860-1F887, U+1F890-1F8AD, U+1F8B0-1F8BB, U+1F8C0-1F8C1, U+1F8D0-1F8D8, U+1F900-1F90B, U+1F93B, U+1F946, U+1F984, U+1F996, U+1F9E9, U+1FA00-1FA6F, U+1FA70-1FA7C, U+1FA80-1FAC6, U+1FAC8, U+1FACC-1FADD, U+1FADF-1FAEB, U+1FAEF-1FAFA, U+1FB00-1FBFF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/onest/v11/gNMKW3F-SZuj7xmQ-HY6EQ.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("assets/14e7d3079b75860e.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("assets/052df74533250c2e.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 200;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/unbounded/v12/Yq6W-LOTXCb04q32xlpwtsZfrxE.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 200;
+  font-display: swap;
+  src: url("assets/e30bf6a6063b6a47.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 200;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/unbounded/v12/Yq6W-LOTXCb04q32xlpwtMZfrxE.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 200;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/unbounded/v12/Yq6W-LOTXCb04q32xlpwtcZfrxE.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 200;
+  font-display: swap;
+  src: url("assets/22f9b928aa3928a8.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/unbounded/v12/Yq6W-LOTXCb04q32xlpwtsZfrxE.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("assets/e30bf6a6063b6a47.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/unbounded/v12/Yq6W-LOTXCb04q32xlpwtMZfrxE.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/unbounded/v12/Yq6W-LOTXCb04q32xlpwtcZfrxE.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("assets/22f9b928aa3928a8.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/unbounded/v12/Yq6W-LOTXCb04q32xlpwtsZfrxE.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/e30bf6a6063b6a47.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/unbounded/v12/Yq6W-LOTXCb04q32xlpwtMZfrxE.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/unbounded/v12/Yq6W-LOTXCb04q32xlpwtcZfrxE.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/22f9b928aa3928a8.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/unbounded/v12/Yq6W-LOTXCb04q32xlpwtsZfrxE.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/e30bf6a6063b6a47.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/unbounded/v12/Yq6W-LOTXCb04q32xlpwtMZfrxE.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/unbounded/v12/Yq6W-LOTXCb04q32xlpwtcZfrxE.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/22f9b928aa3928a8.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+</style>
+<style>
+body{margin:0;background:#050506}
+a{color:#C8A86B}a:hover{color:#E2CB9A}
+.tg-k{font:inherit;color:#F3F1EC;cursor:pointer;transition:background-color .2s,border-color .2s}
+.tg-k:hover{border-color:#5A4B30}
+.tg-k:focus-visible{outline:2px solid #E2CB9A;outline-offset:2px}
+</style>
+</helmet>
+<div style="width: 1250px; height: 924px; display: flex; gap: 40px; background: #050506; color: #F3F1EC; font-family: 'Onest', 'Segoe UI', sans-serif; font-size: 14px; line-height: 1.45; -webkit-font-smoothing: antialiased">
+
+  <!-- ===== 10 ADMIN NOTIFICATION ===== -->
+  <div style="width: 390px; display: flex; flex-direction: column; gap: 24px">
+    <div style="height: 56px; display: flex; flex-direction: column; justify-content: flex-end; gap: 4px">
+      <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.16em; color: #C8A86B">10 · УВЕДОМЛЕНИЕ АДМИНИСТРАТОРУ</span>
+      <span style="font-size: 14px; color: #B4B1AA">Заявки с сайта и из бота приходят в один чат</span>
+    </div>
+    <div style="position: relative; width: 390px; height: 844px; overflow: hidden; border-radius: 36px; border: 1px solid #26282D; background: #0A0B0D; box-sizing: border-box; display: flex; flex-direction: column">
+      <div style="height: 64px; flex-shrink: 0; padding: 0 8px 0 4px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #1A1B1F; background: #0E0F11">
+        <span aria-hidden="true" style="width: 40px; height: 44px; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" sc-camel-view-box="0 0 24 24" fill="none" stroke="#C8A86B" stroke-width="1.6"><path d="M15 6l-6 6 6 6"></path></svg></span>
+        <span aria-hidden="true" style="width: 40px; height: 40px; border-radius: 10px; background: #C8A86B; display: flex; align-items: center; justify-content: center; font-family: 'Unbounded', sans-serif; font-size: 15px; color: #0B0B0C">V</span>
+        <span style="flex: 1; display: flex; flex-direction: column; line-height: 1.25"><span style="font-size: 15px; font-weight: 600">VÉLOX · заявки</span><span style="font-size: 12px; color: #8C8A85">чат администраторов · 3 участника</span></span>
+      </div>
+      <div style="flex: 1; min-height: 0; overflow: hidden; padding: 14px 12px; display: flex; flex-direction: column; justify-content: flex-end; gap: 8px; background: #0A0B0D">
+        <div style="align-self: flex-start; width: 330px; box-sizing: border-box; padding: 10px 12px 6px; border-radius: 14px 14px 14px 4px; background: #16171B; border: 1px solid #222429; font-size: 13px; display: flex; flex-direction: column; gap: 4px; opacity: 0.75">
+          <span style="display: flex; justify-content: space-between; align-items: center"><b style="font-weight: 600">Заявка № 1041</b><span style="height: 20px; padding: 0 8px; border-radius: 999px; border: 1px solid #2A2C31; font-size: 10px; color: #B4B1AA; display: inline-flex; align-items: center; gap: 4px">с сайта</span></span>
+          <span style="color: #B4B1AA">Детейлинг-мойка · сб 17.10, 17:30 · Дмитрий Орлов</span>
+          <span style="font-size: 12px; color: #A9C4EE">новая · ждёт ответа 1 ч</span>
+        </div>
+        <div style="align-self: flex-start; width: 330px; box-sizing: border-box; padding: 12px 14px 6px; border-radius: 14px 14px 14px 4px; background: #16171B; border: 1px solid #3A3226; display: flex; flex-direction: column; gap: 10px">
+          <span style="display: flex; justify-content: space-between; align-items: center; gap: 8px"><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.08em; color: #C8A86B">НОВАЯ ЗАЯВКА № 1042</span><span style="height: 22px; padding: 0 8px; border-radius: 999px; background: rgba(200,168,107,0.14); color: #E2CB9A; font-size: 11px; display: inline-flex; align-items: center; gap: 5px"><svg aria-hidden="true" width="10" height="10" sc-camel-view-box="0 0 24 24"><path d="M20.5 4.5L3.5 11.2l5.6 1.9 1.9 5.9 3.1-3.8 4.9 3.6z" fill="#E2CB9A"></path></svg>из Telegram-бота</span></span>
+          <span style="display: grid; grid-template-columns: 88px 1fr; gap: 5px 10px; font-size: 13px; line-height: 1.4">
+            <span style="color: #8C8A85">Клиент</span><span>Алексей</span>
+            <span style="color: #8C8A85">Телефон</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 12.5px; color: #E2CB9A">+7 913 452-18-07</span>
+            <span style="color: #8C8A85">Автомобиль</span><span>Audi A6, 2021</span>
+            <span style="color: #8C8A85">Услуга</span><span>Керамическое покрытие</span>
+            <span style="color: #8C8A85">Когда</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 12.5px">Ср, 21.10 · 12:00 · бокс 1</span>
+            <span style="color: #8C8A85">Мастер</span><span style="color: #B4B1AA">не назначен</span>
+          </span>
+          <span style="display: block; text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #77756F">12:05</span>
+        </div>
+        <div style="align-self: flex-start; width: 330px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px">
+          <button class="tg-k" type="button" style="height: 42px; border-radius: 10px; border: 1px solid #C8A86B; background: rgba(200,168,107,0.18); font-size: 13.5px; font-weight: 500">✓ Подтвердить</button>
+          <button class="tg-k" type="button" style="height: 42px; border-radius: 10px; border: 1px solid #2A2C31; background: #15161A; font-size: 13.5px">Назначить мастера</button>
+          <button class="tg-k" type="button" style="height: 42px; border-radius: 10px; border: 1px solid #2A2C31; background: #15161A; font-size: 13.5px">Перенести</button>
+          <button class="tg-k" type="button" style="height: 42px; border-radius: 10px; border: 1px solid #4A2C24; background: #15161A; color: #EBA08A; font-size: 13.5px">Отклонить</button>
+          <button class="tg-k" type="button" style="grid-column: span 2; height: 42px; border-radius: 10px; border: 1px solid #2A2C31; background: #15161A; font-size: 13.5px; display: flex; align-items: center; justify-content: center; gap: 8px">Открыть в панели студии<svg aria-hidden="true" width="13" height="13" sc-camel-view-box="0 0 24 24" fill="none" stroke="#C8A86B" stroke-width="1.6"><path d="M7 17L17 7M9 7h8v8"></path></svg></button>
+        </div>
+      </div>
+      <div style="flex-shrink: 0; padding: 8px 10px 26px; display: flex; align-items: center; gap: 8px; border-top: 1px solid #1A1B1F; background: #0E0F11">
+        <span style="flex: 1; height: 36px; border-radius: 999px; background: #15161A; border: 1px solid #222429; color: #6E6C68; font-size: 14px; display: flex; align-items: center; padding: 0 14px">Сообщение</span>
+      </div>
+      <!-- push banner -->
+      <div role="status" style="position: absolute; left: 10px; right: 10px; top: 12px; padding: 12px 14px; border-radius: 18px; background: rgba(30,31,36,0.95); border: 1px solid #34363C; backdrop-filter: blur(16px); box-shadow: 0 20px 50px rgba(0,0,0,0.6); display: flex; gap: 12px; align-items: flex-start">
+        <span aria-hidden="true" style="width: 38px; height: 38px; flex-shrink: 0; border-radius: 10px; background: #C8A86B; display: flex; align-items: center; justify-content: center; font-family: 'Unbounded', sans-serif; font-size: 15px; color: #0B0B0C">V</span>
+        <span style="flex: 1; display: flex; flex-direction: column; gap: 2px; line-height: 1.35; min-width: 0">
+          <span style="display: flex; justify-content: space-between; gap: 8px"><span style="font-size: 13px; font-weight: 600">VÉLOX · заявки</span><span style="font-size: 12px; color: #8C8A85">сейчас</span></span>
+          <span style="font-size: 13px; color: #D6D3CC">Новая заявка из Telegram: керамика, ср 21.10, 12:00 — Алексей, Audi A6</span>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 11 CLIENT GETS CONFIRMATION ===== -->
+  <div style="width: 390px; display: flex; flex-direction: column; gap: 24px">
+    <div style="height: 56px; display: flex; flex-direction: column; justify-content: flex-end; gap: 4px">
+      <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.16em; color: #C8A86B">11 · КЛИЕНТ ПОЛУЧАЕТ ОТВЕТ</span>
+      <span style="font-size: 14px; color: #B4B1AA">Подтверждение администратора и напоминание</span>
+    </div>
+    <div style="position: relative; width: 390px; height: 844px; overflow: hidden; border-radius: 36px; border: 1px solid #26282D; background: #0A0B0D; box-sizing: border-box; display: flex; flex-direction: column">
+      <div style="height: 64px; flex-shrink: 0; padding: 0 8px 0 4px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #1A1B1F; background: #0E0F11">
+        <span aria-hidden="true" style="width: 40px; height: 44px; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" sc-camel-view-box="0 0 24 24" fill="none" stroke="#C8A86B" stroke-width="1.6"><path d="M15 6l-6 6 6 6"></path></svg></span>
+        <span aria-hidden="true" style="width: 40px; height: 40px; border-radius: 50%; background: radial-gradient(circle at 30% 25%, #2A2C31, #0B0C0E); border: 1px solid #8E7443; display: flex; align-items: center; justify-content: center; font-family: 'Unbounded', sans-serif; font-size: 15px; color: #E2CB9A">V</span>
+        <span style="flex: 1; display: flex; flex-direction: column; line-height: 1.25"><span style="font-size: 15px; font-weight: 600">VÉLOX Detailing Studio</span><span style="font-size: 12px; color: #8C8A85">бот</span></span>
+      </div>
+      <div style="flex: 1; min-height: 0; overflow: hidden; padding: 14px 12px; display: flex; flex-direction: column; justify-content: flex-end; gap: 8px; background: radial-gradient(ellipse 120% 50% at 50% 0%, rgba(200,168,107,0.05), rgba(200,168,107,0) 60%), #0A0B0D">
+        <div style="align-self: flex-start; max-width: 304px; padding: 10px 12px 6px; border-radius: 14px 14px 14px 4px; background: #16171B; border: 1px solid #222429; font-size: 13px; color: #B4B1AA; opacity: 0.7">Заявка принята · керамика, ср 21.10, 12:00 · ждёт подтверждения<span style="display: block; text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #77756F; margin-top: 2px">12:05</span></div>
+        <div style="align-self: flex-start; max-width: 320px; padding: 12px 14px 6px; border-radius: 14px 14px 14px 4px; background: #16171B; border: 1px solid #3A3226; font-size: 14px; line-height: 1.5"><span style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px"><span aria-hidden="true" style="width: 22px; height: 22px; border-radius: 50%; background: #C8A86B; display: flex; align-items: center; justify-content: center"><svg width="12" height="12" sc-camel-view-box="0 0 24 24" fill="none" stroke="#0B0B0C" stroke-width="3"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span><b style="font-weight: 600; font-size: 15px">Запись подтверждена</b></span>Ждём вас в среду, 21 октября, в 12:00. Мастер — Андрей К.<br><span style="color: #B4B1AA">Возьмите с собой ключ и документы на автомобиль.</span><span style="display: block; text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #77756F; margin-top: 2px">12:07</span></div>
+        <div style="align-self: flex-start; width: 320px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px">
+          <button class="tg-k" type="button" style="height: 42px; border-radius: 10px; border: 1px solid #2A2C31; background: #15161A; font-size: 13.5px">В календарь</button>
+          <button class="tg-k" type="button" style="height: 42px; border-radius: 10px; border: 1px solid #2A2C31; background: #15161A; font-size: 13.5px">Маршрут</button>
+        </div>
+        <span style="align-self: center; height: 22px; padding: 0 10px; border-radius: 999px; background: #15161A; font-size: 11px; color: #8C8A85; display: inline-flex; align-items: center; margin-top: 6px">Вторник, 20 октября</span>
+        <div style="align-self: flex-start; max-width: 320px; padding: 12px 14px 6px; border-radius: 14px 14px 14px 4px; background: #16171B; border: 1px solid #222429; font-size: 14px; line-height: 1.5"><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.08em; color: #C8A86B">НАПОМИНАНИЕ</span><br>Завтра в 12:00 — керамическое покрытие для Audi A6. Студия: [Город, улица, дом], въезд со стороны [улица].<span style="display: block; text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #77756F; margin-top: 2px">12:00</span></div>
+        <div style="align-self: flex-start; width: 320px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+          <button class="tg-k" type="button" style="height: 42px; border-radius: 10px; border: 1px solid #5A4B30; background: rgba(200,168,107,0.12); font-size: 13px">Буду</button>
+          <button class="tg-k" type="button" style="height: 42px; border-radius: 10px; border: 1px solid #2A2C31; background: #15161A; font-size: 13px">Перенести</button>
+          <button class="tg-k" type="button" style="height: 42px; border-radius: 10px; border: 1px solid #2A2C31; background: #15161A; font-size: 13px">Отменить</button>
+        </div>
+      </div>
+      <div style="flex-shrink: 0; padding: 8px 10px 26px; display: flex; align-items: center; gap: 8px; border-top: 1px solid #1A1B1F; background: #0E0F11">
+        <span style="height: 36px; padding: 0 12px; border-radius: 999px; background: #C8A86B; color: #0B0B0C; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px"><svg aria-hidden="true" width="14" height="14" sc-camel-view-box="0 0 24 24" fill="none" stroke="#0B0B0C" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h10"></path></svg>Меню</span>
+        <span style="flex: 1; height: 36px; border-radius: 999px; background: #15161A; border: 1px solid #222429; color: #6E6C68; font-size: 14px; display: flex; align-items: center; padding: 0 14px">Сообщение</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 12 ADMIN PANEL RECORD ===== -->
+  <div style="width: 390px; display: flex; flex-direction: column; gap: 24px">
+    <div style="height: 56px; display: flex; flex-direction: column; justify-content: flex-end; gap: 4px">
+      <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.16em; color: #C8A86B">12 · ЗАЯВКА В ПАНЕЛИ СТУДИИ</span>
+      <span style="font-size: 14px; color: #B4B1AA">Та же запись в админке: источник и история</span>
+    </div>
+    <div style="position: relative; width: 390px; height: 844px; box-sizing: border-box; border-radius: 4px; border: 1px solid #2A2C31; background: #0E0F11; display: flex; flex-direction: column; overflow: hidden">
+      <div role="status" style="margin: 14px 14px 0; padding: 10px 12px; border-radius: 2px; border: 1px solid #2B3B52; background: rgba(134,173,230,0.08); display: flex; align-items: center; gap: 10px; font-size: 13px"><span style="width: 8px; height: 8px; border-radius: 50%; background: #86ADE6; flex-shrink: 0"></span><span style="flex: 1">Новая заявка из Telegram · № 1042</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #8C8A85">12:05</span></div>
+      <div style="padding: 16px 18px; border-bottom: 1px solid #1F2126; display: flex; flex-direction: column; gap: 8px">
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.12em; color: #8C8A85">ЗАПИСЬ № 1042</span>
+        <span style="display: flex; justify-content: space-between; align-items: center; gap: 8px"><span style="font-size: 18px; font-weight: 600">Алексей</span><span style="height: 26px; padding: 0 10px; border-radius: 999px; background: rgba(200,168,107,0.14); color: #E2CB9A; font-size: 12px; display: inline-flex; align-items: center; gap: 6px"><svg aria-hidden="true" width="11" height="11" sc-camel-view-box="0 0 24 24"><path d="M20.5 4.5L3.5 11.2l5.6 1.9 1.9 5.9 3.1-3.8 4.9 3.6z" fill="#E2CB9A"></path></svg>Telegram-бот</span></span>
+      </div>
+      <div style="padding: 16px 18px; display: flex; flex-direction: column; gap: 14px">
+        <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px">
+          <span style="height: 34px; border: 1px solid #2A2C31; border-radius: 2px; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #8C8A85">Новая</span>
+          <span style="height: 34px; border: 1px solid #C8A86B; background: rgba(255,255,255,0.04); border-radius: 2px; display: flex; align-items: center; justify-content: center; font-size: 11px">Подтверждена</span>
+          <span style="height: 34px; border: 1px solid #2A2C31; border-radius: 2px; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #8C8A85">Завершена</span>
+          <span style="height: 34px; border: 1px solid #2A2C31; border-radius: 2px; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #8C8A85">Отменена</span>
+        </div>
+        <dl style="margin: 0; display: grid; grid-template-columns: 96px 1fr; gap: 10px 12px; font-size: 13px">
+          <dt style="color: #8C8A85">Телефон</dt><dd style="margin: 0; font-family: 'JetBrains Mono', monospace">+7 913 452-18-07</dd>
+          <dt style="color: #8C8A85">Автомобиль</dt><dd style="margin: 0">Audi A6, 2021</dd>
+          <dt style="color: #8C8A85">Услуга</dt><dd style="margin: 0">Керамическое покрытие</dd>
+          <dt style="color: #8C8A85">Мастер</dt><dd style="margin: 0">Андрей К.</dd>
+          <dt style="color: #8C8A85">Когда</dt><dd style="margin: 0; font-family: 'JetBrains Mono', monospace">Ср, 21.10 · 12:00 · бокс 1</dd>
+          <dt style="color: #8C8A85">Telegram</dt><dd style="margin: 0; font-family: 'JetBrains Mono', monospace; color: #B4B1AA">@client_username</dd>
+        </dl>
+        <div style="display: flex; flex-direction: column; gap: 10px; padding-top: 14px; border-top: 1px solid #1F2126">
+          <span style="font-size: 13px; font-weight: 600">История</span>
+          <ol style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; font-size: 12.5px">
+            <li style="display: grid; grid-template-columns: 52px 1fr; gap: 10px"><span style="font-family: 'JetBrains Mono', monospace; color: #8C8A85">12:05</span><span>Заявка создана в Telegram-боте</span></li>
+            <li style="display: grid; grid-template-columns: 52px 1fr; gap: 10px"><span style="font-family: 'JetBrains Mono', monospace; color: #8C8A85">12:05</span><span>Уведомление в чат «VÉLOX · заявки»</span></li>
+            <li style="display: grid; grid-template-columns: 52px 1fr; gap: 10px"><span style="font-family: 'JetBrains Mono', monospace; color: #8C8A85">12:07</span><span>Подтверждена · назначен Андрей К.</span></li>
+            <li style="display: grid; grid-template-columns: 52px 1fr; gap: 10px"><span style="font-family: 'JetBrains Mono', monospace; color: #8C8A85">20.10</span><span style="color: #B4B1AA">Напоминание клиенту — запланировано</span></li>
+          </ol>
+        </div>
+      </div>
+      <div style="margin-top: auto; padding: 14px 18px 18px; border-top: 1px solid #1F2126; display: flex; flex-direction: column; gap: 8px">
+        <button class="tg-k" type="button" style="height: 42px; border-radius: 2px; border: 1px solid #5A4B30; background: transparent; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px"><svg aria-hidden="true" width="15" height="15" sc-camel-view-box="0 0 24 24" fill="none" stroke="#C8A86B" stroke-width="1.6" stroke-linejoin="round"><path d="M21 4L3 11l6 2 2 6 3-4 5 4z"></path></svg>Написать клиенту в Telegram</button>
+        <button class="tg-k" type="button" style="height: 42px; border-radius: 2px; border: 0; background: #C8A86B; color: #0B0B0C; font-size: 13px; font-weight: 600">Сохранить</button>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;$preview&quot;:{&quot;width&quot;:1250,&quot;height&quot;:924}}">
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+
+
+</body></html>

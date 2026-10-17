@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="ru"><head><script>window.__resources = {"https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js": "assets/d949f1c3687aedad.js", "https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js": "assets/35f4f974f4b2bcd4.js"};</script>
+<meta charset="utf-8">
+<title>VÉLOX — панель: главная</title>
+<script src="assets/654b7f6201e7e08c.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>/* cyrillic-ext */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPx3cwhsk.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/e17cfd15fb96909d.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPxPcwhsk.woff2) format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPx_cwhsk.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/db5ff4db83e58042.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/83c005d49d8a6a50.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPx3cwhsk.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/e17cfd15fb96909d.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPxPcwhsk.woff2) format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPx_cwhsk.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/db5ff4db83e58042.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/83c005d49d8a6a50.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/onest/v11/gNMKW3F-SZuj7xmS-HY6EQ.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/68e5e01d6265bd68.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* math */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/onest/v11/gNMKW3F-SZuj7xnj-HY6EQ.woff2) format('woff2');
+  unicode-range: U+0302-0303, U+0305, U+0307-0308, U+0310, U+0312, U+0315, U+031A, U+0326-0327, U+032C, U+032F-0330, U+0332-0333, U+0338, U+033A, U+0346, U+034D, U+0391-03A1, U+03A3-03A9, U+03B1-03C9, U+03D1, U+03D5-03D6, U+03F0-03F1, U+03F4-03F5, U+2016-2017, U+2034-2038, U+203C, U+2040, U+2043, U+2047, U+2050, U+2057, U+205F, U+2070-2071, U+2074-209F, U+20D0-20DC, U+20E1, U+20E5-20EF, U+2100-2112, U+2114-2115, U+2117-2121, U+2123-214F, U+2190, U+2192, U+2194-21AE, U+21B0-21E5, U+21F1-21F2, U+21F4-2211, U+2213-2214, U+2216-22FF, U+2308-230B, U+2310, U+2319, U+231C-2321, U+2336-237A, U+237C, U+2395, U+239B-23B7, U+23D0, U+23DC-23E1, U+2474-2475, U+25AF, U+25B3, U+25B7, U+25BD, U+25C1, U+25CA, U+25CC, U+25FB, U+266D-266F, U+27C0-27FF, U+2900-2AFF, U+2B0E-2B11, U+2B30-2B4C, U+2BFE, U+3030, U+FF5B, U+FF5D, U+1D400-1D7FF, U+1EE00-1EEFF;
+}
+/* symbols */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/2ec2d45d2ec0770e.woff2") format('woff2');
+  unicode-range: U+0001-000C, U+000E-001F, U+007F-009F, U+20DD-20E0, U+20E2-20E4, U+2150-218F, U+2190, U+2192, U+2194-2199, U+21AF, U+21E6-21F0, U+21F3, U+2218-2219, U+2299, U+22C4-22C6, U+2300-243F, U+2440-244A, U+2460-24FF, U+25A0-27BF, U+2800-28FF, U+2921-2922, U+2981, U+29BF, U+29EB, U+2B00-2BFF, U+4DC0-4DFF, U+FFF9-FFFB, U+10140-1018E, U+10190-1019C, U+101A0, U+101D0-101FD, U+102E0-102FB, U+10E60-10E7E, U+1D2C0-1D2D3, U+1D2E0-1D37F, U+1F000-1F0FF, U+1F100-1F1AE, U+1F1E6-1F1FF, U+1F30D-1F30F, U+1F315, U+1F31C, U+1F31E, U+1F320-1F32C, U+1F336, U+1F378, U+1F37D, U+1F382, U+1F393-1F39F, U+1F3A7-1F3A8, U+1F3AC-1F3AF, U+1F3C2, U+1F3C4-1F3C6, U+1F3CA-1F3CE, U+1F3D4-1F3E0, U+1F3ED, U+1F3F1-1F3F3, U+1F3F5-1F3F7, U+1F408, U+1F415, U+1F41F, U+1F426, U+1F43F, U+1F441-1F442, U+1F444, U+1F446-1F449, U+1F44C-1F44E, U+1F453, U+1F46A, U+1F47D, U+1F4A3, U+1F4B0, U+1F4B3, U+1F4B9, U+1F4BB, U+1F4BF, U+1F4C8-1F4CB, U+1F4D6, U+1F4DA, U+1F4DF, U+1F4E3-1F4E6, U+1F4EA-1F4ED, U+1F4F7, U+1F4F9-1F4FB, U+1F4FD-1F4FE, U+1F503, U+1F507-1F50B, U+1F50D, U+1F512-1F513, U+1F53E-1F54A, U+1F54F-1F5FA, U+1F610, U+1F650-1F67F, U+1F687, U+1F68D, U+1F691, U+1F694, U+1F698, U+1F6AD, U+1F6B2, U+1F6B9-1F6BA, U+1F6BC, U+1F6C6-1F6CF, U+1F6D3-1F6D7, U+1F6E0-1F6EA, U+1F6F0-1F6F3, U+1F6F7-1F6FC, U+1F700-1F80B, U+1F810-1F847, U+1F850-1F859, U+1F860-1F887, U+1F890-1F8AD, U+1F8B0-1F8BB, U+1F8C0-1F8C1, U+1F8D0-1F8D8, U+1F900-1F90B, U+1F93B, U+1F946, U+1F984, U+1F996, U+1F9E9, U+1FA00-1FA6F, U+1FA70-1FA7C, U+1FA80-1FAC6, U+1FAC8, U+1FACC-1FADD, U+1FADF-1FAEB, U+1FAEF-1FAFA, U+1FB00-1FBFF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/onest/v11/gNMKW3F-SZuj7xmQ-HY6EQ.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/14e7d3079b75860e.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/052df74533250c2e.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/onest/v11/gNMKW3F-SZuj7xmS-HY6EQ.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/68e5e01d6265bd68.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* math */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/onest/v11/gNMKW3F-SZuj7xnj-HY6EQ.woff2) format('woff2');
+  unicode-range: U+0302-0303, U+0305, U+0307-0308, U+0310, U+0312, U+0315, U+031A, U+0326-0327, U+032C, U+032F-0330, U+0332-0333, U+0338, U+033A, U+0346, U+034D, U+0391-03A1, U+03A3-03A9, U+03B1-03C9, U+03D1, U+03D5-03D6, U+03F0-03F1, U+03F4-03F5, U+2016-2017, U+2034-2038, U+203C, U+2040, U+2043, U+2047, U+2050, U+2057, U+205F, U+2070-2071, U+2074-209F, U+20D0-20DC, U+20E1, U+20E5-20EF, U+2100-2112, U+2114-2115, U+2117-2121, U+2123-214F, U+2190, U+2192, U+2194-21AE, U+21B0-21E5, U+21F1-21F2, U+21F4-2211, U+2213-2214, U+2216-22FF, U+2308-230B, U+2310, U+2319, U+231C-2321, U+2336-237A, U+237C, U+2395, U+239B-23B7, U+23D0, U+23DC-23E1, U+2474-2475, U+25AF, U+25B3, U+25B7, U+25BD, U+25C1, U+25CA, U+25CC, U+25FB, U+266D-266F, U+27C0-27FF, U+2900-2AFF, U+2B0E-2B11, U+2B30-2B4C, U+2BFE, U+3030, U+FF5B, U+FF5D, U+1D400-1D7FF, U+1EE00-1EEFF;
+}
+/* symbols */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/2ec2d45d2ec0770e.woff2") format('woff2');
+  unicode-range: U+0001-000C, U+000E-001F, U+007F-009F, U+20DD-20E0, U+20E2-20E4, U+2150-218F, U+2190, U+2192, U+2194-2199, U+21AF, U+21E6-21F0, U+21F3, U+2218-2219, U+2299, U+22C4-22C6, U+2300-243F, U+2440-244A, U+2460-24FF, U+25A0-27BF, U+2800-28FF, U+2921-2922, U+2981, U+29BF, U+29EB, U+2B00-2BFF, U+4DC0-4DFF, U+FFF9-FFFB, U+10140-1018E, U+10190-1019C, U+101A0, U+101D0-101FD, U+102E0-102FB, U+10E60-10E7E, U+1D2C0-1D2D3, U+1D2E0-1D37F, U+1F000-1F0FF, U+1F100-1F1AE, U+1F1E6-1F1FF, U+1F30D-1F30F, U+1F315, U+1F31C, U+1F31E, U+1F320-1F32C, U+1F336, U+1F378, U+1F37D, U+1F382, U+1F393-1F39F, U+1F3A7-1F3A8, U+1F3AC-1F3AF, U+1F3C2, U+1F3C4-1F3C6, U+1F3CA-1F3CE, U+1F3D4-1F3E0, U+1F3ED, U+1F3F1-1F3F3, U+1F3F5-1F3F7, U+1F408, U+1F415, U+1F41F, U+1F426, U+1F43F, U+1F441-1F442, U+1F444, U+1F446-1F449, U+1F44C-1F44E, U+1F453, U+1F46A, U+1F47D, U+1F4A3, U+1F4B0, U+1F4B3, U+1F4B9, U+1F4BB, U+1F4BF, U+1F4C8-1F4CB, U+1F4D6, U+1F4DA, U+1F4DF, U+1F4E3-1F4E6, U+1F4EA-1F4ED, U+1F4F7, U+1F4F9-1F4FB, U+1F4FD-1F4FE, U+1F503, U+1F507-1F50B, U+1F50D, U+1F512-1F513, U+1F53E-1F54A, U+1F54F-1F5FA, U+1F610, U+1F650-1F67F, U+1F687, U+1F68D, U+1F691, U+1F694, U+1F698, U+1F6AD, U+1F6B2, U+1F6B9-1F6BA, U+1F6BC, U+1F6C6-1F6CF, U+1F6D3-1F6D7, U+1F6E0-1F6EA, U+1F6F0-1F6F3, U+1F6F7-1F6FC, U+1F700-1F80B, U+1F810-1F847, U+1F850-1F859, U+1F860-1F887, U+1F890-1F8AD, U+1F8B0-1F8BB, U+1F8C0-1F8C1, U+1F8D0-1F8D8, U+1F900-1F90B, U+1F93B, U+1F946, U+1F984, U+1F996, U+1F9E9, U+1FA00-1FA6F, U+1FA70-1FA7C, U+1FA80-1FAC6, U+1FAC8, U+1FACC-1FADD, U+1FADF-1FAEB, U+1FAEF-1FAFA, U+1FB00-1FBFF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/onest/v11/gNMKW3F-SZuj7xmQ-HY6EQ.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/14e7d3079b75860e.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/052df74533250c2e.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/onest/v11/gNMKW3F-SZuj7xmS-HY6EQ.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("assets/68e5e01d6265bd68.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* math */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/onest/v11/gNMKW3F-SZuj7xnj-HY6EQ.woff2) format('woff2');
+  unicode-range: U+0302-0303, U+0305, U+0307-0308, U+0310, U+0312, U+0315, U+031A, U+0326-0327, U+032C, U+032F-0330, U+0332-0333, U+0338, U+033A, U+0346, U+034D, U+0391-03A1, U+03A3-03A9, U+03B1-03C9, U+03D1, U+03D5-03D6, U+03F0-03F1, U+03F4-03F5, U+2016-2017, U+2034-2038, U+203C, U+2040, U+2043, U+2047, U+2050, U+2057, U+205F, U+2070-2071, U+2074-209F, U+20D0-20DC, U+20E1, U+20E5-20EF, U+2100-2112, U+2114-2115, U+2117-2121, U+2123-214F, U+2190, U+2192, U+2194-21AE, U+21B0-21E5, U+21F1-21F2, U+21F4-2211, U+2213-2214, U+2216-22FF, U+2308-230B, U+2310, U+2319, U+231C-2321, U+2336-237A, U+237C, U+2395, U+239B-23B7, U+23D0, U+23DC-23E1, U+2474-2475, U+25AF, U+25B3, U+25B7, U+25BD, U+25C1, U+25CA, U+25CC, U+25FB, U+266D-266F, U+27C0-27FF, U+2900-2AFF, U+2B0E-2B11, U+2B30-2B4C, U+2BFE, U+3030, U+FF5B, U+FF5D, U+1D400-1D7FF, U+1EE00-1EEFF;
+}
+/* symbols */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("assets/2ec2d45d2ec0770e.woff2") format('woff2');
+  unicode-range: U+0001-000C, U+000E-001F, U+007F-009F, U+20DD-20E0, U+20E2-20E4, U+2150-218F, U+2190, U+2192, U+2194-2199, U+21AF, U+21E6-21F0, U+21F3, U+2218-2219, U+2299, U+22C4-22C6, U+2300-243F, U+2440-244A, U+2460-24FF, U+25A0-27BF, U+2800-28FF, U+2921-2922, U+2981, U+29BF, U+29EB, U+2B00-2BFF, U+4DC0-4DFF, U+FFF9-FFFB, U+10140-1018E, U+10190-1019C, U+101A0, U+101D0-101FD, U+102E0-102FB, U+10E60-10E7E, U+1D2C0-1D2D3, U+1D2E0-1D37F, U+1F000-1F0FF, U+1F100-1F1AE, U+1F1E6-1F1FF, U+1F30D-1F30F, U+1F315, U+1F31C, U+1F31E, U+1F320-1F32C, U+1F336, U+1F378, U+1F37D, U+1F382, U+1F393-1F39F, U+1F3A7-1F3A8, U+1F3AC-1F3AF, U+1F3C2, U+1F3C4-1F3C6, U+1F3CA-1F3CE, U+1F3D4-1F3E0, U+1F3ED, U+1F3F1-1F3F3, U+1F3F5-1F3F7, U+1F408, U+1F415, U+1F41F, U+1F426, U+1F43F, U+1F441-1F442, U+1F444, U+1F446-1F449, U+1F44C-1F44E, U+1F453, U+1F46A, U+1F47D, U+1F4A3, U+1F4B0, U+1F4B3, U+1F4B9, U+1F4BB, U+1F4BF, U+1F4C8-1F4CB, U+1F4D6, U+1F4DA, U+1F4DF, U+1F4E3-1F4E6, U+1F4EA-1F4ED, U+1F4F7, U+1F4F9-1F4FB, U+1F4FD-1F4FE, U+1F503, U+1F507-1F50B, U+1F50D, U+1F512-1F513, U+1F53E-1F54A, U+1F54F-1F5FA, U+1F610, U+1F650-1F67F, U+1F687, U+1F68D, U+1F691, U+1F694, U+1F698, U+1F6AD, U+1F6B2, U+1F6B9-1F6BA, U+1F6BC, U+1F6C6-1F6CF, U+1F6D3-1F6D7, U+1F6E0-1F6EA, U+1F6F0-1F6F3, U+1F6F7-1F6FC, U+1F700-1F80B, U+1F810-1F847, U+1F850-1F859, U+1F860-1F887, U+1F890-1F8AD, U+1F8B0-1F8BB, U+1F8C0-1F8C1, U+1F8D0-1F8D8, U+1F900-1F90B, U+1F93B, U+1F946, U+1F984, U+1F996, U+1F9E9, U+1FA00-1FA6F, U+1FA70-1FA7C, U+1FA80-1FAC6, U+1FAC8, U+1FACC-1FADD, U+1FADF-1FAEB, U+1FAEF-1FAFA, U+1FB00-1FBFF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/onest/v11/gNMKW3F-SZuj7xmQ-HY6EQ.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("assets/14e7d3079b75860e.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("assets/052df74533250c2e.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 200;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/unbounded/v12/Yq6W-LOTXCb04q32xlpwtsZfrxE.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 200;
+  font-display: swap;
+  src: url("assets/e30bf6a6063b6a47.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 200;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/unbounded/v12/Yq6W-LOTXCb04q32xlpwtMZfrxE.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 200;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/unbounded/v12/Yq6W-LOTXCb04q32xlpwtcZfrxE.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 200;
+  font-display: swap;
+  src: url("assets/22f9b928aa3928a8.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/unbounded/v12/Yq6W-LOTXCb04q32xlpwtsZfrxE.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("assets/e30bf6a6063b6a47.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/unbounded/v12/Yq6W-LOTXCb04q32xlpwtMZfrxE.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/unbounded/v12/Yq6W-LOTXCb04q32xlpwtcZfrxE.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("assets/22f9b928aa3928a8.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/unbounded/v12/Yq6W-LOTXCb04q32xlpwtsZfrxE.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/e30bf6a6063b6a47.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/unbounded/v12/Yq6W-LOTXCb04q32xlpwtMZfrxE.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/unbounded/v12/Yq6W-LOTXCb04q32xlpwtcZfrxE.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/22f9b928aa3928a8.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/unbounded/v12/Yq6W-LOTXCb04q32xlpwtsZfrxE.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/e30bf6a6063b6a47.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/unbounded/v12/Yq6W-LOTXCb04q32xlpwtMZfrxE.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/unbounded/v12/Yq6W-LOTXCb04q32xlpwtcZfrxE.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/22f9b928aa3928a8.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+</style>
+<style>
+body{margin:0;background:#0B0C0E}
+a{color:#C8A86B}a:hover{color:#E2CB9A}
+.ad-nav a{transition:background-color .2s,color .2s}
+.ad-nav a:hover{background:#121316;color:#F3F1EC}
+.ad-f:focus-visible{outline:2px solid #E2CB9A;outline-offset:2px}
+.ad-row{transition:background-color .2s}.ad-row:hover{background:#121316}
+.ad-btn{transition:background-color .2s,border-color .2s}
+.ad-btn:hover{border-color:#5A4B30}
+</style>
+</helmet>
+<div style="width: 100%; min-height: 100vh; display: flex; flex-wrap: wrap; background: #0B0C0E; color: #F3F1EC; font-family: 'Onest', 'Segoe UI', sans-serif; font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased">
+
+  <!-- SIDEBAR -->
+  <aside style="flex: 1 1 232px; background: #070708; border-right: 1px solid #1A1B1F; padding: 24px 14px; box-sizing: border-box; display: flex; flex-direction: column; gap: 32px">
+    <div style="padding: 0 10px; display: flex; flex-direction: column; gap: 8px">
+      <span style="display: flex; gap: 0.3em; font-family: 'Unbounded', sans-serif; font-weight: 400; font-size: 16px; line-height: 1"><span>V</span><span style="position: relative">E<span aria-hidden="true" style="position: absolute; left: 0.18em; top: -0.38em; width: 0.5em; height: 0.09em; background: #C8A86B; transform: rotate(-22deg); transform-origin: left center"></span></span><span>L</span><span>O</span><span>X</span></span>
+      <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.18em; color: #8C8A85">ПАНЕЛЬ СТУДИИ</span>
+    </div>
+    <nav class="ad-nav" aria-label="Разделы панели" style="display: flex; flex-direction: column; gap: 2px">
+      <a class="ad-f" href="Admin-Dashboard.dc.html" aria-current="page" style="height: 44px; padding: 0 12px; display: flex; align-items: center; gap: 12px; border-radius: 2px; background: #15161A; color: #F3F1EC; text-decoration: none; font-weight: 500"><svg aria-hidden="true" width="18" height="18" sc-camel-view-box="0 0 24 24" fill="none" stroke="#C8A86B" stroke-width="1.5"><rect x="3" y="3" width="7.5" height="7.5"></rect><rect x="13.5" y="3" width="7.5" height="7.5"></rect><rect x="3" y="13.5" width="7.5" height="7.5"></rect><rect x="13.5" y="13.5" width="7.5" height="7.5"></rect></svg>Главная</a>
+      <a class="ad-f" href="Admin-Bookings.dc.html" style="height: 44px; padding: 0 12px; display: flex; align-items: center; gap: 12px; border-radius: 2px; color: #B4B1AA; text-decoration: none; font-weight: 500"><svg aria-hidden="true" width="18" height="18" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3.5" y="5" width="17" height="15.5" rx="1"></rect><path d="M3.5 10h17M8 3v4M16 3v4"></path></svg><span style="flex: 1">Записи</span><span style="min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: rgba(134,173,230,0.16); color: #A9C4EE; font-size: 11px; display: flex; align-items: center; justify-content: center">2</span></a>
+      <a class="ad-f" href="Admin-Schedule.dc.html" style="height: 44px; padding: 0 12px; display: flex; align-items: center; gap: 12px; border-radius: 2px; color: #B4B1AA; text-decoration: none; font-weight: 500"><svg aria-hidden="true" width="18" height="18" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 7v5l3.5 2"></path></svg>Расписание</a>
+      <a class="ad-f" href="Admin-Services.dc.html" style="height: 44px; padding: 0 12px; display: flex; align-items: center; gap: 12px; border-radius: 2px; color: #B4B1AA; text-decoration: none; font-weight: 500"><svg aria-hidden="true" width="18" height="18" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3c3.5 4.5 6 8 6 11a6 6 0 0 1-12 0c0-3 2.5-6.5 6-11z"></path></svg>Услуги</a>
+      <a class="ad-f" href="Admin-Masters.dc.html" style="height: 44px; padding: 0 12px; display: flex; align-items: center; gap: 12px; border-radius: 2px; color: #B4B1AA; text-decoration: none; font-weight: 500"><svg aria-hidden="true" width="18" height="18" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="8" r="3.5"></circle><path d="M2.5 20c.8-3.7 3.4-6 6.5-6s5.7 2.3 6.5 6"></path><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.5c1.8.8 3 2.7 3.5 5.5"></path></svg>Мастера</a>
+      <a class="ad-f" href="Admin-Slots.dc.html" style="height: 44px; padding: 0 12px; display: flex; align-items: center; gap: 12px; border-radius: 2px; color: #B4B1AA; text-decoration: none; font-weight: 500"><svg aria-hidden="true" width="18" height="18" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6h16M4 12h16M4 18h16"></path><circle cx="8" cy="6" r="1.6" fill="currentColor"></circle><circle cx="15" cy="12" r="1.6" fill="currentColor"></circle><circle cx="10" cy="18" r="1.6" fill="currentColor"></circle></svg>Слоты</a>
+      <a class="ad-f" href="Admin-Clients.dc.html" style="height: 44px; padding: 0 12px; display: flex; align-items: center; gap: 12px; border-radius: 2px; color: #B4B1AA; text-decoration: none; font-weight: 500"><svg aria-hidden="true" width="18" height="18" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="3" width="16" height="18" rx="1"></rect><circle cx="12" cy="10" r="3"></circle><path d="M7.5 17.5c.8-2 2.5-3 4.5-3s3.7 1 4.5 3"></path></svg>Клиенты</a>
+    </nav>
+    <div style="margin-top: auto; display: flex; flex-direction: column; gap: 14px">
+      <a class="ad-f" href="Landing-Desktop-1.dc.html" style="height: 40px; padding: 0 12px; display: flex; align-items: center; gap: 10px; color: #8C8A85; text-decoration: none; font-size: 13px"><svg aria-hidden="true" width="16" height="16" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 4h6v6M20 4l-9 9M18 14v6H4V6h6"></path></svg>Открыть сайт</a>
+      <div style="display: flex; align-items: center; gap: 12px; padding: 12px 10px; border-top: 1px solid #1A1B1F">
+        <span aria-hidden="true" style="width: 36px; height: 36px; border-radius: 50%; background: #15161A; border: 1px solid #3A3C42; display: flex; align-items: center; justify-content: center; font-family: 'Unbounded', sans-serif; font-size: 11px; color: #C8A86B">ВЛ</span>
+        <span style="display: flex; flex-direction: column; line-height: 1.3; min-width: 0"><span style="font-weight: 500">[Имя владельца]</span><span style="font-size: 12px; color: #8C8A85">Владелец</span></span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main style="flex: 999 1 560px; min-width: 0; padding: 28px 32px 40px; box-sizing: border-box; display: flex; flex-direction: column; gap: 24px">
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px">
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.14em; color: #8C8A85">СУББОТА · 17 ОКТЯБРЯ 2026</span>
+        <h1 style="margin: 0; font-family: 'Unbounded', sans-serif; font-weight: 300; font-size: 26px; line-height: 1.2">Добрый день</h1>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+        <div role="group" aria-label="Период статистики" style="display: flex; border: 1px solid #2A2C31; border-radius: 2px; height: 40px">
+          <button class="ad-f" type="button" aria-pressed="true" style="padding: 0 14px; border: 0; background: #1D1F24; color: #F3F1EC; font: 500 13px 'Onest', sans-serif">Неделя</button>
+          <button class="ad-f" type="button" aria-pressed="false" style="padding: 0 14px; border: 0; border-left: 1px solid #2A2C31; background: transparent; color: #B4B1AA; font: 500 13px 'Onest', sans-serif">Месяц</button>
+          <button class="ad-f" type="button" aria-pressed="false" style="padding: 0 14px; border: 0; border-left: 1px solid #2A2C31; background: transparent; color: #B4B1AA; font: 500 13px 'Onest', sans-serif">Квартал</button>
+        </div>
+        <a class="ad-f" href="Admin-Bookings.dc.html" style="height: 40px; padding: 0 16px; display: inline-flex; align-items: center; gap: 8px; background: #C8A86B; color: #0B0B0C; text-decoration: none; border-radius: 2px; font: 600 13px 'Onest', sans-serif"><svg aria-hidden="true" width="16" height="16" sc-camel-view-box="0 0 24 24" fill="none" stroke="#0B0B0C" stroke-width="2"><path d="M12 5v14M5 12h14"></path></svg>Новая запись</a>
+      </div>
+    </div>
+
+    <!-- KPI -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 16px">
+      <div style="background: #0E0F11; border: 1px solid #1F2126; border-radius: 4px; padding: 20px; display: flex; flex-direction: column; gap: 10px">
+        <span style="font-size: 13px; color: #8C8A85">Записей сегодня</span>
+        <span style="display: flex; align-items: baseline; gap: 10px"><span style="font-family: 'Unbounded', sans-serif; font-weight: 300; font-size: 36px; line-height: 1">6</span><span style="font-size: 13px; color: #A9C4EE">2 новые</span></span>
+        <span style="font-size: 12px; color: #8C8A85">4 подтверждены · 1 отмена</span>
+      </div>
+      <div style="background: #0E0F11; border: 1px solid #1F2126; border-radius: 4px; padding: 20px; display: flex; flex-direction: column; gap: 10px">
+        <span style="font-size: 13px; color: #8C8A85">Клиентов в базе</span>
+        <span style="display: flex; align-items: baseline; gap: 10px"><span style="font-family: 'Unbounded', sans-serif; font-weight: 300; font-size: 36px; line-height: 1">312</span><span style="font-size: 13px; color: #E2CB9A">+18 за месяц</span></span>
+        <span style="font-size: 12px; color: #8C8A85">41 % — повторные визиты</span>
+      </div>
+      <div style="background: #0E0F11; border: 1px solid #1F2126; border-radius: 4px; padding: 20px; display: flex; flex-direction: column; gap: 10px">
+        <span style="font-size: 13px; color: #8C8A85">Загрузка недели</span>
+        <span style="display: flex; align-items: baseline; gap: 10px"><span style="font-family: 'Unbounded', sans-serif; font-weight: 300; font-size: 36px; line-height: 1">74 %</span><span style="font-size: 13px; color: #B4B1AA">62 из 84 слотов</span></span>
+        <span aria-hidden="true" style="height: 4px; background: #1D1F24; border-radius: 2px; overflow: hidden; display: block"><span style="display: block; width: 74%; height: 100%; background: #C8A86B"></span></span>
+      </div>
+      <div style="background: #0E0F11; border: 1px solid #1F2126; border-radius: 4px; padding: 20px; display: flex; flex-direction: column; gap: 10px">
+        <span style="font-size: 13px; color: #8C8A85">Выполнено за неделю</span>
+        <span style="display: flex; align-items: baseline; gap: 10px"><span style="font-family: 'Unbounded', sans-serif; font-weight: 300; font-size: 36px; line-height: 1">29</span><span style="font-size: 13px; color: #B4B1AA">работ</span></span>
+        <span style="font-size: 12px; color: #8C8A85">2 отмены · 0 неявок</span>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start">
+      <div style="flex: 2 1 640px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+      <!-- TODAY TIMELINE -->
+      <section style="min-width: 0; background: #0E0F11; border: 1px solid #1F2126; border-radius: 4px; padding: 22px 24px; display: flex; flex-direction: column; gap: 18px">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap">
+          <h2 style="margin: 0; font-size: 16px; font-weight: 600">Сегодня в студии</h2>
+          <div style="display: flex; gap: 16px; font-size: 12px; color: #8C8A85">
+            <span style="display: flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; background: rgba(200,168,107,0.35); border: 1px solid #C8A86B"></span>Занято</span>
+            <span style="display: flex; align-items: center; gap: 6px"><span style="width: 10px; height: 10px; border: 1px dashed #3A3C42"></span>Свободно</span>
+            <a href="Admin-Bookings.dc.html" style="font-size: 13px">Открыть календарь</a>
+          </div>
+        </div>
+        <div style="overflow-x: auto">
+          <div style="min-width: 640px; display: grid; grid-template-columns: 88px repeat(12, minmax(0, 1fr)); row-gap: 8px">
+            <span></span>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #8C8A85">09</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #8C8A85">10</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #8C8A85">11</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #8C8A85">12</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #8C8A85">13</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #8C8A85">14</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #8C8A85">15</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #8C8A85">16</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #8C8A85">17</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #8C8A85">18</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #8C8A85">19</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #8C8A85">20</span>
+
+            <span style="font-size: 13px; color: #B4B1AA; align-self: center">Бокс 1</span>
+            <div style="grid-column: span 12; height: 56px; position: relative; background: repeating-linear-gradient(90deg, transparent 0, transparent calc(100% / 12 - 1px), #1A1B1F calc(100% / 12 - 1px), #1A1B1F calc(100% / 12))">
+              <div style="position: absolute; left: 0; width: 100%; top: 4px; bottom: 4px; background: rgba(200,168,107,0.16); border: 1px solid #8E7443; border-radius: 2px; padding: 6px 10px; box-sizing: border-box; display: flex; align-items: center; gap: 10px; overflow: hidden"><span style="font-weight: 600; white-space: nowrap">Керамика · день 2 из 3</span><span style="color: #B4B1AA; white-space: nowrap">Алексей Смирнов · Audi A6 · Андрей К.</span></div>
+            </div>
+
+            <span style="font-size: 13px; color: #B4B1AA; align-self: center">Бокс 2</span>
+            <div style="grid-column: span 12; height: 56px; position: relative; background: repeating-linear-gradient(90deg, transparent 0, transparent calc(100% / 12 - 1px), #1A1B1F calc(100% / 12 - 1px), #1A1B1F calc(100% / 12))">
+              <div style="position: absolute; left: 0; width: calc(100% / 12 * 1); top: 4px; bottom: 4px; border: 1px dashed #3A3C42; border-radius: 2px; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #8C8A85">свободно</div>
+              <div style="position: absolute; left: calc(100% / 12 * 1); width: calc(100% / 12 * 7 - 4px); top: 4px; bottom: 4px; background: rgba(200,168,107,0.16); border: 1px solid #8E7443; border-radius: 2px; padding: 6px 10px; box-sizing: border-box; display: flex; align-items: center; gap: 10px; overflow: hidden"><span style="font-weight: 600; white-space: nowrap">Химчистка салона</span><span style="color: #B4B1AA; white-space: nowrap">Марина Белова · Volvo XC90 · Елена О.</span></div>
+              <div style="position: absolute; left: calc(100% / 12 * 8); width: calc(100% / 12 * 0.5); top: 4px; bottom: 4px; border: 1px dashed #3A3C42; border-radius: 2px"></div>
+              <div style="position: absolute; left: calc(100% / 12 * 8.5); width: calc(100% / 12 * 2.5 - 4px); top: 4px; bottom: 4px; background: rgba(134,173,230,0.12); border: 1px solid #4F6E99; border-radius: 2px; padding: 6px 10px; box-sizing: border-box; display: flex; align-items: center; overflow: hidden"><span style="font-weight: 600; white-space: nowrap">Мойка · Д. Орлов</span></div>
+              <div style="position: absolute; left: calc(100% / 12 * 11); width: calc(100% / 12 * 1); top: 4px; bottom: 4px; border: 1px dashed #3A3C42; border-radius: 2px"></div>
+            </div>
+          </div>
+        </div>
+        <div style="display: flex; flex-direction: column; border-top: 1px solid #1F2126">
+          <div class="ad-row" style="display: grid; grid-template-columns: 64px 1fr 110px 132px; gap: 16px; align-items: center; padding: 10px 8px; border-bottom: 1px solid #16171B"><span style="font-family: 'JetBrains Mono', monospace">09:00</span><span style="display: flex; flex-direction: column"><span style="font-weight: 500">Кирилл Николаев</span><span style="font-size: 12px; color: #8C8A85">Осмотр перед плёнкой · 30 мин</span></span><span style="color: #B4B1AA">Илья С.</span><span style="justify-self: start; display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; border-radius: 999px; background: rgba(134,173,230,0.12); color: #A9C4EE; font-size: 12px; font-weight: 500"><span style="width: 6px; height: 6px; border-radius: 50%; background: #86ADE6"></span>Новая</span></div>
+          <div class="ad-row" style="display: grid; grid-template-columns: 64px 1fr 110px 132px; gap: 16px; align-items: center; padding: 10px 8px; border-bottom: 1px solid #16171B"><span style="font-family: 'JetBrains Mono', monospace">10:00</span><span style="display: flex; flex-direction: column"><span style="font-weight: 500">Марина Белова</span><span style="font-size: 12px; color: #8C8A85">Химчистка салона · до 17:00</span></span><span style="color: #B4B1AA">Елена О.</span><span style="justify-self: start; display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; border-radius: 999px; background: rgba(200,168,107,0.14); color: #E2CB9A; font-size: 12px; font-weight: 500"><svg aria-hidden="true" width="11" height="11" sc-camel-view-box="0 0 24 24" fill="none" stroke="#E2CB9A" stroke-width="2.6"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>Подтверждена</span></div>
+          <div class="ad-row" style="display: grid; grid-template-columns: 64px 1fr 110px 132px; gap: 16px; align-items: center; padding: 10px 8px; border-bottom: 1px solid #16171B"><span style="font-family: 'JetBrains Mono', monospace">12:00</span><span style="display: flex; flex-direction: column"><span style="font-weight: 500">Ольга Петрова</span><span style="font-size: 12px; color: #8C8A85">Выдача · восстановительная полировка</span></span><span style="color: #B4B1AA">Максим Р.</span><span style="justify-self: start; display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; border-radius: 999px; background: rgba(169,166,160,0.12); color: #C9C6C0; font-size: 12px; font-weight: 500"><svg aria-hidden="true" width="11" height="11" sc-camel-view-box="0 0 24 24" fill="none" stroke="#C9C6C0" stroke-width="2.6"><path d="M4 12.5l4 4L20 5"></path></svg>Завершена</span></div>
+          <div class="ad-row" style="display: grid; grid-template-columns: 64px 1fr 110px 132px; gap: 16px; align-items: center; padding: 10px 8px; border-bottom: 1px solid #16171B"><span style="font-family: 'JetBrains Mono', monospace">17:30</span><span style="display: flex; flex-direction: column"><span style="font-weight: 500">Дмитрий Орлов</span><span style="font-size: 12px; color: #8C8A85">Детейлинг-мойка · 2,5 ч</span></span><span style="color: #B4B1AA">Максим Р.</span><span style="justify-self: start; display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; border-radius: 999px; background: rgba(134,173,230,0.12); color: #A9C4EE; font-size: 12px; font-weight: 500"><span style="width: 6px; height: 6px; border-radius: 50%; background: #86ADE6"></span>Новая</span></div>
+          <div class="ad-row" style="display: grid; grid-template-columns: 64px 1fr 110px 132px; gap: 16px; align-items: center; padding: 12px 8px"><span style="font-family: 'JetBrains Mono', monospace; color: #8C8A85; text-decoration: line-through">18:00</span><span style="display: flex; flex-direction: column"><span style="font-weight: 500; color: #8C8A85">Сергей Волков</span><span style="font-size: 12px; color: #77756F">Осмотр под плёнку · клиент перенёс</span></span><span style="color: #8C8A85">Илья С.</span><span style="justify-self: start; display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; border-radius: 999px; background: rgba(217,120,95,0.12); color: #EBA08A; font-size: 12px; font-weight: 500"><svg aria-hidden="true" width="11" height="11" sc-camel-view-box="0 0 24 24" fill="none" stroke="#EBA08A" stroke-width="2.6"><path d="M6 6l12 12M18 6L6 18"></path></svg>Отменена</span></div>
+        </div>
+      </section>
+
+      <!-- STATS -->
+      <section style="background: #0E0F11; border: 1px solid #1F2126; border-radius: 4px; padding: 22px 24px; display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 16px 40px">
+        <div style="grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center"><h2 style="margin: 0; font-size: 16px; font-weight: 600">Записи за неделю</h2><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #8C8A85">12–18.10</span></div>
+        <div style="display: flex; flex-direction: column; gap: 8px"><div role="img" aria-label="Записей по дням: пн 5, вт 7, ср 6, чт 8, пт 6, сб 6, вс 3" style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px; align-items: end; height: 120px">
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end"><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #B4B1AA">5</span><span style="width: 100%; height: 55%; background: #3A3C42; border-radius: 2px 2px 0 0"></span></div>
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end"><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #B4B1AA">7</span><span style="width: 100%; height: 78%; background: #3A3C42; border-radius: 2px 2px 0 0"></span></div>
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end"><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #B4B1AA">6</span><span style="width: 100%; height: 66%; background: #3A3C42; border-radius: 2px 2px 0 0"></span></div>
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end"><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #B4B1AA">8</span><span style="width: 100%; height: 88%; background: #3A3C42; border-radius: 2px 2px 0 0"></span></div>
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end"><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #B4B1AA">6</span><span style="width: 100%; height: 66%; background: #3A3C42; border-radius: 2px 2px 0 0"></span></div>
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end"><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #E2CB9A">6</span><span style="width: 100%; height: 66%; background: #C8A86B; border-radius: 2px 2px 0 0"></span></div>
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end"><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #8C8A85">3</span><span style="width: 100%; height: 33%; background: repeating-linear-gradient(135deg, #2A2C31 0 4px, transparent 4px 8px); border: 1px dashed #3A3C42; box-sizing: border-box; border-radius: 2px 2px 0 0"></span></div>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px; font-size: 11px; color: #8C8A85; text-align: center"><span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span style="color: #E2CB9A">Сб</span><span>Вс</span></div></div>
+        <div style="display: flex; flex-direction: column; gap: 10px; font-size: 13px; align-self: end"><span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.12em; color: #8C8A85">ПО УСЛУГАМ</span>
+          <div style="display: flex; justify-content: space-between"><span style="color: #B4B1AA">Детейлинг-мойка</span><span style="font-family: 'JetBrains Mono', monospace">12</span></div>
+          <div style="display: flex; justify-content: space-between"><span style="color: #B4B1AA">Полировка</span><span style="font-family: 'JetBrains Mono', monospace">9</span></div>
+          <div style="display: flex; justify-content: space-between"><span style="color: #B4B1AA">Химчистка салона</span><span style="font-family: 'JetBrains Mono', monospace">8</span></div>
+          <div style="display: flex; justify-content: space-between"><span style="color: #B4B1AA">Керамика</span><span style="font-family: 'JetBrains Mono', monospace">6</span></div>
+        </div>
+      </section>
+
+      </div>
+      <div style="flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 16px">
+      <!-- NEW REQUESTS -->
+      <section style="background: #0E0F11; border: 1px solid #1F2126; border-radius: 4px; padding: 22px 24px; display: flex; flex-direction: column; gap: 14px">
+        <div style="display: flex; justify-content: space-between; align-items: center"><h2 style="margin: 0; font-size: 16px; font-weight: 600">Новые заявки с сайта</h2><span style="height: 22px; padding: 0 8px; border-radius: 999px; background: rgba(134,173,230,0.16); color: #A9C4EE; font-size: 12px; display: inline-flex; align-items: center">2</span></div>
+        <div style="display: flex; flex-direction: column; gap: 10px; padding: 14px; border: 1px solid #23252A; border-radius: 2px">
+          <div style="display: flex; justify-content: space-between; gap: 10px"><span style="font-weight: 600">Кирилл Николаев</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #8C8A85">5 мин назад</span></div>
+          <span style="font-size: 13px; color: #B4B1AA">Плёнка — зоны риска · Илья С. · Пн, 19.10 · 10:00</span>
+          <div style="display: flex; gap: 8px"><button class="ad-f ad-btn" type="button" style="height: 36px; padding: 0 14px; border: 0; background: #C8A86B; color: #0B0B0C; border-radius: 2px; font: 600 12px 'Onest', sans-serif">Подтвердить</button><button class="ad-f ad-btn" type="button" style="height: 36px; padding: 0 14px; border: 1px solid #2A2C31; background: transparent; color: #F3F1EC; border-radius: 2px; font: 500 12px 'Onest', sans-serif">Позвонить</button></div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px; padding: 14px; border: 1px solid #23252A; border-radius: 2px">
+          <div style="display: flex; justify-content: space-between; gap: 10px"><span style="font-weight: 600">Дмитрий Орлов</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #8C8A85">1 ч назад</span></div>
+          <span style="font-size: 13px; color: #B4B1AA">Детейлинг-мойка · сегодня · 17:30</span>
+          <div style="display: flex; gap: 8px"><button class="ad-f ad-btn" type="button" style="height: 36px; padding: 0 14px; border: 0; background: #C8A86B; color: #0B0B0C; border-radius: 2px; font: 600 12px 'Onest', sans-serif">Подтвердить</button><button class="ad-f ad-btn" type="button" style="height: 36px; padding: 0 14px; border: 1px solid #2A2C31; background: transparent; color: #F3F1EC; border-radius: 2px; font: 500 12px 'Onest', sans-serif">Позвонить</button></div>
+        </div>
+      </section>
+      <!-- UPCOMING -->
+      <section style="background: #0E0F11; border: 1px solid #1F2126; border-radius: 4px; padding: 22px 24px; display: flex; flex-direction: column; gap: 14px">
+        <div style="display: flex; justify-content: space-between; align-items: center"><h2 style="margin: 0; font-size: 16px; font-weight: 600">Ближайшие дни</h2><span style="font-size: 12px; color: #8C8A85">свободно / всего слотов</span></div>
+        <div style="display: flex; flex-direction: column">
+          <div style="display: grid; grid-template-columns: 76px 1fr 64px; gap: 12px; align-items: center; padding: 11px 0; border-bottom: 1px solid #16171B"><span>Вс, 18</span><span aria-hidden="true" style="height: 6px; background: #1D1F24; border-radius: 3px; overflow: hidden"><span style="display: block; width: 50%; height: 100%; background: #C8A86B"></span></span><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #B4B1AA; text-align: right">8 / 16</span></div>
+          <div style="display: grid; grid-template-columns: 76px 1fr 64px; gap: 12px; align-items: center; padding: 11px 0; border-bottom: 1px solid #16171B"><span>Пн, 19</span><span aria-hidden="true" style="height: 6px; background: #1D1F24; border-radius: 3px; overflow: hidden"><span style="display: block; width: 71%; height: 100%; background: #C8A86B"></span></span><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #B4B1AA; text-align: right">7 / 24</span></div>
+          <div style="display: grid; grid-template-columns: 76px 1fr 64px; gap: 12px; align-items: center; padding: 11px 0; border-bottom: 1px solid #16171B"><span>Вт, 20</span><span aria-hidden="true" style="height: 6px; background: #1D1F24; border-radius: 3px; overflow: hidden"><span style="display: block; width: 100%; height: 100%; background: #E2CB9A"></span></span><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #E2CB9A; text-align: right">занято</span></div>
+          <div style="display: grid; grid-template-columns: 76px 1fr 64px; gap: 12px; align-items: center; padding: 11px 0; border-bottom: 1px solid #16171B"><span>Ср, 21</span><span aria-hidden="true" style="height: 6px; background: #1D1F24; border-radius: 3px; overflow: hidden"><span style="display: block; width: 58%; height: 100%; background: #C8A86B"></span></span><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #B4B1AA; text-align: right">10 / 24</span></div>
+          <div style="display: grid; grid-template-columns: 76px 1fr 64px; gap: 12px; align-items: center; padding: 11px 0"><span>Чт, 22</span><span aria-hidden="true" style="height: 6px; background: #1D1F24; border-radius: 3px; overflow: hidden"><span style="display: block; width: 33%; height: 100%; background: #C8A86B"></span></span><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #B4B1AA; text-align: right">16 / 24</span></div>
+        </div>
+      </section>
+
+      </div>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:1060}}">
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+
+
+</body></html>

@@ -1,0 +1,1287 @@
+{
+  "boards": [
+    {
+      "slug": "design-system",
+      "file": "design-system.html",
+      "source": "1.html#0",
+      "board_title": "Дизайн-система VÉLOX",
+      "page_title": "VÉLOX — дизайн-система",
+      "width": 1440,
+      "height": 4700,
+      "assets": [
+        "052df74533250c2e.woff2",
+        "1bdd550b76c1963e.jpg",
+        "22f9b928aa3928a8.woff2",
+        "2ec2d45d2ec0770e.woff2",
+        "35f4f974f4b2bcd4.js",
+        "648accdc1ab35d9e.jpg",
+        "654b7f6201e7e08c.js",
+        "68e5e01d6265bd68.woff2",
+        "69e4ad36127f640e.jpg",
+        "83c005d49d8a6a50.woff2",
+        "91d65035d8b300db.jpg",
+        "c74952a8c0c8c558.woff2",
+        "d949f1c3687aedad.js",
+        "db5ff4db83e58042.woff2",
+        "e17cfd15fb96909d.woff2",
+        "e30bf6a6063b6a47.woff2",
+        "e99d8589ac0f7db4.jpg",
+        "f6e1b4627bd120b4.jpg",
+        "f9e9fefdd33db765.jpg"
+      ],
+      "external_resources": [
+        "https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js",
+        "https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"
+      ]
+    },
+    {
+      "slug": "motion-spec",
+      "file": "motion-spec.html",
+      "source": "1.html#1",
+      "board_title": "Анимация, 3D и интерактив — что работает в макете и что требует разработки",
+      "page_title": "VÉLOX — анимация, 3D и интерактив",
+      "width": 1440,
+      "height": 3000,
+      "assets": [
+        "052df74533250c2e.woff2",
+        "22f9b928aa3928a8.woff2",
+        "2ec2d45d2ec0770e.woff2",
+        "35f4f974f4b2bcd4.js",
+        "648accdc1ab35d9e.jpg",
+        "654b7f6201e7e08c.js",
+        "68e5e01d6265bd68.woff2",
+        "74413f7371d43b0e.jpg",
+        "77d337aad2bcc4b2.jpg",
+        "83c005d49d8a6a50.woff2",
+        "c74952a8c0c8c558.woff2",
+        "d949f1c3687aedad.js",
+        "db5ff4db83e58042.woff2",
+        "e17cfd15fb96909d.woff2",
+        "e30bf6a6063b6a47.woff2",
+        "e99d8589ac0f7db4.jpg"
+      ],
+      "external_resources": [
+        "https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js",
+        "https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"
+      ]
+    },
+    {
+      "slug": "landing-desktop-1",
+      "file": "landing-desktop-1.html",
+      "source": "2.html#0",
+      "board_title": "Лендинг · Desktop · часть 1 — первый экран, услуги, до/после, цены",
+      "page_title": "VÉLOX — лендинг, часть 1",
+      "width": 1440,
+      "height": 6480,
+      "assets": [
+        "010f06fd16b877bc.jpg",
+        "052df74533250c2e.woff2",
+        "0d6ad0395729fb72.jpg",
+        "14e7d3079b75860e.woff2",
+        "1bdd550b76c1963e.jpg",
+        "22f9b928aa3928a8.woff2",
+        "35f4f974f4b2bcd4.js",
+        "3dfafbd38475e688.jpg",
+        "47bcce6509b6c1ca.jpg",
+        "648accdc1ab35d9e.jpg",
+        "654b7f6201e7e08c.js",
+        "68e5e01d6265bd68.woff2",
+        "69e4ad36127f640e.jpg",
+        "6cc43e3ee92bbdfc.jpg",
+        "83c005d49d8a6a50.woff2",
+        "845e1c9fe2e9a7bf.woff2",
+        "91d65035d8b300db.jpg",
+        "d949f1c3687aedad.js",
+        "db5ff4db83e58042.woff2",
+        "e17cfd15fb96909d.woff2",
+        "e30bf6a6063b6a47.woff2",
+        "e3409d1d8f96093b.png",
+        "e99d8589ac0f7db4.jpg",
+        "f6e1b4627bd120b4.jpg"
+      ],
+      "external_resources": [
+        "https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js",
+        "https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"
+      ]
+    },
+    {
+      "slug": "service-detail",
+      "file": "service-detail.html",
+      "source": "2.html#1",
+      "board_title": "Подробный просмотр услуги (по кнопке «Подробнее»)",
+      "page_title": "VÉLOX — подробнее об услуге",
+      "width": 1440,
+      "height": 960,
+      "assets": [
+        "010f06fd16b877bc.jpg",
+        "052df74533250c2e.woff2",
+        "14e7d3079b75860e.woff2",
+        "22f9b928aa3928a8.woff2",
+        "35f4f974f4b2bcd4.js",
+        "648accdc1ab35d9e.jpg",
+        "654b7f6201e7e08c.js",
+        "68e5e01d6265bd68.woff2",
+        "6cc43e3ee92bbdfc.jpg",
+        "83c005d49d8a6a50.woff2",
+        "845e1c9fe2e9a7bf.woff2",
+        "91d65035d8b300db.jpg",
+        "d949f1c3687aedad.js",
+        "db5ff4db83e58042.woff2",
+        "e17cfd15fb96909d.woff2",
+        "e30bf6a6063b6a47.woff2",
+        "f6e1b4627bd120b4.jpg"
+      ],
+      "external_resources": [
+        "https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js",
+        "https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"
+      ]
+    },
+    {
+      "slug": "booking-form-states",
+      "file": "booking-form-states.html",
+      "source": "2.html#2",
+      "board_title": "Форма записи — заполнение, ошибка, подтверждение",
+      "page_title": "VÉLOX — состояния формы записи",
+      "width": 1440,
+      "height": 1240,
+      "assets": [
+        "052df74533250c2e.woff2",
+        "14e7d3079b75860e.woff2",
+        "22f9b928aa3928a8.woff2",
+        "35f4f974f4b2bcd4.js",
+        "654b7f6201e7e08c.js",
+        "68e5e01d6265bd68.woff2",
+        "83c005d49d8a6a50.woff2",
+        "845e1c9fe2e9a7bf.woff2",
+        "d949f1c3687aedad.js",
+        "db5ff4db83e58042.woff2",
+        "e17cfd15fb96909d.woff2",
+        "e30bf6a6063b6a47.woff2"
+      ],
+      "external_resources": [
+        "https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js",
+        "https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"
+      ]
+    },
+    {
+      "slug": "landing-desktop-2",
+      "file": "landing-desktop-2.html",
+      "source": "2.html#3",
+      "board_title": "Лендинг · Desktop · часть 2 — преимущества, технологии, этапы, отзывы, сертификаты, запись",
+      "page_title": "VÉLOX — лендинг, часть 2",
+      "width": 1440,
+      "height": 7500,
+      "assets": [
+        "052df74533250c2e.woff2",
+        "14e7d3079b75860e.woff2",
+        "22f9b928aa3928a8.woff2",
+        "35f4f974f4b2bcd4.js",
+        "47bcce6509b6c1ca.jpg",
+        "654b7f6201e7e08c.js",
+        "68e5e01d6265bd68.woff2",
+        "69e4ad36127f640e.jpg",
+        "77d337aad2bcc4b2.jpg",
+        "83c005d49d8a6a50.woff2",
+        "845e1c9fe2e9a7bf.woff2",
+        "91d65035d8b300db.jpg",
+        "d046c78b1fbbcb1b.svg",
+        "d949f1c3687aedad.js",
+        "db5ff4db83e58042.woff2",
+        "e17cfd15fb96909d.woff2",
+        "e30bf6a6063b6a47.woff2",
+        "f6e1b4627bd120b4.jpg",
+        "f9e9fefdd33db765.jpg"
+      ],
+      "external_resources": [
+        "https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js",
+        "https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"
+      ]
+    },
+    {
+      "slug": "mobile-1",
+      "file": "mobile-1.html",
+      "source": "3.html#0",
+      "board_title": "Mobile · часть 1",
+      "page_title": "VÉLOX — мобильная версия, часть 1",
+      "width": 390,
+      "height": 6200,
+      "assets": [
+        "010f06fd16b877bc.jpg",
+        "052df74533250c2e.woff2",
+        "0d6ad0395729fb72.jpg",
+        "14e7d3079b75860e.woff2",
+        "1bdd550b76c1963e.jpg",
+        "22f9b928aa3928a8.woff2",
+        "2ec2d45d2ec0770e.woff2",
+        "35f4f974f4b2bcd4.js",
+        "3dfafbd38475e688.jpg",
+        "47bcce6509b6c1ca.jpg",
+        "4847c3d7a295c91f.jpg",
+        "654b7f6201e7e08c.js",
+        "68e5e01d6265bd68.woff2",
+        "69e4ad36127f640e.jpg",
+        "6cc43e3ee92bbdfc.jpg",
+        "83c005d49d8a6a50.woff2",
+        "845e1c9fe2e9a7bf.woff2",
+        "91d65035d8b300db.jpg",
+        "d949f1c3687aedad.js",
+        "db5ff4db83e58042.woff2",
+        "e17cfd15fb96909d.woff2",
+        "e30bf6a6063b6a47.woff2",
+        "e99d8589ac0f7db4.jpg",
+        "f6e1b4627bd120b4.jpg"
+      ],
+      "external_resources": [
+        "https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js",
+        "https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"
+      ]
+    },
+    {
+      "slug": "mobile-2",
+      "file": "mobile-2.html",
+      "source": "3.html#1",
+      "board_title": "Mobile · часть 2",
+      "page_title": "VÉLOX — мобильная версия, часть 2",
+      "width": 390,
+      "height": 6200,
+      "assets": [
+        "052df74533250c2e.woff2",
+        "14e7d3079b75860e.woff2",
+        "22f9b928aa3928a8.woff2",
+        "2ec2d45d2ec0770e.woff2",
+        "35f4f974f4b2bcd4.js",
+        "47bcce6509b6c1ca.jpg",
+        "654b7f6201e7e08c.js",
+        "68e5e01d6265bd68.woff2",
+        "69e4ad36127f640e.jpg",
+        "77d337aad2bcc4b2.jpg",
+        "83c005d49d8a6a50.woff2",
+        "845e1c9fe2e9a7bf.woff2",
+        "91d65035d8b300db.jpg",
+        "d046c78b1fbbcb1b.svg",
+        "d949f1c3687aedad.js",
+        "db5ff4db83e58042.woff2",
+        "e17cfd15fb96909d.woff2",
+        "e30bf6a6063b6a47.woff2"
+      ],
+      "external_resources": [
+        "https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js",
+        "https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"
+      ]
+    },
+    {
+      "slug": "mobile-nav",
+      "file": "mobile-nav.html",
+      "source": "3.html#2",
+      "board_title": "Mobile — закреплённая панель записи с Telegram и открытое меню",
+      "page_title": "VÉLOX — мобильная навигация",
+      "width": 820,
+      "height": 844,
+      "assets": [
+        "052df74533250c2e.woff2",
+        "14e7d3079b75860e.woff2",
+        "22f9b928aa3928a8.woff2",
+        "2ec2d45d2ec0770e.woff2",
+        "35f4f974f4b2bcd4.js",
+        "654b7f6201e7e08c.js",
+        "68e5e01d6265bd68.woff2",
+        "6cc43e3ee92bbdfc.jpg",
+        "83c005d49d8a6a50.woff2",
+        "845e1c9fe2e9a7bf.woff2",
+        "d949f1c3687aedad.js",
+        "db5ff4db83e58042.woff2",
+        "e17cfd15fb96909d.woff2",
+        "e30bf6a6063b6a47.woff2",
+        "f6e1b4627bd120b4.jpg"
+      ],
+      "external_resources": [
+        "https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js",
+        "https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"
+      ]
+    },
+    {
+      "slug": "mobile-booking-states",
+      "file": "mobile-booking-states.html",
+      "source": "3.html#3",
+      "board_title": "Mobile — запись: заполнение, ошибка, подтверждение",
+      "page_title": "VÉLOX — мобильная запись, состояния",
+      "width": 1250,
+      "height": 844,
+      "assets": [
+        "052df74533250c2e.woff2",
+        "14e7d3079b75860e.woff2",
+        "22f9b928aa3928a8.woff2",
+        "2ec2d45d2ec0770e.woff2",
+        "35f4f974f4b2bcd4.js",
+        "4847c3d7a295c91f.jpg",
+        "654b7f6201e7e08c.js",
+        "68e5e01d6265bd68.woff2",
+        "83c005d49d8a6a50.woff2",
+        "845e1c9fe2e9a7bf.woff2",
+        "d949f1c3687aedad.js",
+        "db5ff4db83e58042.woff2",
+        "e17cfd15fb96909d.woff2",
+        "e30bf6a6063b6a47.woff2"
+      ],
+      "external_resources": [
+        "https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js",
+        "https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"
+      ]
+    },
+    {
+      "slug": "admin-dashboard",
+      "file": "admin-dashboard.html",
+      "source": "4.html#0",
+      "board_title": "Админка — главная панель",
+      "page_title": "VÉLOX — панель: главная",
+      "width": 1440,
+      "height": 1080,
+      "assets": [
+        "052df74533250c2e.woff2",
+        "14e7d3079b75860e.woff2",
+        "22f9b928aa3928a8.woff2",
+        "2ec2d45d2ec0770e.woff2",
+        "35f4f974f4b2bcd4.js",
+        "654b7f6201e7e08c.js",
+        "68e5e01d6265bd68.woff2",
+        "83c005d49d8a6a50.woff2",
+        "d949f1c3687aedad.js",
+        "db5ff4db83e58042.woff2",
+        "e17cfd15fb96909d.woff2",
+        "e30bf6a6063b6a47.woff2"
+      ],
+      "external_resources": [
+        "https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js",
+        "https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"
+      ]
+    },
+    {
+      "slug": "admin-bookings",
+      "file": "admin-bookings.html",
+      "source": "4.html#1",
+      "board_title": "Админка — записи: календарь и редактирование",
+      "page_title": "VÉLOX — панель: записи",
+      "width": 1440,
+      "height": 1000,
+      "assets": [
+        "052df74533250c2e.woff2",
+        "14e7d3079b75860e.woff2",
+        "22f9b928aa3928a8.woff2",
+        "2ec2d45d2ec0770e.woff2",
+        "35f4f974f4b2bcd4.js",
+        "654b7f6201e7e08c.js",
+        "68e5e01d6265bd68.woff2",
+        "83c005d49d8a6a50.woff2",
+        "d949f1c3687aedad.js",
+        "db5ff4db83e58042.woff2",
+        "e17cfd15fb96909d.woff2",
+        "e30bf6a6063b6a47.woff2"
+      ],
+      "external_resources": [
+        "https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js",
+        "https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"
+      ]
+    },
+    {
+      "slug": "admin-schedule",
+      "file": "admin-schedule.html",
+      "source": "4.html#2",
+      "board_title": "Админка — расписание, выходные, перерывы",
+      "page_title": "VÉLOX — панель: расписание",
+      "width": 1440,
+      "height": 1200,
+      "assets": [
+        "052df74533250c2e.woff2",
+        "14e7d3079b75860e.woff2",
+        "22f9b928aa3928a8.woff2",
+        "2ec2d45d2ec0770e.woff2",
+        "35f4f974f4b2bcd4.js",
+        "654b7f6201e7e08c.js",
+        "68e5e01d6265bd68.woff2",
+        "83c005d49d8a6a50.woff2",
+        "d949f1c3687aedad.js",
+        "db5ff4db83e58042.woff2",
+        "e17cfd15fb96909d.woff2",
+        "e30bf6a6063b6a47.woff2"
+      ],
+      "external_resources": [
+        "https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js",
+        "https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"
+      ]
+    },
+    {
+      "slug": "admin-services",
+      "file": "admin-services.html",
+      "source": "4.html#3",
+      "board_title": "Админка — услуги",
+      "page_title": "VÉLOX — панель: услуги",
+      "width": 1440,
+      "height": 1080,
+      "assets": [
+        "010f06fd16b877bc.jpg",
+        "052df74533250c2e.woff2",
+        "14e7d3079b75860e.woff2",
+        "1bdd550b76c1963e.jpg",
+        "22f9b928aa3928a8.woff2",
+        "2ec2d45d2ec0770e.woff2",
+        "35f4f974f4b2bcd4.js",
+        "3dfafbd38475e688.jpg",
+        "47bcce6509b6c1ca.jpg",
+        "654b7f6201e7e08c.js",
+        "68e5e01d6265bd68.woff2",
+        "69e4ad36127f640e.jpg",
+        "83c005d49d8a6a50.woff2",
+        "91d65035d8b300db.jpg",
+        "d949f1c3687aedad.js",
+        "db5ff4db83e58042.woff2",
+        "e17cfd15fb96909d.woff2",
+        "e30bf6a6063b6a47.woff2",
+        "e99d8589ac0f7db4.jpg",
+        "f6e1b4627bd120b4.jpg",
+        "f9e9fefdd33db765.jpg"
+      ],
+      "external_resources": [
+        "https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js",
+        "https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"
+      ]
+    },
+    {
+      "slug": "admin-masters",
+      "file": "admin-masters.html",
+      "source": "4.html#4",
+      "board_title": "Админка — мастера",
+      "page_title": "VÉLOX — панель: мастера",
+      "width": 1440,
+      "height": 1060,
+      "assets": [
+        "052df74533250c2e.woff2",
+        "14e7d3079b75860e.woff2",
+        "22f9b928aa3928a8.woff2",
+        "2ec2d45d2ec0770e.woff2",
+        "35f4f974f4b2bcd4.js",
+        "654b7f6201e7e08c.js",
+        "68e5e01d6265bd68.woff2",
+        "83c005d49d8a6a50.woff2",
+        "d949f1c3687aedad.js",
+        "db5ff4db83e58042.woff2",
+        "e17cfd15fb96909d.woff2",
+        "e30bf6a6063b6a47.woff2"
+      ],
+      "external_resources": [
+        "https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js",
+        "https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"
+      ]
+    },
+    {
+      "slug": "admin-slots",
+      "file": "admin-slots.html",
+      "source": "4.html#5",
+      "board_title": "Админка — настройка слотов и вместимости",
+      "page_title": "VÉLOX — панель: слоты",
+      "width": 1440,
+      "height": 1180,
+      "assets": [
+        "052df74533250c2e.woff2",
+        "14e7d3079b75860e.woff2",
+        "22f9b928aa3928a8.woff2",
+        "2ec2d45d2ec0770e.woff2",
+        "35f4f974f4b2bcd4.js",
+        "654b7f6201e7e08c.js",
+        "68e5e01d6265bd68.woff2",
+        "83c005d49d8a6a50.woff2",
+        "d949f1c3687aedad.js",
+        "db5ff4db83e58042.woff2",
+        "e17cfd15fb96909d.woff2",
+        "e30bf6a6063b6a47.woff2"
+      ],
+      "external_resources": [
+        "https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js",
+        "https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"
+      ]
+    },
+    {
+      "slug": "admin-clients",
+      "file": "admin-clients.html",
+      "source": "4.html#6",
+      "board_title": "Админка — клиенты",
+      "page_title": "VÉLOX — панель: клиенты",
+      "width": 1440,
+      "height": 1000,
+      "assets": [
+        "052df74533250c2e.woff2",
+        "14e7d3079b75860e.woff2",
+        "22f9b928aa3928a8.woff2",
+        "2ec2d45d2ec0770e.woff2",
+        "35f4f974f4b2bcd4.js",
+        "654b7f6201e7e08c.js",
+        "68e5e01d6265bd68.woff2",
+        "83c005d49d8a6a50.woff2",
+        "d949f1c3687aedad.js",
+        "db5ff4db83e58042.woff2",
+        "e17cfd15fb96909d.woff2",
+        "e30bf6a6063b6a47.woff2"
+      ],
+      "external_resources": [
+        "https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js",
+        "https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"
+      ]
+    },
+    {
+      "slug": "admin-mobile",
+      "file": "admin-mobile.html",
+      "source": "4.html#7",
+      "board_title": "Админка на смартфоне — сегодня, календарь, запись",
+      "page_title": "VÉLOX — панель на смартфоне",
+      "width": 1250,
+      "height": 844,
+      "assets": [
+        "052df74533250c2e.woff2",
+        "14e7d3079b75860e.woff2",
+        "22f9b928aa3928a8.woff2",
+        "2ec2d45d2ec0770e.woff2",
+        "35f4f974f4b2bcd4.js",
+        "654b7f6201e7e08c.js",
+        "68e5e01d6265bd68.woff2",
+        "83c005d49d8a6a50.woff2",
+        "d949f1c3687aedad.js",
+        "db5ff4db83e58042.woff2",
+        "e17cfd15fb96909d.woff2",
+        "e30bf6a6063b6a47.woff2"
+      ],
+      "external_resources": [
+        "https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js",
+        "https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"
+      ]
+    },
+    {
+      "slug": "bot-start",
+      "file": "bot-start.html",
+      "source": "5.html#0",
+      "board_title": "Бот — приветствие, выбор услуги, марка и модель",
+      "page_title": "Telegram-бот VÉLOX — начало диалога",
+      "width": 1250,
+      "height": 924,
+      "assets": [
+        "052df74533250c2e.woff2",
+        "14e7d3079b75860e.woff2",
+        "22f9b928aa3928a8.woff2",
+        "2ec2d45d2ec0770e.woff2",
+        "35f4f974f4b2bcd4.js",
+        "654b7f6201e7e08c.js",
+        "68e5e01d6265bd68.woff2",
+        "83c005d49d8a6a50.woff2",
+        "d949f1c3687aedad.js",
+        "db5ff4db83e58042.woff2",
+        "e17cfd15fb96909d.woff2",
+        "e30bf6a6063b6a47.woff2",
+        "e99d8589ac0f7db4.jpg"
+      ],
+      "external_resources": [
+        "https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js",
+        "https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"
+      ]
+    },
+    {
+      "slug": "bot-calendar-contacts",
+      "file": "bot-calendar-contacts.html",
+      "source": "5.html#1",
+      "board_title": "Бот — календарь (мини-приложение), контакты, подтверждение",
+      "page_title": "Telegram-бот VÉLOX — дата, контакты, подтверждение",
+      "width": 1250,
+      "height": 924,
+      "assets": [
+        "052df74533250c2e.woff2",
+        "14e7d3079b75860e.woff2",
+        "22f9b928aa3928a8.woff2",
+        "2ec2d45d2ec0770e.woff2",
+        "35f4f974f4b2bcd4.js",
+        "654b7f6201e7e08c.js",
+        "68e5e01d6265bd68.woff2",
+        "83c005d49d8a6a50.woff2",
+        "d949f1c3687aedad.js",
+        "db5ff4db83e58042.woff2",
+        "e17cfd15fb96909d.woff2",
+        "e30bf6a6063b6a47.woff2"
+      ],
+      "external_resources": [
+        "https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js",
+        "https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"
+      ]
+    },
+    {
+      "slug": "bot-integration",
+      "file": "bot-integration.html",
+      "source": "5.html#2",
+      "board_title": "Бот — схема интеграции с сайтом и админкой, что подключить",
+      "page_title": "Telegram-бот VÉLOX — подготовка к интеграции",
+      "width": 1440,
+      "height": 1900,
+      "assets": [
+        "052df74533250c2e.woff2",
+        "14e7d3079b75860e.woff2",
+        "22f9b928aa3928a8.woff2",
+        "2ec2d45d2ec0770e.woff2",
+        "35f4f974f4b2bcd4.js",
+        "654b7f6201e7e08c.js",
+        "68e5e01d6265bd68.woff2",
+        "83c005d49d8a6a50.woff2",
+        "d949f1c3687aedad.js",
+        "db5ff4db83e58042.woff2",
+        "e17cfd15fb96909d.woff2",
+        "e30bf6a6063b6a47.woff2"
+      ],
+      "external_resources": [
+        "https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js",
+        "https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"
+      ]
+    },
+    {
+      "slug": "bot-my-bookings",
+      "file": "bot-my-bookings.html",
+      "source": "5.html#3",
+      "board_title": "Бот — мои записи, перенос, отмена, связь с администратором",
+      "page_title": "Telegram-бот VÉLOX — мои записи, перенос, отмена",
+      "width": 1250,
+      "height": 924,
+      "assets": [
+        "052df74533250c2e.woff2",
+        "14e7d3079b75860e.woff2",
+        "22f9b928aa3928a8.woff2",
+        "2ec2d45d2ec0770e.woff2",
+        "35f4f974f4b2bcd4.js",
+        "654b7f6201e7e08c.js",
+        "68e5e01d6265bd68.woff2",
+        "83c005d49d8a6a50.woff2",
+        "d949f1c3687aedad.js",
+        "db5ff4db83e58042.woff2",
+        "e17cfd15fb96909d.woff2",
+        "e30bf6a6063b6a47.woff2"
+      ],
+      "external_resources": [
+        "https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js",
+        "https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"
+      ]
+    },
+    {
+      "slug": "bot-admin-notifications",
+      "file": "bot-admin-notifications.html",
+      "source": "5.html#4",
+      "board_title": "Бот — уведомление администратору, ответ клиенту, заявка в панели",
+      "page_title": "Telegram-бот VÉLOX — уведомления администратору",
+      "width": 1250,
+      "height": 924,
+      "assets": [
+        "052df74533250c2e.woff2",
+        "14e7d3079b75860e.woff2",
+        "22f9b928aa3928a8.woff2",
+        "2ec2d45d2ec0770e.woff2",
+        "35f4f974f4b2bcd4.js",
+        "654b7f6201e7e08c.js",
+        "68e5e01d6265bd68.woff2",
+        "83c005d49d8a6a50.woff2",
+        "d949f1c3687aedad.js",
+        "db5ff4db83e58042.woff2",
+        "e17cfd15fb96909d.woff2",
+        "e30bf6a6063b6a47.woff2"
+      ],
+      "external_resources": [
+        "https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js",
+        "https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"
+      ]
+    }
+  ],
+  "assets": {
+    "010f06fd16b877bc.jpg": {
+      "file": "assets/010f06fd16b877bc.jpg",
+      "mime": "image/jpeg",
+      "bytes": 162936,
+      "sha256": "010f06fd16b877bc1a66612306316f34167513ad1ae7799146c92147cb6c71b6",
+      "used_in": [
+        "landing-desktop-1",
+        "service-detail",
+        "mobile-1",
+        "admin-services"
+      ]
+    },
+    "052df74533250c2e.woff2": {
+      "file": "assets/052df74533250c2e.woff2",
+      "mime": "font/woff2",
+      "bytes": 33760,
+      "sha256": "052df74533250c2e0ca0c4bdd32de594e107d99c1648e63820ef9c6142067828",
+      "used_in": [
+        "design-system",
+        "motion-spec",
+        "landing-desktop-1",
+        "service-detail",
+        "booking-form-states",
+        "landing-desktop-2",
+        "mobile-1",
+        "mobile-2",
+        "mobile-nav",
+        "mobile-booking-states",
+        "admin-dashboard",
+        "admin-bookings",
+        "admin-schedule",
+        "admin-services",
+        "admin-masters",
+        "admin-slots",
+        "admin-clients",
+        "admin-mobile",
+        "bot-start",
+        "bot-calendar-contacts",
+        "bot-integration",
+        "bot-my-bookings",
+        "bot-admin-notifications"
+      ]
+    },
+    "0d6ad0395729fb72.jpg": {
+      "file": "assets/0d6ad0395729fb72.jpg",
+      "mime": "image/jpeg",
+      "bytes": 107625,
+      "sha256": "0d6ad0395729fb724d19ca50096e419f5832d76c122c0a31bddf8efdaa2872d2",
+      "used_in": [
+        "landing-desktop-1",
+        "mobile-1"
+      ]
+    },
+    "14e7d3079b75860e.woff2": {
+      "file": "assets/14e7d3079b75860e.woff2",
+      "mime": "font/woff2",
+      "bytes": 28452,
+      "sha256": "14e7d3079b75860e2ab50efc6c318c398fdb46ede9b56e625f12ae70a3c5d9a4",
+      "used_in": [
+        "landing-desktop-1",
+        "service-detail",
+        "booking-form-states",
+        "landing-desktop-2",
+        "mobile-1",
+        "mobile-2",
+        "mobile-nav",
+        "mobile-booking-states",
+        "admin-dashboard",
+        "admin-bookings",
+        "admin-schedule",
+        "admin-services",
+        "admin-masters",
+        "admin-slots",
+        "admin-clients",
+        "admin-mobile",
+        "bot-start",
+        "bot-calendar-contacts",
+        "bot-integration",
+        "bot-my-bookings",
+        "bot-admin-notifications"
+      ]
+    },
+    "1bdd550b76c1963e.jpg": {
+      "file": "assets/1bdd550b76c1963e.jpg",
+      "mime": "image/jpeg",
+      "bytes": 200354,
+      "sha256": "1bdd550b76c1963edfa86b6b5c43713c2ab8096ca0c7ccdb4987e7e8f41df323",
+      "used_in": [
+        "design-system",
+        "landing-desktop-1",
+        "mobile-1",
+        "admin-services"
+      ]
+    },
+    "22f9b928aa3928a8.woff2": {
+      "file": "assets/22f9b928aa3928a8.woff2",
+      "mime": "font/woff2",
+      "bytes": 50904,
+      "sha256": "22f9b928aa3928a896340422b54d690fbb5875c30eae4c106f029c61f2289fd6",
+      "used_in": [
+        "design-system",
+        "motion-spec",
+        "landing-desktop-1",
+        "service-detail",
+        "booking-form-states",
+        "landing-desktop-2",
+        "mobile-1",
+        "mobile-2",
+        "mobile-nav",
+        "mobile-booking-states",
+        "admin-dashboard",
+        "admin-bookings",
+        "admin-schedule",
+        "admin-services",
+        "admin-masters",
+        "admin-slots",
+        "admin-clients",
+        "admin-mobile",
+        "bot-start",
+        "bot-calendar-contacts",
+        "bot-integration",
+        "bot-my-bookings",
+        "bot-admin-notifications"
+      ]
+    },
+    "2ec2d45d2ec0770e.woff2": {
+      "file": "assets/2ec2d45d2ec0770e.woff2",
+      "mime": "font/woff2",
+      "bytes": 18168,
+      "sha256": "2ec2d45d2ec0770e2c18cba2dba5126cf2dcff181d23ad192e9fffeb4af4b0b6",
+      "used_in": [
+        "design-system",
+        "motion-spec",
+        "mobile-1",
+        "mobile-2",
+        "mobile-nav",
+        "mobile-booking-states",
+        "admin-dashboard",
+        "admin-bookings",
+        "admin-schedule",
+        "admin-services",
+        "admin-masters",
+        "admin-slots",
+        "admin-clients",
+        "admin-mobile",
+        "bot-start",
+        "bot-calendar-contacts",
+        "bot-integration",
+        "bot-my-bookings",
+        "bot-admin-notifications"
+      ]
+    },
+    "35f4f974f4b2bcd4.js": {
+      "file": "assets/35f4f974f4b2bcd4.js",
+      "mime": "text/javascript",
+      "bytes": 131835,
+      "sha256": "35f4f974f4b2bcd44da73963347f8952e341f83909e4498227d4e26b98f66f0d",
+      "used_in": [
+        "design-system",
+        "motion-spec",
+        "landing-desktop-1",
+        "service-detail",
+        "booking-form-states",
+        "landing-desktop-2",
+        "mobile-1",
+        "mobile-2",
+        "mobile-nav",
+        "mobile-booking-states",
+        "admin-dashboard",
+        "admin-bookings",
+        "admin-schedule",
+        "admin-services",
+        "admin-masters",
+        "admin-slots",
+        "admin-clients",
+        "admin-mobile",
+        "bot-start",
+        "bot-calendar-contacts",
+        "bot-integration",
+        "bot-my-bookings",
+        "bot-admin-notifications"
+      ]
+    },
+    "3dfafbd38475e688.jpg": {
+      "file": "assets/3dfafbd38475e688.jpg",
+      "mime": "image/jpeg",
+      "bytes": 217090,
+      "sha256": "3dfafbd38475e688dec7df50e8ddeaf15e5e15d0a7e97ffd068a7fc8578bf1ec",
+      "used_in": [
+        "landing-desktop-1",
+        "mobile-1",
+        "admin-services"
+      ]
+    },
+    "47bcce6509b6c1ca.jpg": {
+      "file": "assets/47bcce6509b6c1ca.jpg",
+      "mime": "image/jpeg",
+      "bytes": 82166,
+      "sha256": "47bcce6509b6c1cabc847bf9d258dbb39a2b6f1ce529874a398d0c27d2ad32a6",
+      "used_in": [
+        "landing-desktop-1",
+        "landing-desktop-2",
+        "mobile-1",
+        "mobile-2",
+        "admin-services"
+      ]
+    },
+    "4847c3d7a295c91f.jpg": {
+      "file": "assets/4847c3d7a295c91f.jpg",
+      "mime": "image/jpeg",
+      "bytes": 82298,
+      "sha256": "4847c3d7a295c91f2677b165e18656f181b39997fc5ff817b1507b7e24d5bf43",
+      "used_in": [
+        "mobile-1",
+        "mobile-booking-states"
+      ]
+    },
+    "648accdc1ab35d9e.jpg": {
+      "file": "assets/648accdc1ab35d9e.jpg",
+      "mime": "image/jpeg",
+      "bytes": 180411,
+      "sha256": "648accdc1ab35d9ed7b656db38da04e80f316354e1991d1ad4602e09c5168629",
+      "used_in": [
+        "design-system",
+        "motion-spec",
+        "landing-desktop-1",
+        "service-detail"
+      ]
+    },
+    "654b7f6201e7e08c.js": {
+      "file": "assets/654b7f6201e7e08c.js",
+      "mime": "text/javascript",
+      "bytes": 45305,
+      "sha256": "654b7f6201e7e08c0aa3d9c670125d53b47f1438141ecd0d7df05589a877b324",
+      "used_in": [
+        "design-system",
+        "motion-spec",
+        "landing-desktop-1",
+        "service-detail",
+        "booking-form-states",
+        "landing-desktop-2",
+        "mobile-1",
+        "mobile-2",
+        "mobile-nav",
+        "mobile-booking-states",
+        "admin-dashboard",
+        "admin-bookings",
+        "admin-schedule",
+        "admin-services",
+        "admin-masters",
+        "admin-slots",
+        "admin-clients",
+        "admin-mobile",
+        "bot-start",
+        "bot-calendar-contacts",
+        "bot-integration",
+        "bot-my-bookings",
+        "bot-admin-notifications"
+      ]
+    },
+    "68e5e01d6265bd68.woff2": {
+      "file": "assets/68e5e01d6265bd68.woff2",
+      "mime": "font/woff2",
+      "bytes": 15860,
+      "sha256": "68e5e01d6265bd68967746d4f5a9d18d0e6cbb5d15583c7082d6384ab1229b27",
+      "used_in": [
+        "design-system",
+        "motion-spec",
+        "landing-desktop-1",
+        "service-detail",
+        "booking-form-states",
+        "landing-desktop-2",
+        "mobile-1",
+        "mobile-2",
+        "mobile-nav",
+        "mobile-booking-states",
+        "admin-dashboard",
+        "admin-bookings",
+        "admin-schedule",
+        "admin-services",
+        "admin-masters",
+        "admin-slots",
+        "admin-clients",
+        "admin-mobile",
+        "bot-start",
+        "bot-calendar-contacts",
+        "bot-integration",
+        "bot-my-bookings",
+        "bot-admin-notifications"
+      ]
+    },
+    "69e4ad36127f640e.jpg": {
+      "file": "assets/69e4ad36127f640e.jpg",
+      "mime": "image/jpeg",
+      "bytes": 140041,
+      "sha256": "69e4ad36127f640edf7cad80316d2b4302e11dc02f0440e71fa598aa7c804780",
+      "used_in": [
+        "design-system",
+        "landing-desktop-1",
+        "landing-desktop-2",
+        "mobile-1",
+        "mobile-2",
+        "admin-services"
+      ]
+    },
+    "6cc43e3ee92bbdfc.jpg": {
+      "file": "assets/6cc43e3ee92bbdfc.jpg",
+      "mime": "image/jpeg",
+      "bytes": 306360,
+      "sha256": "6cc43e3ee92bbdfc0a4685707da8e1049c7fa9e2946616da252048a1fabe7071",
+      "used_in": [
+        "landing-desktop-1",
+        "service-detail",
+        "mobile-1",
+        "mobile-nav"
+      ]
+    },
+    "74413f7371d43b0e.jpg": {
+      "file": "assets/74413f7371d43b0e.jpg",
+      "mime": "image/jpeg",
+      "bytes": 76861,
+      "sha256": "74413f7371d43b0ec29b0947a69764f75f3e1ad3dbb5af0d8b0df0227489b88d",
+      "used_in": [
+        "motion-spec"
+      ]
+    },
+    "77d337aad2bcc4b2.jpg": {
+      "file": "assets/77d337aad2bcc4b2.jpg",
+      "mime": "image/jpeg",
+      "bytes": 156030,
+      "sha256": "77d337aad2bcc4b2c3fd9a090b319f427fd442812edcb46d3dcb0f3919088ab9",
+      "used_in": [
+        "motion-spec",
+        "landing-desktop-2",
+        "mobile-2"
+      ]
+    },
+    "83c005d49d8a6a50.woff2": {
+      "file": "assets/83c005d49d8a6a50.woff2",
+      "mime": "font/woff2",
+      "bytes": 31432,
+      "sha256": "83c005d49d8a6a50474c73a5a36ac0468076e9c4a29da7bdb14995d80560a5be",
+      "used_in": [
+        "design-system",
+        "motion-spec",
+        "landing-desktop-1",
+        "service-detail",
+        "booking-form-states",
+        "landing-desktop-2",
+        "mobile-1",
+        "mobile-2",
+        "mobile-nav",
+        "mobile-booking-states",
+        "admin-dashboard",
+        "admin-bookings",
+        "admin-schedule",
+        "admin-services",
+        "admin-masters",
+        "admin-slots",
+        "admin-clients",
+        "admin-mobile",
+        "bot-start",
+        "bot-calendar-contacts",
+        "bot-integration",
+        "bot-my-bookings",
+        "bot-admin-notifications"
+      ]
+    },
+    "845e1c9fe2e9a7bf.woff2": {
+      "file": "assets/845e1c9fe2e9a7bf.woff2",
+      "mime": "font/woff2",
+      "bytes": 118348,
+      "sha256": "845e1c9fe2e9a7bfbedfeb447fbeba4bc1b5ecd6246277910ccdaad35a7a532c",
+      "used_in": [
+        "landing-desktop-1",
+        "service-detail",
+        "booking-form-states",
+        "landing-desktop-2",
+        "mobile-1",
+        "mobile-2",
+        "mobile-nav",
+        "mobile-booking-states"
+      ]
+    },
+    "91d65035d8b300db.jpg": {
+      "file": "assets/91d65035d8b300db.jpg",
+      "mime": "image/jpeg",
+      "bytes": 158943,
+      "sha256": "91d65035d8b300dbead4e5559e5d3670b4ca311b4eb71e660eda32679882af79",
+      "used_in": [
+        "design-system",
+        "landing-desktop-1",
+        "service-detail",
+        "landing-desktop-2",
+        "mobile-1",
+        "mobile-2",
+        "admin-services"
+      ]
+    },
+    "c74952a8c0c8c558.woff2": {
+      "file": "assets/c74952a8c0c8c558.woff2",
+      "mime": "font/woff2",
+      "bytes": 25480,
+      "sha256": "c74952a8c0c8c558c4f879f83773cf529d11350609f7073f5b2c5999dec46041",
+      "used_in": [
+        "design-system",
+        "motion-spec"
+      ]
+    },
+    "d046c78b1fbbcb1b.svg": {
+      "file": "assets/d046c78b1fbbcb1b.svg",
+      "mime": "image/svg+xml",
+      "bytes": 8378,
+      "sha256": "d046c78b1fbbcb1bfedaf23dfbdad99fff74da831cc9542fec076898b30028f0",
+      "used_in": [
+        "landing-desktop-2",
+        "mobile-2"
+      ]
+    },
+    "d949f1c3687aedad.js": {
+      "file": "assets/d949f1c3687aedad.js",
+      "mime": "text/javascript",
+      "bytes": 10751,
+      "sha256": "d949f1c3687aedadcedac85261865f29b17cd273997e7f6b2bfc53b2f9d4c4dd",
+      "used_in": [
+        "design-system",
+        "motion-spec",
+        "landing-desktop-1",
+        "service-detail",
+        "booking-form-states",
+        "landing-desktop-2",
+        "mobile-1",
+        "mobile-2",
+        "mobile-nav",
+        "mobile-booking-states",
+        "admin-dashboard",
+        "admin-bookings",
+        "admin-schedule",
+        "admin-services",
+        "admin-masters",
+        "admin-slots",
+        "admin-clients",
+        "admin-mobile",
+        "bot-start",
+        "bot-calendar-contacts",
+        "bot-integration",
+        "bot-my-bookings",
+        "bot-admin-notifications"
+      ]
+    },
+    "db5ff4db83e58042.woff2": {
+      "file": "assets/db5ff4db83e58042.woff2",
+      "mime": "font/woff2",
+      "bytes": 11624,
+      "sha256": "db5ff4db83e580426280e9337a58dc57d3a83784a1b03ad80914651594441d52",
+      "used_in": [
+        "design-system",
+        "motion-spec",
+        "landing-desktop-1",
+        "service-detail",
+        "booking-form-states",
+        "landing-desktop-2",
+        "mobile-1",
+        "mobile-2",
+        "mobile-nav",
+        "mobile-booking-states",
+        "admin-dashboard",
+        "admin-bookings",
+        "admin-schedule",
+        "admin-services",
+        "admin-masters",
+        "admin-slots",
+        "admin-clients",
+        "admin-mobile",
+        "bot-start",
+        "bot-calendar-contacts",
+        "bot-integration",
+        "bot-my-bookings",
+        "bot-admin-notifications"
+      ]
+    },
+    "e17cfd15fb96909d.woff2": {
+      "file": "assets/e17cfd15fb96909d.woff2",
+      "mime": "font/woff2",
+      "bytes": 8872,
+      "sha256": "e17cfd15fb96909d64095015f958207063a0c07191da3512df7d560a781aebdf",
+      "used_in": [
+        "design-system",
+        "motion-spec",
+        "landing-desktop-1",
+        "service-detail",
+        "booking-form-states",
+        "landing-desktop-2",
+        "mobile-1",
+        "mobile-2",
+        "mobile-nav",
+        "mobile-booking-states",
+        "admin-dashboard",
+        "admin-bookings",
+        "admin-schedule",
+        "admin-services",
+        "admin-masters",
+        "admin-slots",
+        "admin-clients",
+        "admin-mobile",
+        "bot-start",
+        "bot-calendar-contacts",
+        "bot-integration",
+        "bot-my-bookings",
+        "bot-admin-notifications"
+      ]
+    },
+    "e30bf6a6063b6a47.woff2": {
+      "file": "assets/e30bf6a6063b6a47.woff2",
+      "mime": "font/woff2",
+      "bytes": 31424,
+      "sha256": "e30bf6a6063b6a47232bbd657e24c7cf4fdaf76fc2c50d92d9ee63e2ad2087cf",
+      "used_in": [
+        "design-system",
+        "motion-spec",
+        "landing-desktop-1",
+        "service-detail",
+        "booking-form-states",
+        "landing-desktop-2",
+        "mobile-1",
+        "mobile-2",
+        "mobile-nav",
+        "mobile-booking-states",
+        "admin-dashboard",
+        "admin-bookings",
+        "admin-schedule",
+        "admin-services",
+        "admin-masters",
+        "admin-slots",
+        "admin-clients",
+        "admin-mobile",
+        "bot-start",
+        "bot-calendar-contacts",
+        "bot-integration",
+        "bot-my-bookings",
+        "bot-admin-notifications"
+      ]
+    },
+    "e3409d1d8f96093b.png": {
+      "file": "assets/e3409d1d8f96093b.png",
+      "mime": "image/png",
+      "bytes": 104217,
+      "sha256": "e3409d1d8f96093be49cbbbc473616a70e8854c94656bd2f5c04f8878f3d4c2c",
+      "used_in": [
+        "landing-desktop-1"
+      ]
+    },
+    "e99d8589ac0f7db4.jpg": {
+      "file": "assets/e99d8589ac0f7db4.jpg",
+      "mime": "image/jpeg",
+      "bytes": 129078,
+      "sha256": "e99d8589ac0f7db4fa3e0236cd6d8ae9e98b96423cfdf4bd78f34d485fdeba4d",
+      "used_in": [
+        "design-system",
+        "motion-spec",
+        "landing-desktop-1",
+        "mobile-1",
+        "admin-services",
+        "bot-start"
+      ]
+    },
+    "f6e1b4627bd120b4.jpg": {
+      "file": "assets/f6e1b4627bd120b4.jpg",
+      "mime": "image/jpeg",
+      "bytes": 100831,
+      "sha256": "f6e1b4627bd120b4785c9b479c07f2c3f417908663d005da22af95736ca82c82",
+      "used_in": [
+        "design-system",
+        "landing-desktop-1",
+        "service-detail",
+        "landing-desktop-2",
+        "mobile-1",
+        "mobile-nav",
+        "admin-services"
+      ]
+    },
+    "f9e9fefdd33db765.jpg": {
+      "file": "assets/f9e9fefdd33db765.jpg",
+      "mime": "image/jpeg",
+      "bytes": 150612,
+      "sha256": "f9e9fefdd33db765b9c343e98f13a54502636b33697d2c5978e001478f18e841",
+      "used_in": [
+        "design-system",
+        "landing-desktop-2",
+        "admin-services"
+      ]
+    }
+  }
+}

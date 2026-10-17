@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="ru"><head><script>window.__resources = {"https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js": "assets/d949f1c3687aedad.js", "https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js": "assets/35f4f974f4b2bcd4.js"};</script>
+<meta charset="utf-8">
+<title>VÉLOX — лендинг, часть 1</title>
+<script src="assets/654b7f6201e7e08c.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>/* cyrillic-ext */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPx3cwhsk.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/e17cfd15fb96909d.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPxPcwhsk.woff2) format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPx_cwhsk.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/db5ff4db83e58042.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/83c005d49d8a6a50.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPx3cwhsk.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/e17cfd15fb96909d.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPxPcwhsk.woff2) format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPx_cwhsk.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/db5ff4db83e58042.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/83c005d49d8a6a50.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/onest/v11/gNMKW3F-SZuj7xmS-HY6EQ.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/68e5e01d6265bd68.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* math */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/onest/v11/gNMKW3F-SZuj7xnj-HY6EQ.woff2) format('woff2');
+  unicode-range: U+0302-0303, U+0305, U+0307-0308, U+0310, U+0312, U+0315, U+031A, U+0326-0327, U+032C, U+032F-0330, U+0332-0333, U+0338, U+033A, U+0346, U+034D, U+0391-03A1, U+03A3-03A9, U+03B1-03C9, U+03D1, U+03D5-03D6, U+03F0-03F1, U+03F4-03F5, U+2016-2017, U+2034-2038, U+203C, U+2040, U+2043, U+2047, U+2050, U+2057, U+205F, U+2070-2071, U+2074-209F, U+20D0-20DC, U+20E1, U+20E5-20EF, U+2100-2112, U+2114-2115, U+2117-2121, U+2123-214F, U+2190, U+2192, U+2194-21AE, U+21B0-21E5, U+21F1-21F2, U+21F4-2211, U+2213-2214, U+2216-22FF, U+2308-230B, U+2310, U+2319, U+231C-2321, U+2336-237A, U+237C, U+2395, U+239B-23B7, U+23D0, U+23DC-23E1, U+2474-2475, U+25AF, U+25B3, U+25B7, U+25BD, U+25C1, U+25CA, U+25CC, U+25FB, U+266D-266F, U+27C0-27FF, U+2900-2AFF, U+2B0E-2B11, U+2B30-2B4C, U+2BFE, U+3030, U+FF5B, U+FF5D, U+1D400-1D7FF, U+1EE00-1EEFF;
+}
+/* symbols */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/onest/v11/gNMKW3F-SZuj7xnx-HY6EQ.woff2) format('woff2');
+  unicode-range: U+0001-000C, U+000E-001F, U+007F-009F, U+20DD-20E0, U+20E2-20E4, U+2150-218F, U+2190, U+2192, U+2194-2199, U+21AF, U+21E6-21F0, U+21F3, U+2218-2219, U+2299, U+22C4-22C6, U+2300-243F, U+2440-244A, U+2460-24FF, U+25A0-27BF, U+2800-28FF, U+2921-2922, U+2981, U+29BF, U+29EB, U+2B00-2BFF, U+4DC0-4DFF, U+FFF9-FFFB, U+10140-1018E, U+10190-1019C, U+101A0, U+101D0-101FD, U+102E0-102FB, U+10E60-10E7E, U+1D2C0-1D2D3, U+1D2E0-1D37F, U+1F000-1F0FF, U+1F100-1F1AE, U+1F1E6-1F1FF, U+1F30D-1F30F, U+1F315, U+1F31C, U+1F31E, U+1F320-1F32C, U+1F336, U+1F378, U+1F37D, U+1F382, U+1F393-1F39F, U+1F3A7-1F3A8, U+1F3AC-1F3AF, U+1F3C2, U+1F3C4-1F3C6, U+1F3CA-1F3CE, U+1F3D4-1F3E0, U+1F3ED, U+1F3F1-1F3F3, U+1F3F5-1F3F7, U+1F408, U+1F415, U+1F41F, U+1F426, U+1F43F, U+1F441-1F442, U+1F444, U+1F446-1F449, U+1F44C-1F44E, U+1F453, U+1F46A, U+1F47D, U+1F4A3, U+1F4B0, U+1F4B3, U+1F4B9, U+1F4BB, U+1F4BF, U+1F4C8-1F4CB, U+1F4D6, U+1F4DA, U+1F4DF, U+1F4E3-1F4E6, U+1F4EA-1F4ED, U+1F4F7, U+1F4F9-1F4FB, U+1F4FD-1F4FE, U+1F503, U+1F507-1F50B, U+1F50D, U+1F512-1F513, U+1F53E-1F54A, U+1F54F-1F5FA, U+1F610, U+1F650-1F67F, U+1F687, U+1F68D, U+1F691, U+1F694, U+1F698, U+1F6AD, U+1F6B2, U+1F6B9-1F6BA, U+1F6BC, U+1F6C6-1F6CF, U+1F6D3-1F6D7, U+1F6E0-1F6EA, U+1F6F0-1F6F3, U+1F6F7-1F6FC, U+1F700-1F80B, U+1F810-1F847, U+1F850-1F859, U+1F860-1F887, U+1F890-1F8AD, U+1F8B0-1F8BB, U+1F8C0-1F8C1, U+1F8D0-1F8D8, U+1F900-1F90B, U+1F93B, U+1F946, U+1F984, U+1F996, U+1F9E9, U+1FA00-1FA6F, U+1FA70-1FA7C, U+1FA80-1FAC6, U+1FAC8, U+1FACC-1FADD, U+1FADF-1FAEB, U+1FAEF-1FAFA, U+1FB00-1FBFF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/onest/v11/gNMKW3F-SZuj7xmQ-HY6EQ.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/14e7d3079b75860e.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/052df74533250c2e.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/onest/v11/gNMKW3F-SZuj7xmS-HY6EQ.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/68e5e01d6265bd68.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* math */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/onest/v11/gNMKW3F-SZuj7xnj-HY6EQ.woff2) format('woff2');
+  unicode-range: U+0302-0303, U+0305, U+0307-0308, U+0310, U+0312, U+0315, U+031A, U+0326-0327, U+032C, U+032F-0330, U+0332-0333, U+0338, U+033A, U+0346, U+034D, U+0391-03A1, U+03A3-03A9, U+03B1-03C9, U+03D1, U+03D5-03D6, U+03F0-03F1, U+03F4-03F5, U+2016-2017, U+2034-2038, U+203C, U+2040, U+2043, U+2047, U+2050, U+2057, U+205F, U+2070-2071, U+2074-209F, U+20D0-20DC, U+20E1, U+20E5-20EF, U+2100-2112, U+2114-2115, U+2117-2121, U+2123-214F, U+2190, U+2192, U+2194-21AE, U+21B0-21E5, U+21F1-21F2, U+21F4-2211, U+2213-2214, U+2216-22FF, U+2308-230B, U+2310, U+2319, U+231C-2321, U+2336-237A, U+237C, U+2395, U+239B-23B7, U+23D0, U+23DC-23E1, U+2474-2475, U+25AF, U+25B3, U+25B7, U+25BD, U+25C1, U+25CA, U+25CC, U+25FB, U+266D-266F, U+27C0-27FF, U+2900-2AFF, U+2B0E-2B11, U+2B30-2B4C, U+2BFE, U+3030, U+FF5B, U+FF5D, U+1D400-1D7FF, U+1EE00-1EEFF;
+}
+/* symbols */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/onest/v11/gNMKW3F-SZuj7xnx-HY6EQ.woff2) format('woff2');
+  unicode-range: U+0001-000C, U+000E-001F, U+007F-009F, U+20DD-20E0, U+20E2-20E4, U+2150-218F, U+2190, U+2192, U+2194-2199, U+21AF, U+21E6-21F0, U+21F3, U+2218-2219, U+2299, U+22C4-22C6, U+2300-243F, U+2440-244A, U+2460-24FF, U+25A0-27BF, U+2800-28FF, U+2921-2922, U+2981, U+29BF, U+29EB, U+2B00-2BFF, U+4DC0-4DFF, U+FFF9-FFFB, U+10140-1018E, U+10190-1019C, U+101A0, U+101D0-101FD, U+102E0-102FB, U+10E60-10E7E, U+1D2C0-1D2D3, U+1D2E0-1D37F, U+1F000-1F0FF, U+1F100-1F1AE, U+1F1E6-1F1FF, U+1F30D-1F30F, U+1F315, U+1F31C, U+1F31E, U+1F320-1F32C, U+1F336, U+1F378, U+1F37D, U+1F382, U+1F393-1F39F, U+1F3A7-1F3A8, U+1F3AC-1F3AF, U+1F3C2, U+1F3C4-1F3C6, U+1F3CA-1F3CE, U+1F3D4-1F3E0, U+1F3ED, U+1F3F1-1F3F3, U+1F3F5-1F3F7, U+1F408, U+1F415, U+1F41F, U+1F426, U+1F43F, U+1F441-1F442, U+1F444, U+1F446-1F449, U+1F44C-1F44E, U+1F453, U+1F46A, U+1F47D, U+1F4A3, U+1F4B0, U+1F4B3, U+1F4B9, U+1F4BB, U+1F4BF, U+1F4C8-1F4CB, U+1F4D6, U+1F4DA, U+1F4DF, U+1F4E3-1F4E6, U+1F4EA-1F4ED, U+1F4F7, U+1F4F9-1F4FB, U+1F4FD-1F4FE, U+1F503, U+1F507-1F50B, U+1F50D, U+1F512-1F513, U+1F53E-1F54A, U+1F54F-1F5FA, U+1F610, U+1F650-1F67F, U+1F687, U+1F68D, U+1F691, U+1F694, U+1F698, U+1F6AD, U+1F6B2, U+1F6B9-1F6BA, U+1F6BC, U+1F6C6-1F6CF, U+1F6D3-1F6D7, U+1F6E0-1F6EA, U+1F6F0-1F6F3, U+1F6F7-1F6FC, U+1F700-1F80B, U+1F810-1F847, U+1F850-1F859, U+1F860-1F887, U+1F890-1F8AD, U+1F8B0-1F8BB, U+1F8C0-1F8C1, U+1F8D0-1F8D8, U+1F900-1F90B, U+1F93B, U+1F946, U+1F984, U+1F996, U+1F9E9, U+1FA00-1FA6F, U+1FA70-1FA7C, U+1FA80-1FAC6, U+1FAC8, U+1FACC-1FADD, U+1FADF-1FAEB, U+1FAEF-1FAFA, U+1FB00-1FBFF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/onest/v11/gNMKW3F-SZuj7xmQ-HY6EQ.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/14e7d3079b75860e.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/052df74533250c2e.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/onest/v11/gNMKW3F-SZuj7xmS-HY6EQ.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("assets/68e5e01d6265bd68.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* math */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/onest/v11/gNMKW3F-SZuj7xnj-HY6EQ.woff2) format('woff2');
+  unicode-range: U+0302-0303, U+0305, U+0307-0308, U+0310, U+0312, U+0315, U+031A, U+0326-0327, U+032C, U+032F-0330, U+0332-0333, U+0338, U+033A, U+0346, U+034D, U+0391-03A1, U+03A3-03A9, U+03B1-03C9, U+03D1, U+03D5-03D6, U+03F0-03F1, U+03F4-03F5, U+2016-2017, U+2034-2038, U+203C, U+2040, U+2043, U+2047, U+2050, U+2057, U+205F, U+2070-2071, U+2074-209F, U+20D0-20DC, U+20E1, U+20E5-20EF, U+2100-2112, U+2114-2115, U+2117-2121, U+2123-214F, U+2190, U+2192, U+2194-21AE, U+21B0-21E5, U+21F1-21F2, U+21F4-2211, U+2213-2214, U+2216-22FF, U+2308-230B, U+2310, U+2319, U+231C-2321, U+2336-237A, U+237C, U+2395, U+239B-23B7, U+23D0, U+23DC-23E1, U+2474-2475, U+25AF, U+25B3, U+25B7, U+25BD, U+25C1, U+25CA, U+25CC, U+25FB, U+266D-266F, U+27C0-27FF, U+2900-2AFF, U+2B0E-2B11, U+2B30-2B4C, U+2BFE, U+3030, U+FF5B, U+FF5D, U+1D400-1D7FF, U+1EE00-1EEFF;
+}
+/* symbols */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/onest/v11/gNMKW3F-SZuj7xnx-HY6EQ.woff2) format('woff2');
+  unicode-range: U+0001-000C, U+000E-001F, U+007F-009F, U+20DD-20E0, U+20E2-20E4, U+2150-218F, U+2190, U+2192, U+2194-2199, U+21AF, U+21E6-21F0, U+21F3, U+2218-2219, U+2299, U+22C4-22C6, U+2300-243F, U+2440-244A, U+2460-24FF, U+25A0-27BF, U+2800-28FF, U+2921-2922, U+2981, U+29BF, U+29EB, U+2B00-2BFF, U+4DC0-4DFF, U+FFF9-FFFB, U+10140-1018E, U+10190-1019C, U+101A0, U+101D0-101FD, U+102E0-102FB, U+10E60-10E7E, U+1D2C0-1D2D3, U+1D2E0-1D37F, U+1F000-1F0FF, U+1F100-1F1AE, U+1F1E6-1F1FF, U+1F30D-1F30F, U+1F315, U+1F31C, U+1F31E, U+1F320-1F32C, U+1F336, U+1F378, U+1F37D, U+1F382, U+1F393-1F39F, U+1F3A7-1F3A8, U+1F3AC-1F3AF, U+1F3C2, U+1F3C4-1F3C6, U+1F3CA-1F3CE, U+1F3D4-1F3E0, U+1F3ED, U+1F3F1-1F3F3, U+1F3F5-1F3F7, U+1F408, U+1F415, U+1F41F, U+1F426, U+1F43F, U+1F441-1F442, U+1F444, U+1F446-1F449, U+1F44C-1F44E, U+1F453, U+1F46A, U+1F47D, U+1F4A3, U+1F4B0, U+1F4B3, U+1F4B9, U+1F4BB, U+1F4BF, U+1F4C8-1F4CB, U+1F4D6, U+1F4DA, U+1F4DF, U+1F4E3-1F4E6, U+1F4EA-1F4ED, U+1F4F7, U+1F4F9-1F4FB, U+1F4FD-1F4FE, U+1F503, U+1F507-1F50B, U+1F50D, U+1F512-1F513, U+1F53E-1F54A, U+1F54F-1F5FA, U+1F610, U+1F650-1F67F, U+1F687, U+1F68D, U+1F691, U+1F694, U+1F698, U+1F6AD, U+1F6B2, U+1F6B9-1F6BA, U+1F6BC, U+1F6C6-1F6CF, U+1F6D3-1F6D7, U+1F6E0-1F6EA, U+1F6F0-1F6F3, U+1F6F7-1F6FC, U+1F700-1F80B, U+1F810-1F847, U+1F850-1F859, U+1F860-1F887, U+1F890-1F8AD, U+1F8B0-1F8BB, U+1F8C0-1F8C1, U+1F8D0-1F8D8, U+1F900-1F90B, U+1F93B, U+1F946, U+1F984, U+1F996, U+1F9E9, U+1FA00-1FA6F, U+1FA70-1FA7C, U+1FA80-1FAC6, U+1FAC8, U+1FACC-1FADD, U+1FADF-1FAEB, U+1FAEF-1FAFA, U+1FB00-1FBFF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/onest/v11/gNMKW3F-SZuj7xmQ-HY6EQ.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("assets/14e7d3079b75860e.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Onest';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("assets/052df74533250c2e.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 200;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/unbounded/v12/Yq6W-LOTXCb04q32xlpwtsZfrxE.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 200;
+  font-display: swap;
+  src: url("assets/e30bf6a6063b6a47.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 200;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/unbounded/v12/Yq6W-LOTXCb04q32xlpwtMZfrxE.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 200;
+  font-display: swap;
+  src: url("assets/845e1c9fe2e9a7bf.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 200;
+  font-display: swap;
+  src: url("assets/22f9b928aa3928a8.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/unbounded/v12/Yq6W-LOTXCb04q32xlpwtsZfrxE.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("assets/e30bf6a6063b6a47.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/unbounded/v12/Yq6W-LOTXCb04q32xlpwtMZfrxE.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("assets/845e1c9fe2e9a7bf.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("assets/22f9b928aa3928a8.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/unbounded/v12/Yq6W-LOTXCb04q32xlpwtsZfrxE.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/e30bf6a6063b6a47.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/unbounded/v12/Yq6W-LOTXCb04q32xlpwtMZfrxE.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/845e1c9fe2e9a7bf.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/22f9b928aa3928a8.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/unbounded/v12/Yq6W-LOTXCb04q32xlpwtsZfrxE.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/e30bf6a6063b6a47.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/unbounded/v12/Yq6W-LOTXCb04q32xlpwtMZfrxE.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/845e1c9fe2e9a7bf.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/22f9b928aa3928a8.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+</style>
+<style>
+body{margin:0;background:#070708}
+a{color:#C8A86B}a:hover{color:#E2CB9A}
+.vx-wrap{max-width:1440px;margin:0 auto;padding-inline:80px;box-sizing:border-box}
+.vx-nav a{color:#B4B1AA;text-decoration:none;transition:color .2s}
+.vx-nav a:hover{color:#F3F1EC}
+.vx-grain{background-image:url("assets/e3409d1d8f96093b.png");background-size:240px 240px;opacity:.06;mix-blend-mode:overlay}
+.vx-car{animation:vxCar 1.6s cubic-bezier(.22,1,.36,1) .1s both}
+@keyframes vxCar{from{opacity:0;transform:scale(1.06)}to{opacity:1;transform:none}}
+.vx-in{animation:vxIn .9s cubic-bezier(.22,1,.36,1) both}
+@keyframes vxIn{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+.vx-sweep{position:absolute;inset:0;background:linear-gradient(105deg,rgba(255,255,255,0) 42%,rgba(255,240,215,0.15) 50%,rgba(255,255,255,0) 58%);background-size:260% 100%;animation:vxSweep 7s cubic-bezier(.65,0,.35,1) 1.6s infinite;mix-blend-mode:screen;pointer-events:none;-webkit-mask-image:radial-gradient(ellipse 34% 30% at 64% 50%,#000 55%,transparent 100%);mask-image:radial-gradient(ellipse 34% 30% at 64% 50%,#000 55%,transparent 100%)}
+@keyframes vxSweep{0%{background-position:125% 0}60%,100%{background-position:-60% 0}}
+.vx-scroll{animation:vxScroll 2.4s cubic-bezier(.65,0,.35,1) infinite}
+@keyframes vxScroll{0%{transform:scaleY(0);transform-origin:top}45%{transform:scaleY(1);transform-origin:top}55%{transform:scaleY(1);transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+.vx-btn{transition:background-color .24s cubic-bezier(.4,0,.2,1),border-color .24s,color .24s,transform .2s;background-size:250% 100%}
+.vx-btn-p{background-image:linear-gradient(105deg,#C8A86B 0%,#C8A86B 40%,#EAD7AA 50%,#C8A86B 60%,#C8A86B 100%);background-position:100% 0;transition:background-position .6s cubic-bezier(.22,1,.36,1),transform .2s}
+.vx-btn-p:hover{background-position:0 0;color:#0B0B0C}
+.vx-btn-s:hover{border-color:#C8A86B;background-color:rgba(200,168,107,.06);color:#F3F1EC}
+.vx-btn:active{transform:scale(.98)}
+.vx-btn:focus-visible,.vx-link:focus-visible,.vx-thumb:focus-visible{outline:2px solid #E2CB9A;outline-offset:3px}
+.vx-link{color:#F3F1EC;text-decoration:none}
+.vx-link svg{transition:transform .24s cubic-bezier(.4,0,.2,1)}
+.vx-link:hover{color:#E2CB9A}.vx-link:hover svg{transform:translateX(4px)}
+.vx-card{transition:transform .45s cubic-bezier(.22,1,.36,1),border-color .45s,box-shadow .45s;will-change:transform}
+.vx-card img{transition:transform .9s cubic-bezier(.22,1,.36,1)}
+.vx-card:hover{transform:perspective(1400px) rotateX(2.5deg) rotateY(-4deg) translateY(-6px);border-color:#5A4B30;box-shadow:0 30px 80px rgba(0,0,0,.6)}
+.vx-card:hover img{transform:scale(1.05)}
+.vx-span2{grid-column:span 2}
+.vx-ba-range{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:ew-resize;-webkit-appearance:none;appearance:none}
+.vx-ba:focus-within .vx-handle{outline:2px solid #E2CB9A;outline-offset:4px}
+.vx-fade{transition:opacity .45s cubic-bezier(.4,0,.2,1)}
+.vx-thumb{transition:border-color .24s,background-color .24s}
+.vx-thumb:hover{border-color:#5A4B30}
+.vx-row{transition:background-color .2s}
+.vx-row:hover{background-color:#0E0F11}
+.vx-tg-float{transition:transform .3s cubic-bezier(.22,1,.36,1),border-color .3s,background-color .3s}
+.vx-tg-float:hover{transform:translateY(-2px);border-color:#C8A86B;background-color:rgba(21,20,15,.92)}
+.vx-tg-float:focus-visible{outline:2px solid #E2CB9A;outline-offset:4px}
+.vx-tg-dot::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:1px solid rgba(200,168,107,.55);animation:vxPing 3.2s cubic-bezier(.22,1,.36,1) infinite}
+@keyframes vxPing{0%{transform:scale(.85);opacity:.9}70%,100%{transform:scale(1.35);opacity:0}}
+@media (max-width: 900px){.vx-tg-label{display:none !important}.vx-tg-float{padding:0 8px !important}.vx-wrap{padding-inline:20px}.vx-span2{grid-column:auto}.vx-nav{display:none}}
+@media (prefers-reduced-motion: reduce){.vx-tg-dot::after{animation:none;opacity:0}.vx-car,.vx-in{animation:none}.vx-sweep,.vx-scroll{animation:none;opacity:0}.vx-card:hover{transform:none}.vx-card:hover img{transform:none}.vx-fade{transition:none}}
+</style>
+</helmet>
+<div style="width: 100%; background: #070708; color: #F3F1EC; font-family: 'Onest', 'Segoe UI', sans-serif; font-size: 16px; line-height: 1.6; -webkit-font-smoothing: antialiased; overflow: hidden">
+
+<!-- ============ HERO ============ -->
+<section style="position: relative; height: 920px; overflow: hidden; background: #050506">
+  <div class="vx-car" style="position: absolute; inset: 0">
+    <img src="assets/648accdc1ab35d9e.jpg" alt="Чёрный спорткар в тёмной детейлинг-студии, по лаку тянутся длинные отражения софтбоксов" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 62% 46%">
+  </div>
+  <div class="vx-sweep" aria-hidden="true"></div>
+  <div aria-hidden="true" style="position: absolute; inset: 0; background: radial-gradient(ellipse 30% 22% at 66% 64%, rgba(200,168,107,0.08), rgba(200,168,107,0) 70%)"></div>
+  <div aria-hidden="true" style="position: absolute; inset: 0; background: linear-gradient(90deg, rgba(5,5,6,0.94) 0%, rgba(5,5,6,0.72) 26%, rgba(5,5,6,0) 52%)"></div>
+  <div aria-hidden="true" style="position: absolute; inset: 0; background: linear-gradient(0deg, #070708 0%, rgba(7,7,8,0) 24%), linear-gradient(180deg, rgba(5,5,6,0.7) 0%, rgba(5,5,6,0) 18%)"></div>
+  <div class="vx-grain" aria-hidden="true" style="position: absolute; inset: 0"></div>
+
+  <!-- header -->
+  <header class="vx-in" style="position: absolute; left: 0; right: 0; top: 0; animation-delay: 1.2s">
+    <div class="vx-wrap" style="height: 96px; display: flex; align-items: center; justify-content: space-between; gap: 32px">
+      <a href="#top" aria-label="VÉLOX Detailing Studio — на главную" style="display: flex; flex-direction: column; gap: 7px; text-decoration: none; color: #F3F1EC">
+        <span style="display: flex; gap: 0.3em; font-family: 'Unbounded', sans-serif; font-weight: 300; font-size: 21px; line-height: 1">
+          <span>V</span><span style="position: relative">E<span aria-hidden="true" style="position: absolute; left: 0.18em; top: -0.36em; width: 0.5em; height: 0.08em; background: #C8A86B; transform: rotate(-22deg); transform-origin: left center"></span></span><span>L</span><span>O</span><span>X</span>
+        </span>
+        <span style="font-size: 8px; letter-spacing: 0.56em; color: #B4B1AA; font-weight: 500">DETAILING STUDIO</span>
+      </a>
+      <nav class="vx-nav" aria-label="Основное меню" style="display: flex; gap: 36px; font-size: 14px">
+        <a href="#services">Услуги</a>
+        <a href="#works">Работы</a>
+        <a href="#prices">Цены</a>
+        <a href="Landing-Desktop-2.dc.html">Технологии</a>
+        <a href="Landing-Desktop-2.dc.html">Сертификаты</a>
+        <a href="Landing-Desktop-2.dc.html">Контакты</a>
+      </nav>
+      <div style="display: flex; align-items: center; gap: 28px">
+        <a class="vx-link" href="tel:+70000000000" style="font-family: 'JetBrains Mono', monospace; font-size: 13px; letter-spacing: 0.04em">+7 [000] 000-00-00</a>
+        <a class="vx-btn vx-btn-s" href="Landing-Desktop-2.dc.html" style="display: inline-flex; align-items: center; justify-content: center; height: 44px; padding: 0 22px; border: 1px solid #5A4B30; border-radius: 2px; color: #F3F1EC; text-decoration: none; font: 600 12px/1 'Onest', sans-serif; letter-spacing: 0.14em">ЗАПИСАТЬСЯ</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- hero copy -->
+  <div class="vx-wrap" style="position: relative; height: 100%; display: flex; flex-direction: column; justify-content: center; padding-top: 24px">
+    <div style="display: flex; flex-direction: column; gap: 32px; max-width: 760px">
+      <div class="vx-in" style="display: flex; align-items: center; gap: 16px; animation-delay: .5s">
+        <span aria-hidden="true" style="width: 40px; height: 1px; background: #C8A86B"></span>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.18em; color: #C8A86B">СТУДИЯ ДЕТЕЙЛИНГА · [ГОРОД]</span>
+      </div>
+      <h1 style="margin: 0; font-family: 'Unbounded', sans-serif; font-weight: 300; font-size: clamp(44px, 6.1vw, 88px); line-height: 1.02; letter-spacing: -0.025em">
+        <span class="vx-in" style="display: block; animation-delay: .6s">Совершенство</span>
+        <span class="vx-in" style="display: block; animation-delay: .69s">в каждой детали</span>
+      </h1>
+      <p class="vx-in" style="margin: 0; max-width: 500px; font-size: 19px; line-height: 1.6; color: #B4B1AA; animation-delay: .9s">Профессиональный уход за автомобилем: полировка, керамика и защитные плёнки на премиальных составах. Каждый этап проверяем под инспекционным светом.</p>
+      <div class="vx-in" style="display: flex; flex-wrap: wrap; gap: 16px; animation-delay: 1.05s">
+        <a class="vx-btn vx-btn-p" href="Landing-Desktop-2.dc.html" style="display: inline-flex; align-items: center; justify-content: center; gap: 14px; height: 56px; padding: 0 32px; border-radius: 2px; color: #0B0B0C; text-decoration: none; font: 600 13px/1 'Onest', sans-serif; letter-spacing: 0.14em">ЗАПИСАТЬСЯ ОНЛАЙН <svg aria-hidden="true" width="18" height="18" sc-camel-view-box="0 0 24 24" fill="none" stroke="#0B0B0C" stroke-width="1.6"><path d="M4 12h15M14 6l6 6-6 6"></path></svg></a>
+        <a class="vx-btn vx-btn-s" href="#works" style="display: inline-flex; align-items: center; justify-content: center; height: 56px; padding: 0 32px; border: 1px solid #3A3C42; border-radius: 2px; color: #F3F1EC; text-decoration: none; font: 600 13px/1 'Onest', sans-serif; letter-spacing: 0.14em">ПОСМОТРЕТЬ РАБОТЫ</a>
+      </div>
+      <a class="vx-link vx-in" href="https://t.me/VELOX_BOT_USERNAME" target="_blank" rel="noopener" style="align-self: flex-start; display: inline-flex; align-items: center; gap: 12px; height: 44px; margin-top: -12px; font-size: 15px; font-weight: 500; animation-delay: 1.15s"><span aria-hidden="true" style="width: 28px; height: 28px; border-radius: 50%; border: 1px solid #8E7443; display: flex; align-items: center; justify-content: center"><svg width="14" height="14" sc-camel-view-box="0 0 24 24" fill="none" stroke="#C8A86B" stroke-width="1.6" stroke-linejoin="round"><path d="M21 4L3 11l6 2 2 6 3-4 5 4z"></path></svg></span>или запишитесь через Telegram <svg aria-hidden="true" width="16" height="16" sc-camel-view-box="0 0 24 24" fill="none" stroke="#C8A86B" stroke-width="1.5"><path d="M4 12h15M14 6l6 6-6 6"></path></svg></a>
+    </div>
+  </div>
+
+  <!-- quality strip -->
+  <div class="vx-in" style="position: absolute; left: 0; right: 0; bottom: 0; animation-delay: 1.3s">
+    <div class="vx-wrap" style="display: flex; align-items: stretch; gap: 0; padding-bottom: 44px">
+      <div style="flex: 1 1 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); border-top: 1px solid rgba(243,241,236,0.12)">
+        <div style="padding: 22px 28px 0 0; display: flex; flex-direction: column; gap: 6px">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.16em; color: #C8A86B">ИНСПЕКЦИОННЫЙ СВЕТ</span>
+          <span style="font-size: 14px; color: #B4B1AA">4000–6500 K — видно каждый дефект</span>
+        </div>
+        <div style="padding: 22px 28px 0; display: flex; flex-direction: column; gap: 6px; border-left: 1px solid rgba(243,241,236,0.08)">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.16em; color: #C8A86B">ТОЛЩИНОМЕР ЛКП</span>
+          <span style="font-size: 14px; color: #B4B1AA">Замер до и после каждой работы</span>
+        </div>
+        <div style="padding: 22px 28px 0; display: flex; flex-direction: column; gap: 6px; border-left: 1px solid rgba(243,241,236,0.08)">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.16em; color: #C8A86B">СОСТАВЫ</span>
+          <span style="font-size: 14px; color: #B4B1AA">Сертифицированная керамика и плёнки</span>
+        </div>
+        <div style="padding: 22px 28px 0; display: flex; flex-direction: column; gap: 6px; border-left: 1px solid rgba(243,241,236,0.08)">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.16em; color: #C8A86B">ГАРАНТИЯ</span>
+          <span style="font-size: 14px; color: #B4B1AA">На керамику и плёнку — по паспорту</span>
+        </div>
+      </div>
+      <span aria-hidden="true" style="width: 270px; flex-shrink: 0"></span>
+    </div>
+  </div>
+
+  <!-- floating Telegram button (fixed on every screen in production) -->
+  <a class="vx-tg-float" href="https://t.me/VELOX_BOT_USERNAME" target="_blank" rel="noopener" aria-label="Записаться через Telegram-бот" style="position: absolute; right: 32px; bottom: 32px; z-index: 6; display: inline-flex; align-items: center; gap: 14px; height: 60px; padding: 0 24px 0 8px; box-sizing: border-box; border-radius: 999px; background: rgba(14,15,17,0.86); border: 1px solid #5A4B30; backdrop-filter: blur(14px); box-shadow: 0 20px 50px rgba(0,0,0,0.55); color: #F3F1EC; text-decoration: none">
+    <span class="vx-tg-dot" aria-hidden="true" style="position: relative; width: 44px; height: 44px; border-radius: 50%; background: #C8A86B; display: flex; align-items: center; justify-content: center; flex-shrink: 0"><svg width="20" height="20" sc-camel-view-box="0 0 24 24"><path d="M20.5 4.5L3.5 11.2l5.6 1.9 1.9 5.9 3.1-3.8 4.9 3.6z" fill="#0B0B0C"></path></svg></span>
+    <span class="vx-tg-label" style="display: flex; flex-direction: column; gap: 2px; line-height: 1.2"><span style="font-size: 14px; font-weight: 600">Записаться в Telegram</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.06em; color: #8C8A85">@VELOX_BOT_USERNAME</span></span>
+  </a>
+</section>
+
+<!-- ============ SERVICES ============ -->
+<section id="services" style="padding: 140px 0 120px; background: #070708">
+  <div class="vx-wrap" style="display: flex; flex-direction: column; gap: 64px">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(480px, 100%), 1fr)); gap: 40px 64px; align-items: end">
+      <div style="display: flex; flex-direction: column; gap: 20px">
+        <div style="display: flex; align-items: center; gap: 16px"><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.18em; color: #C8A86B">01 — УСЛУГИ И ПАКЕТЫ</span></div>
+        <h2 style="margin: 0; font-family: 'Unbounded', sans-serif; font-weight: 300; font-size: clamp(34px, 3.9vw, 56px); line-height: 1.1; letter-spacing: -0.015em; text-wrap: balance">Уход, который видно под любым светом</h2>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 20px; align-items: flex-start; max-width: 520px">
+        <p style="margin: 0; color: #B4B1AA; font-size: 17px">Пять направлений — от одной полировки до полного цикла. Перед работой мастер осматривает автомобиль вместе с вами и предлагает только то, что действительно нужно покрытию.</p>
+        <a class="vx-link" href="#prices" style="display: inline-flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 500; height: 44px">Все цены и сроки <svg aria-hidden="true" width="18" height="18" sc-camel-view-box="0 0 24 24" fill="none" stroke="#C8A86B" stroke-width="1.5"><path d="M4 12h15M14 6l6 6-6 6"></path></svg></a>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(360px, 100%), 1fr)); gap: 24px">
+      <!-- card 1 -->
+      <article class="vx-card" style="background: #0E0F11; border: 1px solid #1F2126; border-radius: 4px; overflow: hidden; display: flex; flex-direction: column">
+        <div style="position: relative; aspect-ratio: 4 / 3; overflow: hidden"><img src="assets/91d65035d8b300db.jpg" alt="Отполированное крыло с чёткими бликами" style="width: 100%; height: 100%; object-fit: cover"><span style="position: absolute; left: 20px; top: 18px; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.16em; color: #B4B1AA">01</span></div>
+        <div style="padding: 28px; display: flex; flex-direction: column; gap: 16px; flex: 1">
+          <h3 style="margin: 0; font-family: 'Unbounded', sans-serif; font-weight: 400; font-size: 22px; line-height: 1.3">Полировка кузова</h3>
+          <p style="margin: 0; font-size: 15px; color: #B4B1AA; line-height: 1.6">Возвращаем глубину цвета и зеркальный блеск: убираем голограммы, паутинку и мелкие царапины.</p>
+          <div style="display: flex; gap: 18px; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em"><span style="color: #C8A86B">ОТ 25 000 ₽*</span><span style="color: #8C8A85">1–2 ДНЯ</span></div>
+          <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 14px; color: #B4B1AA">
+            <li style="display: flex; gap: 10px; align-items: baseline"><svg aria-hidden="true" width="12" height="12" sc-camel-view-box="0 0 24 24" fill="none" stroke="#C8A86B" stroke-width="2.4" style="flex-shrink: 0"><path d="M4 12.5l5 5L20 6.5"></path></svg>Замер толщины ЛКП на каждом элементе</li>
+            <li style="display: flex; gap: 10px; align-items: baseline"><svg aria-hidden="true" width="12" height="12" sc-camel-view-box="0 0 24 24" fill="none" stroke="#C8A86B" stroke-width="2.4" style="flex-shrink: 0"><path d="M4 12.5l5 5L20 6.5"></path></svg>2–3 этапа под ваш тип лака</li>
+            <li style="display: flex; gap: 10px; align-items: baseline"><svg aria-hidden="true" width="12" height="12" sc-camel-view-box="0 0 24 24" fill="none" stroke="#C8A86B" stroke-width="2.4" style="flex-shrink: 0"><path d="M4 12.5l5 5L20 6.5"></path></svg>Финальная проверка под светом 6500 K</li>
+          </ul>
+          <a class="vx-link" href="Service-Detail.dc.html" style="margin-top: auto; display: inline-flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 500; height: 44px">Подробнее <svg aria-hidden="true" width="18" height="18" sc-camel-view-box="0 0 24 24" fill="none" stroke="#C8A86B" stroke-width="1.5"><path d="M4 12h15M14 6l6 6-6 6"></path></svg></a>
+        </div>
+      </article>
+      <!-- card 2 -->
+      <article class="vx-card" style="background: #0E0F11; border: 1px solid #1F2126; border-radius: 4px; overflow: hidden; display: flex; flex-direction: column">
+        <div style="position: relative; aspect-ratio: 4 / 3; overflow: hidden"><img src="assets/69e4ad36127f640e.jpg" alt="Капли воды на керамическом покрытии капота" style="width: 100%; height: 100%; object-fit: cover"><span style="position: absolute; left: 20px; top: 18px; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.16em; color: #B4B1AA">02</span></div>
+        <div style="padding: 28px; display: flex; flex-direction: column; gap: 16px; flex: 1">
+          <h3 style="margin: 0; font-family: 'Unbounded', sans-serif; font-weight: 400; font-size: 22px; line-height: 1.3">Керамическое покрытие</h3>
+          <p style="margin: 0; font-size: 15px; color: #B4B1AA; line-height: 1.6">Твёрдый прозрачный слой поверх лака: блеск держится дольше, реагенты и грязь — хуже, мойка быстрее.</p>
+          <div style="display: flex; gap: 18px; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em"><span style="color: #C8A86B">ОТ 45 000 ₽*</span><span style="color: #8C8A85">2–3 ДНЯ</span></div>
+          <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 14px; color: #B4B1AA">
+            <li style="display: flex; gap: 10px; align-items: baseline"><svg aria-hidden="true" width="12" height="12" sc-camel-view-box="0 0 24 24" fill="none" stroke="#C8A86B" stroke-width="2.4" style="flex-shrink: 0"><path d="M4 12.5l5 5L20 6.5"></path></svg>Подготовительная полировка включена</li>
+            <li style="display: flex; gap: 10px; align-items: baseline"><svg aria-hidden="true" width="12" height="12" sc-camel-view-box="0 0 24 24" fill="none" stroke="#C8A86B" stroke-width="2.4" style="flex-shrink: 0"><path d="M4 12.5l5 5L20 6.5"></path></svg>Гидрофобный эффект — вода скатывается</li>
+            <li style="display: flex; gap: 10px; align-items: baseline"><svg aria-hidden="true" width="12" height="12" sc-camel-view-box="0 0 24 24" fill="none" stroke="#C8A86B" stroke-width="2.4" style="flex-shrink: 0"><path d="M4 12.5l5 5L20 6.5"></path></svg>Гарантия по паспорту состава</li>
+          </ul>
+          <a class="vx-link" href="Service-Detail.dc.html" style="margin-top: auto; display: inline-flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 500; height: 44px">Подробнее <svg aria-hidden="true" width="18" height="18" sc-camel-view-box="0 0 24 24" fill="none" stroke="#C8A86B" stroke-width="1.5"><path d="M4 12h15M14 6l6 6-6 6"></path></svg></a>
+        </div>
+      </article>
+      <!-- card 3 -->
+      <article class="vx-card" style="background: #0E0F11; border: 1px solid #1F2126; border-radius: 4px; overflow: hidden; display: flex; flex-direction: column">
+        <div style="position: relative; aspect-ratio: 4 / 3; overflow: hidden"><img src="assets/47bcce6509b6c1ca.jpg" alt="Передний бампер и фара крупным планом" style="width: 100%; height: 100%; object-fit: cover"><span style="position: absolute; left: 20px; top: 18px; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.16em; color: #B4B1AA">03</span></div>
+        <div style="padding: 28px; display: flex; flex-direction: column; gap: 16px; flex: 1">
+          <h3 style="margin: 0; font-family: 'Unbounded', sans-serif; font-weight: 400; font-size: 22px; line-height: 1.3">Защитная плёнка</h3>
+          <p style="margin: 0; font-size: 15px; color: #B4B1AA; line-height: 1.6">Прозрачный полиуретан на зоны риска или весь кузов: сколы, песок и мелкие царапины остаются на плёнке.</p>
+          <div style="display: flex; gap: 18px; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em"><span style="color: #C8A86B">ОТ 90 000 ₽*</span><span style="color: #8C8A85">2–7 ДНЕЙ</span></div>
+          <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 14px; color: #B4B1AA">
+            <li style="display: flex; gap: 10px; align-items: baseline"><svg aria-hidden="true" width="12" height="12" sc-camel-view-box="0 0 24 24" fill="none" stroke="#C8A86B" stroke-width="2.4" style="flex-shrink: 0"><path d="M4 12.5l5 5L20 6.5"></path></svg>Мелкие царапины затягиваются от тепла</li>
+            <li style="display: flex; gap: 10px; align-items: baseline"><svg aria-hidden="true" width="12" height="12" sc-camel-view-box="0 0 24 24" fill="none" stroke="#C8A86B" stroke-width="2.4" style="flex-shrink: 0"><path d="M4 12.5l5 5L20 6.5"></path></svg>Кромки заворачиваем за край детали</li>
+            <li style="display: flex; gap: 10px; align-items: baseline"><svg aria-hidden="true" width="12" height="12" sc-camel-view-box="0 0 24 24" fill="none" stroke="#C8A86B" stroke-width="2.4" style="flex-shrink: 0"><path d="M4 12.5l5 5L20 6.5"></path></svg>Глянцевая или матовая плёнка</li>
+          </ul>
+          <a class="vx-link" href="Service-Detail.dc.html" style="margin-top: auto; display: inline-flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 500; height: 44px">Подробнее <svg aria-hidden="true" width="18" height="18" sc-camel-view-box="0 0 24 24" fill="none" stroke="#C8A86B" stroke-width="1.5"><path d="M4 12h15M14 6l6 6-6 6"></path></svg></a>
+        </div>
+      </article>
+      <!-- card 4 -->
+      <article class="vx-card" style="background: #0E0F11; border: 1px solid #1F2126; border-radius: 4px; overflow: hidden; display: flex; flex-direction: column">
+        <div style="position: relative; aspect-ratio: 4 / 3; overflow: hidden"><img src="assets/1bdd550b76c1963e.jpg" alt="Салон с коньячной кожей, вид сверху" style="width: 100%; height: 100%; object-fit: cover"><span style="position: absolute; left: 20px; top: 18px; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.16em; color: #B4B1AA">04</span></div>
+        <div style="padding: 28px; display: flex; flex-direction: column; gap: 16px; flex: 1">
+          <h3 style="margin: 0; font-family: 'Unbounded', sans-serif; font-weight: 400; font-size: 22px; line-height: 1.3">Химчистка салона</h3>
+          <p style="margin: 0; font-size: 15px; color: #B4B1AA; line-height: 1.6">Деликатно чистим кожу, алькантару, ткань, потолок и ковры. Убираем пятна и запахи, кожу кондиционируем.</p>
+          <div style="display: flex; gap: 18px; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em"><span style="color: #C8A86B">ОТ 15 000 ₽*</span><span style="color: #8C8A85">6–8 ЧАСОВ</span></div>
+          <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 14px; color: #B4B1AA">
+            <li style="display: flex; gap: 10px; align-items: baseline"><svg aria-hidden="true" width="12" height="12" sc-camel-view-box="0 0 24 24" fill="none" stroke="#C8A86B" stroke-width="2.4" style="flex-shrink: 0"><path d="M4 12.5l5 5L20 6.5"></path></svg>pH-нейтральные составы для кожи</li>
+            <li style="display: flex; gap: 10px; align-items: baseline"><svg aria-hidden="true" width="12" height="12" sc-camel-view-box="0 0 24 24" fill="none" stroke="#C8A86B" stroke-width="2.4" style="flex-shrink: 0"><path d="M4 12.5l5 5L20 6.5"></path></svg>Сушка без разводов и запаха химии</li>
+            <li style="display: flex; gap: 10px; align-items: baseline"><svg aria-hidden="true" width="12" height="12" sc-camel-view-box="0 0 24 24" fill="none" stroke="#C8A86B" stroke-width="2.4" style="flex-shrink: 0"><path d="M4 12.5l5 5L20 6.5"></path></svg>Озонирование — по запросу</li>
+          </ul>
+          <a class="vx-link" href="Service-Detail.dc.html" style="margin-top: auto; display: inline-flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 500; height: 44px">Подробнее <svg aria-hidden="true" width="18" height="18" sc-camel-view-box="0 0 24 24" fill="none" stroke="#C8A86B" stroke-width="1.5"><path d="M4 12h15M14 6l6 6-6 6"></path></svg></a>
+        </div>
+      </article>
+      <!-- card 5 wide -->
+      <article class="vx-card vx-span2" style="background: #0E0F11; border: 1px solid #1F2126; border-radius: 4px; overflow: hidden; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr))">
+        <div style="position: relative; min-height: 300px; overflow: hidden"><img src="assets/e99d8589ac0f7db4.jpg" alt="Автомобиль в профиль после комплексного ухода" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 45%"><span style="position: absolute; left: 20px; top: 18px; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.16em; color: #B4B1AA">05</span></div>
+        <div style="padding: 32px; display: flex; flex-direction: column; gap: 16px">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px">
+            <h3 style="margin: 0; font-family: 'Unbounded', sans-serif; font-weight: 400; font-size: 22px; line-height: 1.3">Комплексный уход</h3>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.16em; color: #C8A86B; white-space: nowrap">РЕКОМЕНДУЕМ</span>
+          </div>
+          <p style="margin: 0; font-size: 15px; color: #B4B1AA; line-height: 1.6">Полный цикл за одно посещение: детейлинг-мойка, восстановительная полировка, керамика кузова и химчистка салона. Один мастер ведёт автомобиль от приёмки до выдачи.</p>
+          <div style="display: flex; gap: 18px; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em"><span style="color: #C8A86B">ОТ 70 000 ₽*</span><span style="color: #8C8A85">3 ДНЯ</span></div>
+          <ul style="margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 8px 20px; font-size: 14px; color: #B4B1AA">
+            <li style="display: flex; gap: 10px; align-items: baseline"><svg aria-hidden="true" width="12" height="12" sc-camel-view-box="0 0 24 24" fill="none" stroke="#C8A86B" stroke-width="2.4" style="flex-shrink: 0"><path d="M4 12.5l5 5L20 6.5"></path></svg>Фотоотчёт после каждого этапа</li>
+            <li style="display: flex; gap: 10px; align-items: baseline"><svg aria-hidden="true" width="12" height="12" sc-camel-view-box="0 0 24 24" fill="none" stroke="#C8A86B" stroke-width="2.4" style="flex-shrink: 0"><path d="M4 12.5l5 5L20 6.5"></path></svg>Дешевле, чем по отдельности</li>
+            <li style="display: flex; gap: 10px; align-items: baseline"><svg aria-hidden="true" width="12" height="12" sc-camel-view-box="0 0 24 24" fill="none" stroke="#C8A86B" stroke-width="2.4" style="flex-shrink: 0"><path d="M4 12.5l5 5L20 6.5"></path></svg>Приёмка работы вместе с мастером</li>
+            <li style="display: flex; gap: 10px; align-items: baseline"><svg aria-hidden="true" width="12" height="12" sc-camel-view-box="0 0 24 24" fill="none" stroke="#C8A86B" stroke-width="2.4" style="flex-shrink: 0"><path d="M4 12.5l5 5L20 6.5"></path></svg>Гарантия на керамику по паспорту</li>
+          </ul>
+          <div style="margin-top: auto; display: flex; flex-wrap: wrap; gap: 20px; align-items: center">
+            <a class="vx-btn vx-btn-p" href="Landing-Desktop-2.dc.html" style="display: inline-flex; align-items: center; justify-content: center; height: 52px; padding: 0 28px; border-radius: 2px; color: #0B0B0C; text-decoration: none; font: 600 12px/1 'Onest', sans-serif; letter-spacing: 0.14em">ЗАПИСАТЬСЯ</a>
+            <a class="vx-link" href="Service-Detail.dc.html" style="display: inline-flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 500; height: 44px">Подробнее <svg aria-hidden="true" width="18" height="18" sc-camel-view-box="0 0 24 24" fill="none" stroke="#C8A86B" stroke-width="1.5"><path d="M4 12h15M14 6l6 6-6 6"></path></svg></a>
+          </div>
+        </div>
+      </article>
+    </div>
+    <p style="margin: 0; font-size: 13px; color: #8C8A85">* Цены демонстрационные — замените на актуальные. Итоговая стоимость зависит от размера автомобиля и состояния покрытия.</p>
+  </div>
+</section>
+
+<!-- ============ GALLERY ============ -->
+<section id="works" style="padding: 140px 0; background: #0B0C0E; border-top: 1px solid #16171B">
+  <div class="vx-wrap" style="display: flex; flex-direction: column; gap: 64px">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(480px, 100%), 1fr)); gap: 40px 64px; align-items: end">
+      <div style="display: flex; flex-direction: column; gap: 20px">
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.18em; color: #C8A86B">02 — РАБОТЫ</span>
+        <h2 style="margin: 0; font-family: 'Unbounded', sans-serif; font-weight: 300; font-size: clamp(34px, 3.9vw, 56px); line-height: 1.1; letter-spacing: -0.015em">До и после — без фильтров</h2>
+      </div>
+      <p style="margin: 0; color: #B4B1AA; font-size: 17px; max-width: 520px">Перетащите линию, чтобы сравнить. Снимаем при одном и том же свете и ракурсе — разница видна без ретуши.</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(380px, 100%), 1fr)); gap: 40px; align-items: start">
+      <div class="vx-span2" style="display: flex; flex-direction: column; gap: 16px; min-width: 0">
+        <div class="vx-ba" style="position: relative; height: 580px; overflow: hidden; border: 1px solid #23252A; background: #050506">
+          <img class="vx-fade" src="assets/91d65035d8b300db.jpg" alt="После: глубокий блеск крыла" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: {{a0}}">
+          <img class="vx-fade" src="assets/f6e1b4627bd120b4.jpg" alt="После: ровные блики на двери без голограмм" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: {{a1}}">
+          <img class="vx-fade" src="assets/1bdd550b76c1963e.jpg" alt="После: чистый салон" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: {{a2}}">
+          <img class="vx-fade" src="assets/47bcce6509b6c1ca.jpg" alt="Под плёнкой: бампер без сколов" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: {{a3}}">
+          <img class="vx-fade" src="assets/010f06fd16b877bc.jpg" alt="До: тусклое окисленное крыло" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; clip-path: inset(0 {{clip}}% 0 0); opacity: {{b0}}">
+          <img class="vx-fade" src="assets/6cc43e3ee92bbdfc.jpg" alt="До: голограммы и царапины на двери" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; clip-path: inset(0 {{clip}}% 0 0); opacity: {{b1}}">
+          <img class="vx-fade" src="assets/3dfafbd38475e688.jpg" alt="До: пыль и пятна в салоне" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; clip-path: inset(0 {{clip}}% 0 0); opacity: {{b2}}">
+          <img class="vx-fade" src="assets/0d6ad0395729fb72.jpg" alt="Без защиты: сколы на бампере" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; clip-path: inset(0 {{clip}}% 0 0); opacity: {{b3}}">
+          <span style="position: absolute; left: 20px; top: 18px; display: inline-flex; align-items: center; height: 28px; padding: 0 12px; background: rgba(7,7,8,0.72); border: 1px solid #2A2C31; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.16em; color: #F3F1EC">{{beforeLabel}}</span>
+          <span style="position: absolute; right: 20px; top: 18px; display: inline-flex; align-items: center; height: 28px; padding: 0 12px; background: rgba(7,7,8,0.72); border: 1px solid #5A4B30; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.16em; color: #E2CB9A">{{afterLabel}}</span>
+          <span style="position: absolute; left: 20px; bottom: 16px; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.14em; color: #8C8A85">ДЕМО-ВИЗУАЛИЗАЦИЯ · ЗАМЕНИТЬ НА ФОТО РАБОТ</span>
+          <div aria-hidden="true" style="position: absolute; top: 0; bottom: 0; left: {{pos}}%; width: 1px; background: rgba(243,241,236,0.85); box-shadow: 0 0 18px rgba(255,240,215,0.35)"></div>
+          <div class="vx-handle" aria-hidden="true" style="position: absolute; top: 50%; left: {{pos}}%; width: 56px; height: 56px; margin: -28px 0 0 -28px; border-radius: 50%; background: rgba(7,7,8,0.7); border: 1px solid #C8A86B; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(6px)">
+            <svg width="24" height="24" sc-camel-view-box="0 0 24 24" fill="none" stroke="#F3F1EC" stroke-width="1.5"><path d="M9 7l-5 5 5 5M15 7l5 5-5 5"></path></svg>
+          </div>
+          <input class="vx-ba-range" type="range" min="0" max="100" step="1" value="{{pos}}" sc-camel-on-input="{{onPos}}" aria-label="Линия сравнения до и после">
+        </div>
+        <div style="display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.14em; color: #8C8A85"><span>← ПЕРЕТАЩИТЕ ЛИНИЮ →</span><span>{{caseIndex}}</span></div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 28px; min-width: 0">
+        <div style="display: flex; flex-direction: column; gap: 14px">
+          <h3 style="margin: 0; font-family: 'Unbounded', sans-serif; font-weight: 400; font-size: 24px; line-height: 1.3">{{caseTitle}}</h3>
+          <p style="margin: 0; font-size: 15px; color: #B4B1AA">{{caseDesc}}</p>
+        </div>
+        <dl style="margin: 0; display: flex; flex-direction: column; border-top: 1px solid #23252A">
+          <div style="display: grid; grid-template-columns: 110px 1fr; gap: 12px; padding: 12px 0; border-bottom: 1px solid #1F2126; font-size: 14px"><dt style="color: #8C8A85">Автомобиль</dt><dd style="margin: 0">[Марка, модель, год]</dd></div>
+          <div style="display: grid; grid-template-columns: 110px 1fr; gap: 12px; padding: 12px 0; border-bottom: 1px solid #1F2126; font-size: 14px"><dt style="color: #8C8A85">Работы</dt><dd style="margin: 0">{{caseWorks}}</dd></div>
+          <div style="display: grid; grid-template-columns: 110px 1fr; gap: 12px; padding: 12px 0; border-bottom: 1px solid #1F2126; font-size: 14px"><dt style="color: #8C8A85">Срок</dt><dd style="margin: 0">{{caseTerm}}</dd></div>
+        </dl>
+        <div role="group" aria-label="Выбор работы" style="display: flex; flex-direction: column; gap: 10px">
+          <sc-for list="{{cases}}" as="c" hint-placeholder-count="4">
+            <button class="vx-thumb" type="button" sc-camel-on-click="{{c.pick}}" aria-pressed="{{c.pressed}}" style="display: grid; grid-template-columns: 76px 1fr auto; gap: 16px; align-items: center; padding: 8px 16px 8px 8px; border: 1px solid {{c.border}}; background: {{c.bg}}; border-radius: 2px; cursor: pointer; text-align: left; color: #F3F1EC; font: 500 14px 'Onest', sans-serif">
+              <span style="height: 52px; overflow: hidden; display: block"><img src="{{c.thumb}}" alt="" style="width: 100%; height: 100%; object-fit: cover; display: block"></span>
+              <span>{{c.title}}</span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: {{c.numColor}}">{{c.num}}</span>
+            </button>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PRICES ============ -->
+<section id="prices" style="padding: 140px 0; background: #070708; border-top: 1px solid #16171B">
+  <div class="vx-wrap" style="display: flex; flex-direction: column; gap: 64px">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(480px, 100%), 1fr)); gap: 40px 64px; align-items: end">
+      <div style="display: flex; flex-direction: column; gap: 20px">
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.18em; color: #C8A86B">03 — ПРАЙС-ЛИСТ</span>
+        <h2 style="margin: 0; font-family: 'Unbounded', sans-serif; font-weight: 300; font-size: clamp(34px, 3.9vw, 56px); line-height: 1.1; letter-spacing: -0.015em">Цены и сроки</h2>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 16px; align-items: flex-start; max-width: 520px">
+        <p style="margin: 0; color: #B4B1AA; font-size: 17px">Цены — для седана среднего размера. Для кроссоверов и больших автомобилей назовём точную сумму после осмотра, до начала работ.</p>
+        <span style="display: inline-flex; align-items: center; height: 28px; padding: 0 12px; border: 1px solid #2A2C31; border-radius: 999px; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.12em; color: #B4B1AA">ЦЕНЫ ДЕМОНСТРАЦИОННЫЕ</span>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(540px, 100%), 1fr)); gap: 56px 80px">
+      <div style="display: flex; flex-direction: column; gap: 48px">
+        <div>
+          <div style="display: flex; justify-content: space-between; padding-bottom: 14px; border-bottom: 1px solid #3A3C42; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.16em"><span style="color: #F3F1EC">КУЗОВ</span><span style="color: #8C8A85">СРОК · ЦЕНА</span></div>
+          <div class="vx-row" style="display: grid; grid-template-columns: 1fr 96px 128px; gap: 16px; padding: 20px 0; border-bottom: 1px solid #1F2126; align-items: baseline"><div><div style="font-weight: 500">Детейлинг-мойка</div><div style="font-size: 14px; color: #8C8A85">Двухфазная ручная мойка, диски и проёмы</div></div><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #B4B1AA">2–3 ч</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 15px; text-align: right">от 4 500 ₽</span></div>
+          <div class="vx-row" style="display: grid; grid-template-columns: 1fr 96px 128px; gap: 16px; padding: 20px 0; border-bottom: 1px solid #1F2126; align-items: baseline"><div><div style="font-weight: 500">Лёгкая полировка</div><div style="font-size: 14px; color: #8C8A85">Один этап: глубина цвета и блеск</div></div><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #B4B1AA">6–8 ч</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 15px; text-align: right">от 14 000 ₽</span></div>
+          <div class="vx-row" style="display: grid; grid-template-columns: 1fr 96px 128px; gap: 16px; padding: 20px 0; border-bottom: 1px solid #1F2126; align-items: baseline"><div><div style="font-weight: 500">Восстановительная полировка</div><div style="font-size: 14px; color: #8C8A85">2–3 этапа: голограммы, паутинка, царапины</div></div><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #B4B1AA">1–2 дня</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 15px; text-align: right">от 25 000 ₽</span></div>
+        </div>
+        <div>
+          <div style="display: flex; justify-content: space-between; padding-bottom: 14px; border-bottom: 1px solid #3A3C42; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.16em"><span style="color: #F3F1EC">ЗАЩИТА</span><span style="color: #8C8A85">СРОК · ЦЕНА</span></div>
+          <div class="vx-row" style="display: grid; grid-template-columns: 1fr 96px 128px; gap: 16px; padding: 20px 0; border-bottom: 1px solid #1F2126; align-items: baseline"><div><div style="font-weight: 500">Керамическое покрытие</div><div style="font-size: 14px; color: #8C8A85">2 слоя, подготовка ЛКП включена</div></div><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #B4B1AA">2–3 дня</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 15px; text-align: right">от 45 000 ₽</span></div>
+          <div class="vx-row" style="display: grid; grid-template-columns: 1fr 96px 128px; gap: 16px; padding: 20px 0; border-bottom: 1px solid #1F2126; align-items: baseline"><div><div style="font-weight: 500">Плёнка — зоны риска</div><div style="font-size: 14px; color: #8C8A85">Капот, крылья, бампер, фары, зеркала</div></div><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #B4B1AA">2–3 дня</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 15px; text-align: right">от 90 000 ₽</span></div>
+          <div class="vx-row" style="display: grid; grid-template-columns: 1fr 96px 128px; gap: 16px; padding: 20px 0; border-bottom: 1px solid #1F2126; align-items: baseline"><div><div style="font-weight: 500">Плёнка — полная оклейка</div><div style="font-size: 14px; color: #8C8A85">Весь кузов, кромки за край детали</div></div><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #B4B1AA">5–7 дней</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 15px; text-align: right">от 280 000 ₽</span></div>
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 48px">
+        <div>
+          <div style="display: flex; justify-content: space-between; padding-bottom: 14px; border-bottom: 1px solid #3A3C42; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.16em"><span style="color: #F3F1EC">САЛОН</span><span style="color: #8C8A85">СРОК · ЦЕНА</span></div>
+          <div class="vx-row" style="display: grid; grid-template-columns: 1fr 96px 128px; gap: 16px; padding: 20px 0; border-bottom: 1px solid #1F2126; align-items: baseline"><div><div style="font-weight: 500">Химчистка салона</div><div style="font-size: 14px; color: #8C8A85">Сиденья, потолок, ковры, пластик</div></div><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #B4B1AA">6–8 ч</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 15px; text-align: right">от 15 000 ₽</span></div>
+          <div class="vx-row" style="display: grid; grid-template-columns: 1fr 96px 128px; gap: 16px; padding: 20px 0; border-bottom: 1px solid #1F2126; align-items: baseline"><div><div style="font-weight: 500">Уход за кожей</div><div style="font-size: 14px; color: #8C8A85">Очистка и кондиционирование</div></div><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #B4B1AA">2–3 ч</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 15px; text-align: right">от 6 000 ₽</span></div>
+          <div class="vx-row" style="display: grid; grid-template-columns: 1fr 96px 128px; gap: 16px; padding: 20px 0; border-bottom: 1px solid #1F2126; align-items: baseline"><div><div style="font-weight: 500">Озонирование</div><div style="font-size: 14px; color: #8C8A85">Удаление стойких запахов</div></div><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #B4B1AA">1 ч</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 15px; text-align: right">от 3 000 ₽</span></div>
+        </div>
+        <div>
+          <div style="display: flex; justify-content: space-between; padding-bottom: 14px; border-bottom: 1px solid #3A3C42; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.16em"><span style="color: #F3F1EC">ДОПОЛНИТЕЛЬНО</span><span style="color: #8C8A85">СРОК · ЦЕНА</span></div>
+          <div class="vx-row" style="display: grid; grid-template-columns: 1fr 96px 128px; gap: 16px; padding: 20px 0; border-bottom: 1px solid #1F2126; align-items: baseline"><div><div style="font-weight: 500">Керамика дисков</div><div style="font-size: 14px; color: #8C8A85">Со снятием колёс, с внутренней стороны</div></div><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #B4B1AA">4–5 ч</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 15px; text-align: right">от 12 000 ₽</span></div>
+          <div class="vx-row" style="display: grid; grid-template-columns: 1fr 96px 128px; gap: 16px; padding: 20px 0; border-bottom: 1px solid #1F2126; align-items: baseline"><div><div style="font-weight: 500">Антидождь</div><div style="font-size: 14px; color: #8C8A85">Гидрофоб на все стёкла</div></div><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #B4B1AA">1 ч</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 15px; text-align: right">от 3 500 ₽</span></div>
+          <div class="vx-row" style="display: grid; grid-template-columns: 1fr 96px 128px; gap: 16px; padding: 20px 0; border-bottom: 1px solid #1F2126; align-items: baseline"><div><div style="font-weight: 500">Плёнка на фары</div><div style="font-size: 14px; color: #8C8A85">Полиуретан, защита от сколов</div></div><span style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #B4B1AA">2 ч</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 15px; text-align: right">от 9 000 ₽</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 24px">
+      <div style="display: flex; align-items: center; gap: 16px"><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.16em; color: #F3F1EC">ПАКЕТЫ</span><span aria-hidden="true" style="flex: 1; height: 1px; background: #23252A"></span></div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr)); gap: 24px; align-items: stretch">
+        <article style="border: 1px solid #23252A; border-radius: 4px; padding: 32px; display: flex; flex-direction: column; gap: 20px; background: #0B0C0E">
+          <div style="display: flex; justify-content: space-between; align-items: baseline"><h3 style="margin: 0; font-family: 'Unbounded', sans-serif; font-weight: 400; font-size: 22px">Свежесть</h3><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #8C8A85">1–2 ДНЯ</span></div>
+          <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; font-size: 15px; color: #B4B1AA">
+            <li>Детейлинг-мойка</li><li>Химчистка салона</li><li>Лёгкая полировка</li>
+          </ul>
+          <div style="margin-top: auto; display: flex; justify-content: space-between; align-items: center; gap: 16px; padding-top: 20px; border-top: 1px solid #1F2126">
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 18px">от 32 000 ₽</span>
+            <a class="vx-btn vx-btn-s" href="Landing-Desktop-2.dc.html" style="display: inline-flex; align-items: center; height: 48px; padding: 0 22px; border: 1px solid #3A3C42; border-radius: 2px; color: #F3F1EC; text-decoration: none; font: 600 12px/1 'Onest', sans-serif; letter-spacing: 0.14em">ВЫБРАТЬ</a>
+          </div>
+        </article>
+        <article style="border: 1px solid #8E7443; border-radius: 4px; padding: 32px; display: flex; flex-direction: column; gap: 20px; background: linear-gradient(180deg, #15140F 0%, #0E0F11 60%)">
+          <div style="display: flex; justify-content: space-between; align-items: baseline"><h3 style="margin: 0; font-family: 'Unbounded', sans-serif; font-weight: 400; font-size: 22px">Блеск и защита</h3><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #C8A86B; letter-spacing: 0.12em">РЕКОМЕНДУЕМ</span></div>
+          <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; font-size: 15px; color: #B4B1AA">
+            <li>Детейлинг-мойка</li><li>Восстановительная полировка</li><li>Керамика в 2 слоя</li><li>Химчистка салона</li>
+          </ul>
+          <p style="margin: 0; font-size: 13px; color: #8C8A85">Оптимально для автомобиля старше года — 3 дня.</p>
+          <div style="margin-top: auto; display: flex; justify-content: space-between; align-items: center; gap: 16px; padding-top: 20px; border-top: 1px solid #2A2618">
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #E2CB9A">от 70 000 ₽</span>
+            <a class="vx-btn vx-btn-p" href="Landing-Desktop-2.dc.html" style="display: inline-flex; align-items: center; height: 48px; padding: 0 22px; border-radius: 2px; color: #0B0B0C; text-decoration: none; font: 600 12px/1 'Onest', sans-serif; letter-spacing: 0.14em">ВЫБРАТЬ</a>
+          </div>
+        </article>
+        <article style="border: 1px solid #23252A; border-radius: 4px; padding: 32px; display: flex; flex-direction: column; gap: 20px; background: #0B0C0E">
+          <div style="display: flex; justify-content: space-between; align-items: baseline"><h3 style="margin: 0; font-family: 'Unbounded', sans-serif; font-weight: 400; font-size: 22px">Под защитой</h3><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #8C8A85">4–5 ДНЕЙ</span></div>
+          <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px; font-size: 15px; color: #B4B1AA">
+            <li>Плёнка на зоны риска</li><li>Керамика остальных элементов</li><li>Керамика дисков</li>
+          </ul>
+          <div style="margin-top: auto; display: flex; justify-content: space-between; align-items: center; gap: 16px; padding-top: 20px; border-top: 1px solid #1F2126">
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 18px">от 125 000 ₽</span>
+            <a class="vx-btn vx-btn-s" href="Landing-Desktop-2.dc.html" style="display: inline-flex; align-items: center; height: 48px; padding: 0 22px; border: 1px solid #3A3C42; border-radius: 2px; color: #F3F1EC; text-decoration: none; font: 600 12px/1 'Onest', sans-serif; letter-spacing: 0.14em">ВЫБРАТЬ</a>
+          </div>
+        </article>
+      </div>
+      <p style="margin: 0; font-size: 13px; color: #8C8A85">Все цены демонстрационные. Итоговую стоимость фиксируем в заказ-наряде после осмотра — до начала работ.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TELEGRAM ============ -->
+<section id="telegram" style="position: relative; padding: 120px 0; background: #0B0C0E; border-top: 1px solid #16171B; overflow: hidden">
+  <div aria-hidden="true" style="position: absolute; inset: 0; background: radial-gradient(ellipse 34% 60% at 76% 50%, rgba(200,168,107,0.10), rgba(200,168,107,0) 70%)"></div>
+  <div class="vx-wrap" style="position: relative; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(520px, 100%), 1fr)); gap: 64px 96px; align-items: center">
+    <div style="display: flex; flex-direction: column; gap: 26px">
+      <div style="display: flex; align-items: center; gap: 14px">
+        <span aria-hidden="true" style="width: 32px; height: 32px; border-radius: 50%; background: #C8A86B; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" sc-camel-view-box="0 0 24 24"><path d="M20.5 4.5L3.5 11.2l5.6 1.9 1.9 5.9 3.1-3.8 4.9 3.6z" fill="#0B0B0C"></path></svg></span>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.18em; color: #C8A86B">VÉLOX В TELEGRAM</span>
+      </div>
+      <h2 style="margin: 0; font-family: 'Unbounded', sans-serif; font-weight: 300; font-size: clamp(34px, 3.9vw, 52px); line-height: 1.1; letter-spacing: -0.015em; text-wrap: balance">Запись в два касания — прямо в мессенджере</h2>
+      <p style="margin: 0; color: #B4B1AA; font-size: 17px; max-width: 540px">Бот подберёт услугу, покажет свободные даты и напомнит о визите. Перенести или отменить запись можно там же — без звонка в студию.</p>
+      <ul style="margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: 0 32px">
+        <li style="display: flex; gap: 14px; padding: 16px 0; border-top: 1px solid #23252A"><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #C8A86B; padding-top: 2px">01</span><span style="display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 600; font-size: 15px">Подбор услуги</span><span style="font-size: 14px; color: #8C8A85">Ориентир по цене и сроку сразу в чате</span></span></li>
+        <li style="display: flex; gap: 14px; padding: 16px 0; border-top: 1px solid #23252A"><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #C8A86B; padding-top: 2px">02</span><span style="display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 600; font-size: 15px">Свободное время</span><span style="font-size: 14px; color: #8C8A85">Календарь открывается внутри Telegram</span></span></li>
+        <li style="display: flex; gap: 14px; padding: 16px 0; border-top: 1px solid #23252A"><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #C8A86B; padding-top: 2px">03</span><span style="display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 600; font-size: 15px">Напоминания</span><span style="font-size: 14px; color: #8C8A85">За день и за пару часов до визита</span></span></li>
+        <li style="display: flex; gap: 14px; padding: 16px 0; border-top: 1px solid #23252A"><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #C8A86B; padding-top: 2px">04</span><span style="display: flex; flex-direction: column; gap: 2px"><span style="font-weight: 600; font-size: 15px">Перенос и отмена</span><span style="font-size: 14px; color: #8C8A85">В пару касаний, без звонка</span></span></li>
+      </ul>
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 20px">
+        <a class="vx-btn vx-btn-p" href="https://t.me/VELOX_BOT_USERNAME" target="_blank" rel="noopener" style="display: inline-flex; align-items: center; gap: 12px; height: 56px; padding: 0 30px; border-radius: 2px; color: #0B0B0C; text-decoration: none; font: 600 13px/1 'Onest', sans-serif; letter-spacing: 0.14em"><svg aria-hidden="true" width="18" height="18" sc-camel-view-box="0 0 24 24"><path d="M20.5 4.5L3.5 11.2l5.6 1.9 1.9 5.9 3.1-3.8 4.9 3.6z" fill="#0B0B0C"></path></svg>ОТКРЫТЬ БОТА</a>
+        <span style="display: flex; flex-direction: column; gap: 6px">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 14px">@VELOX_BOT_USERNAME</span>
+          <span style="align-self: flex-start; height: 24px; padding: 0 10px; border: 1px dashed #5A4B30; border-radius: 999px; font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.1em; color: #E2CB9A; display: inline-flex; align-items: center">ССЫЛКА-ЗАГЛУШКА — ЗАМЕНИТЬ НА РЕАЛЬНУЮ</span>
+        </span>
+      </div>
+    </div>
+
+    <div style="display: flex; align-items: center; justify-content: center; gap: 40px; flex-wrap: wrap">
+      <div style="width: 300px; height: 470px; border-radius: 30px; border: 1px solid #2A2C31; background: #0A0B0D; box-shadow: 0 40px 90px rgba(0,0,0,0.6); overflow: hidden; display: flex; flex-direction: column; transform: rotate(-2deg)">
+        <div style="height: 56px; padding: 0 14px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #1A1B1F; background: #0E0F11">
+          <span aria-hidden="true" style="width: 34px; height: 34px; border-radius: 50%; background: radial-gradient(circle at 30% 25%, #2A2C31, #0B0C0E); border: 1px solid #8E7443; display: flex; align-items: center; justify-content: center; font-family: 'Unbounded', sans-serif; font-size: 13px; color: #E2CB9A">V</span>
+          <span style="display: flex; flex-direction: column; line-height: 1.25"><span style="font-size: 13px; font-weight: 600">VÉLOX Detailing Studio</span><span style="font-size: 11px; color: #8C8A85">бот</span></span>
+        </div>
+        <div style="flex: 1; padding: 14px 12px; display: flex; flex-direction: column; gap: 8px; justify-content: flex-end; background: radial-gradient(ellipse at 50% 0%, rgba(200,168,107,0.05), rgba(200,168,107,0) 60%)">
+          <span style="align-self: center; height: 22px; padding: 0 10px; border-radius: 999px; background: #15161A; font-size: 10px; color: #8C8A85; display: inline-flex; align-items: center">Сегодня</span>
+          <div style="align-self: flex-start; max-width: 240px; padding: 10px 12px 6px; border-radius: 14px 14px 14px 4px; background: #16171B; border: 1px solid #222429; font-size: 12.5px; line-height: 1.45">Приветствуем! Подберём услугу для вашего автомобиля и поможем записаться.<span style="display: block; text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #77756F; margin-top: 2px">12:01</span></div>
+          <div style="display: flex; flex-direction: column; gap: 5px">
+            <span style="height: 34px; border-radius: 8px; border: 1px solid #5A4B30; background: rgba(200,168,107,0.12); display: flex; align-items: center; justify-content: center; font-size: 12px">Записаться на услугу</span>
+            <span style="height: 34px; border-radius: 8px; border: 1px solid #2A2C31; background: #15161A; display: flex; align-items: center; justify-content: center; font-size: 12px">Посмотреть услуги и цены</span>
+            <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px"><span style="height: 34px; border-radius: 8px; border: 1px solid #2A2C31; background: #15161A; display: flex; align-items: center; justify-content: center; font-size: 12px">Мои записи</span><span style="height: 34px; border-radius: 8px; border: 1px solid #2A2C31; background: #15161A; display: flex; align-items: center; justify-content: center; font-size: 12px">Администратор</span></div>
+          </div>
+        </div>
+        <div style="height: 50px; padding: 0 10px; display: flex; align-items: center; gap: 8px; border-top: 1px solid #1A1B1F; background: #0E0F11">
+          <span style="height: 30px; padding: 0 12px; border-radius: 999px; background: #C8A86B; color: #0B0B0C; font-size: 11px; font-weight: 600; display: flex; align-items: center">Меню</span>
+          <span style="flex: 1; height: 30px; border-radius: 999px; background: #15161A; color: #6E6C68; font-size: 12px; display: flex; align-items: center; padding: 0 12px">Сообщение</span>
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 14px; width: 170px">
+        <div aria-hidden="true" style="position: relative; width: 150px; height: 150px; background: #F3F1EC; border-radius: 4px">
+          <span style="position: absolute; left: 12px; top: 12px; width: 36px; height: 36px; box-sizing: border-box; border: 6px solid #0B0B0C; display: flex; align-items: center; justify-content: center"><span style="width: 12px; height: 12px; background: #0B0B0C"></span></span>
+          <span style="position: absolute; right: 12px; top: 12px; width: 36px; height: 36px; box-sizing: border-box; border: 6px solid #0B0B0C; display: flex; align-items: center; justify-content: center"><span style="width: 12px; height: 12px; background: #0B0B0C"></span></span>
+          <span style="position: absolute; left: 12px; bottom: 12px; width: 36px; height: 36px; box-sizing: border-box; border: 6px solid #0B0B0C; display: flex; align-items: center; justify-content: center"><span style="width: 12px; height: 12px; background: #0B0B0C"></span></span>
+          <span style="position: absolute; left: 56px; top: 56px; width: 82px; height: 82px; border: 1px dashed #8C8A85; box-sizing: border-box; display: flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #4A4945">QR</span>
+        </div>
+        <span style="font-size: 13px; color: #B4B1AA">Наведите камеру — откроется бот</span>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.08em; line-height: 1.6; color: #8C8A85">QR-КОД ПОЯВИТСЯ ПОСЛЕ СОЗДАНИЯ БОТА</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:6480}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { pos: 50, cur: 0 };
+  }
+  renderVals() {
+    const { pos, cur } = this.state;
+    const cases = [
+      { title: 'Восстановление блеска', desc: 'Окисленный, «уставший» лак — и глубокий чёрный с чёткими бликами после полировки и керамики.', works: 'Восстановительная полировка, керамика в 2 слоя', term: '3 дня', b: 'ДО', a: 'ПОСЛЕ', thumb: '/_blob/3564e6b0066a235a68053189c6098cae' },
+      { title: 'Удаление дефектов ЛКП', desc: 'Голограммы и паутинка от автоматических моек убраны без перекраса — только абразивная полировка.', works: 'Трёхэтапная полировка, защитный силант', term: '2 дня', b: 'ДО', a: 'ПОСЛЕ', thumb: '/_blob/72176db87cc398e3c67e67b9073ebf65' },
+      { title: 'Химчистка салона', desc: 'Пыль, пятна на коже и следы на ковриках — и чистая кожа с естественной матовой фактурой.', works: 'Химчистка салона, уход за кожей', term: '1 день', b: 'ДО', a: 'ПОСЛЕ', thumb: '/_blob/518c5ceb7a1e07bcd0d82fca8a99a75f' },
+      { title: 'Защитная оклейка', desc: 'Слева — бампер без защиты после сезона, справа — такой же бампер под плёнкой после того же пробега.', works: 'Полиуретановая плёнка, зоны риска', term: '3 дня', b: 'БЕЗ ЗАЩИТЫ', a: 'ПОД ПЛЁНКОЙ', thumb: '/_blob/7ccb643848b72a6dae6df32fb1eb932b' }
+    ];
+    const c = cases[cur];
+    const v = {
+      pos, clip: 100 - pos,
+      onPos: (e) => this.setState({ pos: Number(e.target.value) }),
+      caseTitle: c.title, caseDesc: c.desc, caseWorks: c.works, caseTerm: c.term,
+      beforeLabel: c.b, afterLabel: c.a,
+      caseIndex: '0' + (cur + 1) + ' / 04',
+      cases: cases.map((x, i) => ({
+        title: x.title, thumb: x.thumb, num: '0' + (i + 1),
+        pressed: i === cur ? 'true' : 'false',
+        border: i === cur ? '#8E7443' : '#23252A',
+        bg: i === cur ? '#15140F' : 'transparent',
+        numColor: i === cur ? '#C8A86B' : '#8C8A85',
+        pick: () => this.setState({ cur: i, pos: 50 })
+      }))
+    };
+    for (let i = 0; i < 4; i++) { v['a' + i] = i === cur ? 1 : 0; v['b' + i] = i === cur ? 1 : 0; }
+    return v;
+  }
+}
+</script>
+
+
+</body></html>
