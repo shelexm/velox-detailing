@@ -18,7 +18,7 @@ docker compose run --rm api python -m app.cli create-admin --email you@example.c
 
 ## Следующий конкретный шаг: экран «Мастера»
 
-1. `app/web/panel/staff.py` (по образцу `app/web/panel/services.py`): список мастеров слева, карточка справа по `design-reference/4/Админка — мастера.png`; загрузка недели: `app/services/stats.py` (добавить расчёт по мастеру).
+1. `app/web/panel/staff.py` (по образцу `app/web/panel/services.py`): список мастеров слева, карточка справа по скриншоту мастеров в `design-reference/4/` (артборд `design-reference/extracted/admin-masters.html`); загрузка недели: `app/services/stats.py` (добавить расчёт по мастеру).
 2. `app/templates/panel/staff.html`: профиль (форма PATCH `/staff/{id}`), услуги (чекбоксы, PUT `/staff/{id}/services`), график 7 дней (PUT `/staff/{id}/hours`, тело `{"days": [...]}`), отсутствия (POST/DELETE `/staff/{id}/absences`), «Добавить мастера», «Убрать мастера» (409 при будущих записях).
 3. Подключить в `app/web/panel/__init__.py`, тесты в `tests/api/test_admin_staff.py` и `tests/api/test_panel_pages.py`.
 
