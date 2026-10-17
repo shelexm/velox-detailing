@@ -23,8 +23,8 @@ build/
 dist/
 
 # Runtime data (never commit databases, dumps, uploads)
-backups/
-media/
+/backups/
+/media/
 *.dump
 *.sql.gz
 *.sqlite3

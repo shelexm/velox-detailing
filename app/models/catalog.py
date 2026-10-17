@@ -76,14 +76,16 @@ class ServiceGroup(IdMixin, TimestampMixin, Base):
     slug: Mapped[str] = mapped_column(String(64))
     title: Mapped[str] = mapped_column(String(120))
     summary: Mapped[str | None] = mapped_column(String(300))
+    tagline: Mapped[str | None] = mapped_column(String(120))  # short line for the mobile list
     features: Mapped[list[str]] = mapped_column(JSONB, default=list)
     price_label: Mapped[str | None] = mapped_column(String(60))
     duration_label: Mapped[str | None] = mapped_column(String(60))
     badge: Mapped[str | None] = mapped_column(String(40))
     is_wide: Mapped[bool] = mapped_column(Boolean, default=False)
-    # Detail page: eyebrow, description, includes (list), guarantee, upsell, footnote.
+    # Detail page: description, includes (list), term, cost, guarantee, upsell, footnote,
+    # gallery: [{"image_id": 1, "label": "ПОСЛЕ"}, ...] in display order.
     detail: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)
-    image_id: Mapped[int | None] = mapped_column(BigInteger)
+    image_id: Mapped[int | None] = mapped_column(BigInteger, ForeignKey("media_assets.id", ondelete="SET NULL"))
     is_visible: Mapped[bool] = mapped_column(Boolean, default=True)
     sort_order: Mapped[int] = mapped_column(Integer, default=0)
 
@@ -130,7 +132,7 @@ class Service(IdMixin, TimestampMixin, Base):
     requires_resource: Mapped[bool] = mapped_column(Boolean, default=True)
     requires_staff: Mapped[bool] = mapped_column(Boolean, default=True)
     show_in_price_list: Mapped[bool] = mapped_column(Boolean, default=True)
-    image_id: Mapped[int | None] = mapped_column(BigInteger)
+    image_id: Mapped[int | None] = mapped_column(BigInteger, ForeignKey("media_assets.id", ondelete="SET NULL"))
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     sort_order: Mapped[int] = mapped_column(Integer, default=0)
 
