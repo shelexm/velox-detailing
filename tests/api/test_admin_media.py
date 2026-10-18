@@ -100,3 +100,20 @@ async def test_masters_cannot_manage_media(client: httpx.AsyncClient, studio: St
     await make_user("master@velox.test", studio, role=Role.MASTER)
     await login(client, "master@velox.test")
     assert (await client.get(f"/api/v1/admin/studios/{studio.id}/media")).status_code == 403
+
+
+async def test_media_screen(client: httpx.AsyncClient, session: AsyncSession, studio: Studio, make_user) -> None:
+    await make_user("owner@velox.test", studio)
+    await login(client, "owner@velox.test")
+    api = f"/api/v1/admin/studios/{studio.id}/media"
+    asset = (await client.post(api, files={"file": ("a.jpg", jpeg(), "image/jpeg")}, data={"alt": "Капот"})).json()
+    service = await session.scalar(select(Service).where(Service.studio_id == studio.id).limit(1))
+    service.image_id = asset["id"]
+    await session.commit()
+    html = {"Accept": "text/html"}
+    page = await client.get(f"/admin/{studio.id}/media", headers=html)
+    assert page.status_code == 200 and "Капот" in page.text and "на сайте · 1" in page.text
+    opened = await client.get(f"/admin/{studio.id}/media?open={asset['id']}", headers=html)
+    assert f"Услуга «{service.name}»" in opened.text and "Заменить файл" in opened.text
+    for show in ("used", "unused", "examples"):
+        assert (await client.get(f"/admin/{studio.id}/media?show={show}", headers=html)).status_code == 200

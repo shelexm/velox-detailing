@@ -1,0 +1,89 @@
+{% extends "panel/base.html" %}
+{% from "panel/_macros.html" import icon, field, toggle %}
+{% block title %}Медиатека{% endblock %}
+{% set labels = {"all": "Все", "used": "На сайте", "unused": "Не используются", "examples": "Примеры работ"} %}
+{% block main %}
+<header class="pn-head">
+  <div class="pn-head__text"><span class="pn-eyebrow mono">{{ counts.all }} {{ plural(counts.all, "изображение", "изображения", "изображений") }} · {{ counts.used }} на сайте</span><h1 class="pn-title">Медиатека</h1></div>
+  <div class="pn-head__actions">
+    <label class="btn btn--primary" data-upload-label>{{ icon("upload", 16) }}Загрузить фото<input class="visually-hidden" type="file" accept="image/jpeg,image/png,image/webp,image/avif" multiple data-upload-many></label>
+  </div>
+</header>
+
+<div class="dropzone" data-dropzone>
+  {{ icon("image", 22) }}<span>Перетащите фото сюда или нажмите «Загрузить фото». JPG, PNG, WebP или AVIF до {{ max_mb }} МБ. Сервер сам уберёт метаданные (EXIF, GPS) и подготовит размеры для сайта.</span>
+  <span class="dropzone__progress mono" data-upload-progress hidden></span>
+</div>
+
+<div class="chip-row">
+  {% for key, label in labels.items() %}<a class="chip {% if key == show %}is-on{% endif %}" href="?show={{ key }}">{{ label }} · {{ counts[key] }}</a>{% endfor %}
+</div>
+
+<div class="pn-cols pn-cols--main-side {% if not selected %}pn-cols--single{% endif %}">
+  <section class="library" aria-label="Изображения">
+    {% for a in assets %}
+    {% set places = used.get(a.id, []) %}
+    <a class="lib-item {% if selected and selected.id == a.id %}is-selected{% endif %}" href="?show={{ show }}&open={{ a.id }}">
+      <span class="lib-item__img"><img src="{{ thumb(a) }}" alt="" loading="lazy" width="{{ a.width }}" height="{{ a.height }}"></span>
+      <span class="lib-item__meta">
+        <span class="lib-item__alt">{{ a.alt or a.original_name or "Без описания" }}</span>
+        <span class="lib-item__tags">
+          {% if places %}<span class="tag tag--gold tag--xs">на сайте · {{ places | length }}</span>{% else %}<span class="tag tag--xs">не используется</span>{% endif %}
+          {% if a.is_example %}<span class="tag tag--xs">пример</span>{% endif %}
+          {% if not a.alt %}<span class="tag tag--xs tag--warn">нет alt</span>{% endif %}
+        </span>
+      </span>
+    </a>
+    {% else %}
+    <p class="empty">Здесь пока пусто. Загрузите первые фото.</p>
+    {% endfor %}
+  </section>
+
+  {% if selected %}
+  {% set places = used.get(selected.id, []) %}
+  <section class="drawer" aria-labelledby="media-title">
+    <div class="drawer__head">
+      <div><span class="drawer__eyebrow mono">{{ selected.width }}×{{ selected.height }} · {{ (selected.bytes / 1024) | round | int }} КБ</span><h2 class="drawer__title" id="media-title">{{ selected.original_name or "Изображение" }}</h2></div>
+      <a class="icon-btn icon-btn--round" href="?show={{ show }}" aria-label="Закрыть">{{ icon("close", 18) }}</a>
+    </div>
+    <div class="drawer__body">
+      <a class="media-big" href="{{ large(selected) }}" target="_blank" rel="noopener"><img src="{{ large(selected) }}" alt="{{ selected.alt }}"></a>
+      <div class="media-actions">
+        <label class="btn btn--dark btn--sm" data-replace-label>{{ icon("upload", 16) }}Заменить файл<input class="visually-hidden" type="file" accept="image/jpeg,image/png,image/webp,image/avif" data-replace="{{ panel.api }}/media/{{ selected.id }}/file"></label>
+        <span class="muted small">Замена сохраняет все места, где фото уже стоит на сайте.</span>
+      </div>
+      <div>
+        <h3 class="sub-title">Где используется</h3>
+        {% if places %}<ul class="places">{% for p in places %}<li>{{ p }}</li>{% endfor %}</ul>{% else %}<p class="muted small">Пока нигде. Выберите фото в нужном разделе (услуги, контент сайта, до и после).</p>{% endif %}
+      </div>
+      <form class="form" data-form data-action="{{ panel.api }}/media/{{ selected.id }}" data-method="PATCH" data-reload novalidate>
+        <div class="form-alert" data-form-alert hidden>{{ icon("alert", 18) }}<span data-form-alert-text></span></div>
+        <div class="fld">
+          <label class="fld__label" for="m-alt">Описание (alt)</label>
+          <textarea class="input input--area" id="m-alt" name="alt" maxlength="300" rows="2">{{ selected.alt }}</textarea>
+          <span class="fld__hint">Что на фото, одной фразой: его читают незрячие посетители и поисковики.</span>
+        </div>
+        <details class="edit-block" {% if selected.author or selected.source_url %}open{% endif %}>
+          <summary>Автор и лицензия</summary>
+          <div class="form">
+            {{ field("author", "Автор", selected.author, maxlength=200, attrs='data-type="nullable"') }}
+            {{ field("source_url", "Ссылка на источник", selected.source_url, type="url", maxlength=500, attrs='data-type="nullable"') }}
+            <div class="fld-row">
+              {{ field("license", "Лицензия", selected.license, maxlength=120, placeholder="Unsplash License", attrs='data-type="nullable"') }}
+              {{ field("license_url", "Ссылка на лицензию", selected.license_url, type="url", maxlength=500, attrs='data-type="nullable"') }}
+            </div>
+            <p class="muted small">Чужие фото с указанием автора попадают на страницу «Источники фото» на сайте.</p>
+          </div>
+        </details>
+        {{ toggle("is_example", selected.is_example, "Пример, а не работа студии", "Для стоковых фото и визуализаций") }}
+        <div class="form__actions form__actions--split">
+          <button class="btn btn--link-danger" type="button" data-api="{{ panel.api }}/media/{{ selected.id }}" data-method="DELETE" data-confirm="Удалить фото?" data-confirm-text="{% if places %}Сейчас оно используется: {{ places | join(', ') }}. Удалить не получится, пока его не заменят.{% else %}Файл удалится без возможности восстановления.{% endif %}" data-confirm-ok="Удалить" data-done="Фото удалено" data-redirect="?show={{ show }}">Удалить</button>
+          <button class="btn btn--primary" type="submit">Сохранить</button>
+        </div>
+      </form>
+    </div>
+  </section>
+  {% endif %}
+</div>
+{% endblock %}
+{% block scripts %}<script type="module" src="{{ static_url('js/media.js') }}"></script>{% endblock %}

@@ -819,3 +819,30 @@ form:has(select[name="scope"] option[value="staff"]:checked) .if-staff { display
   .stat-tile { padding: 12px; }
   .stat-tile__num { font-size: 22px; }
 }
+
+/* ---------- media library ---------- */
+.dropzone { display: flex; align-items: center; gap: 14px; padding: 18px 22px; border: 1px dashed var(--line-3); border-radius: var(--radius-card); color: var(--text-2); font-size: 14px; transition: border-color .15s, background-color .15s; }
+.dropzone .ic { color: var(--gold); }
+.dropzone.is-over { border-color: var(--gold); background: var(--gold-deep); }
+.dropzone__progress { margin-left: auto; white-space: nowrap; color: var(--gold-light); }
+.library { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; align-content: start; }
+.lib-item { display: flex; flex-direction: column; background: var(--ink-1); border: 1px solid var(--line-1); border-radius: var(--radius-card); overflow: hidden; color: inherit; text-decoration: none; }
+.lib-item:hover { border-color: var(--line-3); color: inherit; }
+.lib-item.is-selected { border-color: var(--gold); }
+.lib-item__img { aspect-ratio: 4 / 3; overflow: hidden; background: var(--ink-2); }
+.lib-item__img img { width: 100%; height: 100%; object-fit: cover; }
+.lib-item__meta { display: flex; flex-direction: column; gap: 8px; padding: 10px 12px 12px; }
+.lib-item__alt { font-size: 13px; color: var(--text-2); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.6em; }
+.lib-item__tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.tag--xs { height: 22px; padding: 0 8px; font-size: 11px; }
+.tag--warn { border-color: var(--danger-line); color: var(--danger-text); }
+.media-big { display: block; border-radius: var(--radius); overflow: hidden; background: var(--ink-2); }
+.media-big img { width: 100%; max-height: 320px; object-fit: contain; }
+.media-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.places { display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
+.places li::before { content: "·"; color: var(--gold); margin-right: 8px; }
+@media (max-width: 900px) {
+  .library { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .pn-cols--main-side:has(.drawer) > .library { display: none; }
+  .dropzone { font-size: 13px; }
+}

@@ -199,23 +199,37 @@ def section_image_ids(content: Any) -> set[int]:
     return found
 
 
+async def usage_map(session: AsyncSession, studio_id: int) -> dict[int, list[str]]:
+    """Every image id of the studio mapped to the human-readable places that use it (one pass)."""
+    from app.content.sections import SECTION_TITLES
+
+    places: dict[int, list[str]] = {}
+
+    def add(asset_id: int | None, label: str) -> None:
+        if asset_id is not None and label not in places.setdefault(asset_id, []):
+            places[asset_id].append(label)
+
+    for service_id, name in await session.execute(
+        select(Service.image_id, Service.name).where(
+            Service.studio_id == studio_id, Service.image_id.is_not(None), Service.is_active.is_(True)
+        )
+    ):
+        add(service_id, f"Услуга «{name}»")
+    for group in await session.scalars(select(ServiceGroup).where(ServiceGroup.studio_id == studio_id)):
+        for asset_id in {group.image_id, *section_image_ids(group.detail)}:
+            add(asset_id, f"Направление «{group.title}»")
+    for case in await session.scalars(select(PortfolioCase).where(PortfolioCase.studio_id == studio_id)):
+        add(case.before_image_id, f"До и после «{case.title}»")
+        add(case.after_image_id, f"До и после «{case.title}»")
+    for section in await session.scalars(select(SiteSection).where(SiteSection.studio_id == studio_id)):
+        for asset_id in section_image_ids(section.content):
+            add(asset_id, f"Блок сайта «{SECTION_TITLES.get(section.key, section.key)}»")
+    return places
+
+
 async def usages(session: AsyncSession, studio_id: int, asset_id: int) -> list[str]:
     """Human-readable places where an image is used (the panel shows them before deletion)."""
-    places = []
-    for name in await session.scalars(
-        select(Service.name).where(Service.studio_id == studio_id, Service.image_id == asset_id)
-    ):
-        places.append(f"Услуга «{name}»")
-    for group in await session.scalars(select(ServiceGroup).where(ServiceGroup.studio_id == studio_id)):
-        if group.image_id == asset_id or asset_id in section_image_ids(group.detail):
-            places.append(f"Направление «{group.title}»")
-    for case in await session.scalars(select(PortfolioCase).where(PortfolioCase.studio_id == studio_id)):
-        if asset_id in (case.before_image_id, case.after_image_id):
-            places.append(f"Работа «{case.title}»")
-    for section in await session.scalars(select(SiteSection).where(SiteSection.studio_id == studio_id)):
-        if asset_id in section_image_ids(section.content):
-            places.append(f"Блок сайта «{section.key}»")
-    return places
+    return (await usage_map(session, studio_id)).get(asset_id, [])
 
 
 async def delete_asset(session: AsyncSession, *, studio_id: int, asset_id: int, media_root: Path) -> None:
