@@ -11,6 +11,7 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 from app.api.routes import (
     admin,
     admin_catalog,
+    admin_content,
     admin_media,
     admin_schedule,
     admin_slots,
@@ -74,6 +75,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(admin_staff.router)
     app.include_router(admin_schedule.router)
     app.include_router(admin_slots.router)
+    app.include_router(admin_content.router)
     app.include_router(panel.router)
     app.include_router(site.router)
     app.mount("/static", CachedStaticFiles(directory=BASE_DIR / "static"), name="static")
