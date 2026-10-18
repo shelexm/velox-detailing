@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import ConflictError, NotFoundError, ValidationFailedError
@@ -24,25 +24,55 @@ async def get_or_create_client(
     telegram_user_id: int | None = None,
     telegram_chat_id: int | None = None,
     telegram_username: str | None = None,
+    telegram_verified: bool = False,
 ) -> Client:
     """Find the client by phone (normalized) or create one.
 
     An existing client's name is never overwritten by a new request: the name given with a request is
     stored on the booking (`contact_name`), so typing someone else's phone cannot rename their card.
+
+    The Telegram account is linked only when that cannot hand someone else's card over: a typed phone links
+    a brand-new card and only an account no other card uses; a phone confirmed by Telegram
+    (`telegram_verified`: the owner shared their own contact) may take over the card.
     """
     client = await session.scalar(select(Client).where(Client.studio_id == studio_id, Client.phone == phone))
+    created = client is None
     if client is None:
         client = Client(studio_id=studio_id, phone=phone, full_name=name, tags=[], reminders_enabled=True)
         session.add(client)
     if consent_at is not None:
         client.consent_at = consent_at
         client.consent_version = CONSENT_VERSION
-    if telegram_user_id is not None and client.telegram_user_id is None:
-        client.telegram_user_id = telegram_user_id
-        client.telegram_chat_id = telegram_chat_id
-        client.telegram_username = telegram_username
+    if telegram_user_id is not None and client.telegram_user_id != telegram_user_id:
+        if telegram_verified:
+            await link_telegram(
+                session, client, user_id=telegram_user_id, chat_id=telegram_chat_id, username=telegram_username
+            )
+        elif created and await telegram_card(session, studio_id, telegram_user_id) is None:
+            client.telegram_user_id = telegram_user_id
+            client.telegram_chat_id = telegram_chat_id
+            client.telegram_username = telegram_username
     await session.flush()
     return client
+
+
+async def telegram_card(session: AsyncSession, studio_id: int, telegram_user_id: int) -> Client | None:
+    return await session.scalar(
+        select(Client).where(Client.studio_id == studio_id, Client.telegram_user_id == telegram_user_id)
+    )
+
+
+async def link_telegram(
+    session: AsyncSession, client: Client, *, user_id: int, chat_id: int | None, username: str | None
+) -> None:
+    """Binds the account to this card. An account belongs to one card per studio, so a previous card loses it."""
+    await session.flush()  # a new card needs its id
+    await session.execute(
+        update(Client)
+        .where(Client.studio_id == client.studio_id, Client.telegram_user_id == user_id, Client.id != client.id)
+        .values(telegram_user_id=None, telegram_chat_id=None, telegram_username=None)
+    )
+    client.telegram_user_id, client.telegram_chat_id, client.telegram_username = user_id, chat_id, username
 
 
 async def remember_vehicle(session: AsyncSession, *, studio_id: int, client_id: int, description: str) -> Vehicle:

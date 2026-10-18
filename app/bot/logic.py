@@ -148,6 +148,15 @@ async def client_by_telegram(session: AsyncSession, studio_id: int, telegram_use
     )
 
 
+async def phone_needs_confirmation(session: AsyncSession, studio_id: int, phone: str, telegram_user_id: int) -> bool:
+    """A typed phone that already has a card not linked to this account must be confirmed by sharing the contact."""
+    card = await session.execute(
+        select(Client.telegram_user_id).where(Client.studio_id == studio_id, Client.phone == phone)
+    )
+    row = card.first()
+    return row is not None and row.telegram_user_id != telegram_user_id
+
+
 async def own_booking(session: AsyncSession, studio_id: int, booking_id: int, telegram_user_id: int) -> Booking:
     """A booking of the person writing to the bot; anything else looks like it does not exist."""
     booking = await session.scalar(

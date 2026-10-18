@@ -21,6 +21,20 @@ async def _press(message: FakeMessage, data: kb.CallbackData) -> FakeCallback:
 
 
 async def book_light_polish(ctx: BotContext, state, session: AsyncSession) -> Booking:
+    chat, hold = await reach_phone_step(ctx, state, session)
+    # Someone else's contact is refused, the own one finishes the booking.
+    await h.phone_contact(FakeMessage(contact=Contact("+79001112233", user_id=999), answers=chat.answers), state, ctx)
+    assert "свой номер" in chat.last
+    await h.phone_contact(FakeMessage(contact=Contact("79134521807"), answers=chat.answers), state, ctx)
+    assert "Заявка принята" in chat.last and "Лёгкая полировка" in chat.last and "Audi A6, 2021" in chat.last
+    await session.commit()  # end the read snapshot of this test session
+    booking = await session.scalar(select(Booking).where(Booking.id == hold.id))
+    await session.refresh(booking)
+    return booking
+
+
+async def reach_phone_step(ctx: BotContext, state, session: AsyncSession) -> tuple[FakeMessage, Booking]:
+    """Light polishing through the dialog up to the phone step; returns the chat and the held slot."""
     chat = FakeMessage()
     await h.start(FakeMessage(text="/start"), command(), state, ctx)
     await h.menu(FakeCallback(chat), kb.Menu(action="book"), state, ctx)
@@ -49,15 +63,50 @@ async def book_light_polish(ctx: BotContext, state, session: AsyncSession) -> Bo
 
     await h.name_text(FakeMessage(text="Алексей", answers=chat.answers), state, ctx)
     assert isinstance(chat.answers[-1][1], ReplyKeyboardMarkup)  # "Поделиться номером"
-    # Someone else's contact is refused, the own one finishes the booking.
-    await h.phone_contact(FakeMessage(contact=Contact("+79001112233", user_id=999), answers=chat.answers), state, ctx)
-    assert "свой номер" in chat.last
-    await h.phone_contact(FakeMessage(contact=Contact("79134521807"), answers=chat.answers), state, ctx)
-    assert "Заявка принята" in chat.last and "Лёгкая полировка" in chat.last and "Audi A6, 2021" in chat.last
-    await session.commit()  # end the read snapshot of this test session
-    booking = await session.scalar(select(Booking).where(Booking.id == hold.id))
-    await session.refresh(booking)
-    return booking
+    return chat, hold
+
+
+async def test_typed_phone_of_another_card_needs_the_contact_button(
+    ctx: BotContext, state, session: AsyncSession, studio: Studio
+) -> None:
+    # Vera booked on the site; her card has no Telegram. Someone types her number in the bot.
+    vera = Client(studio_id=studio.id, phone="+79130000001", full_name="Вера", tags=[], reminders_enabled=True)
+    session.add(vera)
+    await session.commit()
+    chat, hold = await reach_phone_step(ctx, state, session)
+    await h.phone_text(FakeMessage(text="+7 913 000-00-01", answers=chat.answers), state, ctx)
+    assert "подтвердить, что он ваш" in chat.last
+    await session.refresh(vera)
+    await session.refresh(hold)
+    assert vera.telegram_user_id is None and hold.status == BookingStatus.HOLD  # nothing changed, slot still held
+    # A contact without the sender's id (from the address book) does not confirm it either.
+    await h.phone_contact(FakeMessage(contact=Contact("+79130000001", user_id=None), answers=chat.answers), state, ctx)
+    assert "подтвердить, что он ваш" in chat.last
+    # The owner shares their own contact: the card is theirs, the booking goes through.
+    await h.phone_contact(FakeMessage(contact=Contact("+79130000001"), answers=chat.answers), state, ctx)
+    assert "Заявка принята" in chat.last
+    await session.refresh(vera)
+    assert vera.telegram_user_id == USER_ID
+
+
+async def test_second_phone_of_a_linked_account(ctx: BotContext, state, session: AsyncSession, studio: Studio) -> None:
+    first = await book_light_polish(ctx, state, session)
+    # A typed new number books fine (no unique-index crash) without moving the account off the first card.
+    chat, _ = await reach_phone_step(ctx, state, session)
+    await h.phone_text(FakeMessage(text="+7 913 777-66-55", answers=chat.answers), state, ctx)
+    assert "Заявка принята" in chat.last
+    second = await session.scalar(select(Client).where(Client.phone == "+79137776655"))
+    await session.refresh(second)
+    own = await session.get(Client, first.client_id)
+    await session.refresh(own)
+    assert second.telegram_user_id is None and own.telegram_user_id == USER_ID
+    # A number confirmed with the contact button takes the account over: it is that person's number now.
+    chat, _ = await reach_phone_step(ctx, state, session)
+    await h.phone_contact(FakeMessage(contact=Contact("+79137776655"), answers=chat.answers), state, ctx)
+    assert "Заявка принята" in chat.last
+    await session.refresh(second)
+    await session.refresh(own)
+    assert second.telegram_user_id == USER_ID and own.telegram_user_id is None
 
 
 async def test_full_booking_dialog(ctx: BotContext, state, session: AsyncSession, studio: Studio) -> None:
@@ -126,6 +175,18 @@ async def test_site_booking_link_and_deep_links(
     polish = await session.scalar(select(Service.id).where(Service.slug == "light-polish"))
     from tests.api.conftest import first_free_slot
 
+    # The account is already linked to another card: following the link moves it, without a unique-index crash.
+    other = Client(
+        studio_id=studio.id,
+        phone="+79005550001",
+        full_name="Старый номер",
+        tags=[],
+        reminders_enabled=True,
+        telegram_user_id=USER_ID,
+        telegram_chat_id=CHAT_ID,
+    )
+    session.add(other)
+    await session.commit()
     start = await first_free_slot(client, "velox", polish)
     created = await client.post(
         "/api/v1/public/studios/velox/bookings",
@@ -137,6 +198,8 @@ async def test_site_booking_link_and_deep_links(
     assert "уведомления о записи" in chat.answers[0][0]
     linked = await session.scalar(select(Client).where(Client.phone == "+79005550000"))
     assert linked.telegram_chat_id == CHAT_ID
+    await session.refresh(other)
+    assert other.telegram_user_id is None
 
     bad = FakeMessage()
     await h.start(bad, command("booking_wrongtoken"), state, ctx)

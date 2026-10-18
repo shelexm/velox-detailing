@@ -102,6 +102,7 @@ class BookingInput:
     telegram_user_id: int | None = None
     telegram_chat_id: int | None = None
     telegram_username: str | None = None
+    telegram_verified: bool = False  # the phone came from the owner's own Telegram contact
 
 
 @dataclass
@@ -284,6 +285,7 @@ async def create_booking(
         telegram_user_id=data.telegram_user_id,
         telegram_chat_id=data.telegram_chat_id,
         telegram_username=data.telegram_username,
+        telegram_verified=data.telegram_verified,
     )
     vehicle_text = _clean_text(data.vehicle, 120)
     vehicle = (
@@ -418,6 +420,7 @@ async def complete_hold(
         telegram_user_id=data.telegram_user_id,
         telegram_chat_id=data.telegram_chat_id,
         telegram_username=data.telegram_username,
+        telegram_verified=data.telegram_verified,
     )
     vehicle_text = _clean_text(data.vehicle, 120)
     if vehicle_text:

@@ -32,6 +32,7 @@ from app.services.booking import (
     InvalidTransitionError,
     SlotUnavailableError,
 )
+from app.services.clients import link_telegram
 from app.web.templating import plural
 
 logger = logging.getLogger("app.bot")
@@ -430,7 +431,9 @@ async def phone_contact(message: Message, state: FSMContext, ctx: BotContext) ->
             "Отправьте, пожалуйста, свой номер кнопкой ниже или напишите его.", reply_markup=kb.share_phone()
         )
         return
-    await _finish(message, state, ctx, message.contact.phone_number)
+    # Telegram vouches for the number only when the contact carries the sender's own id.
+    verified = message.contact.user_id == message.from_user.id
+    await _finish(message, state, ctx, message.contact.phone_number, verified=verified)
 
 
 @client_router.message(Flow.phone, F.text)
@@ -438,7 +441,9 @@ async def phone_text(message: Message, state: FSMContext, ctx: BotContext) -> No
     await _finish(message, state, ctx, message.text)
 
 
-async def _finish(message: Message, state: FSMContext, ctx: BotContext, raw_phone: str) -> None:
+async def _finish(
+    message: Message, state: FSMContext, ctx: BotContext, raw_phone: str, *, verified: bool = False
+) -> None:
     try:
         phone = normalize_ru_phone(raw_phone)
     except InvalidPhoneError:
@@ -448,6 +453,11 @@ async def _finish(message: Message, state: FSMContext, ctx: BotContext, raw_phon
     user = message.from_user
     async with ctx.session() as session:
         studio = await logic.studio_by_slug(session, ctx.studio_slug)
+        if not verified and await logic.phone_needs_confirmation(session, studio.id, phone, user.id):
+            # A typed number of an existing card could be someone else's: its bookings, reminders and name
+            # must not open to this account. The hold stays while the client confirms with the button.
+            await message.answer(texts.PHONE_CONFIRM, reply_markup=kb.share_phone())
+            return
         try:
             created = await booking_service.complete_hold(
                 session,
@@ -465,6 +475,7 @@ async def _finish(message: Message, state: FSMContext, ctx: BotContext, raw_phon
                     telegram_user_id=user.id,
                     telegram_chat_id=message.chat.id,
                     telegram_username=user.username,
+                    telegram_verified=verified,
                 ),
             )
         except HoldExpiredError:
@@ -708,9 +719,8 @@ async def _link_site_booking(message: Message, session, studio, token: str) -> N
     if client is None or (client.telegram_user_id and client.telegram_user_id != user.id):
         await message.answer(texts.LINK_FAILED, reply_markup=kb.main_menu())
         return
-    client.telegram_user_id = user.id
-    client.telegram_chat_id = message.chat.id
-    client.telegram_username = user.username
+    # The manage token proves the booking is theirs; an account linked to another card moves here.
+    await link_telegram(session, client, user_id=user.id, chat_id=message.chat.id, username=user.username)
     await session.commit()
     card = await logic.booking_text(session, studio, booking, f"Запись № {booking.number}")
     await message.answer(texts.LINKED.format(number=booking.number))
