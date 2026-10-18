@@ -180,7 +180,7 @@ Content-Type: application/json
 | Метод | Адрес | Роль | Что делает |
 |---|---|---|---|
 | GET | `/settings` | упр. | настройки студии |
-| PATCH | `/settings` | влад. | контакты, адрес, реквизиты, username бота (меняются только переданные поля) |
+| PATCH | `/settings` | влад. | контакты, адрес, реквизиты, username бота, бренд (`brand_name`, `brand_tagline`, `logo_image_id` из медиатеки этой студии); меняются только переданные поля |
 | POST | `/telegram/link-code` | влад. | одноразовый код для `/link` в чате администраторов (15 минут) |
 | DELETE | `/telegram/admin-chat` | влад. | отвязать чат администраторов |
 | POST | `/users` | влад. | выдать доступ (ответ содержит временный пароль, показывается один раз) |
@@ -193,6 +193,7 @@ Content-Type: application/json
 |---|---|
 | `/`, `/services/{slug}`, `/privacy`, `/credits`, `/booking/{token}` | сайт |
 | `/sitemap.xml`, `/robots.txt` | для поисковиков |
+| `/favicon.svg` | иконка вкладки: первая буква бренда |
 | `/admin/login`, `/admin/{studio_id}/...` | панель |
 | `/tg/app?service=` | календарь для бота |
 | `/media/{studio_id}/{key}/{file}` | загруженные фото |
