@@ -1,0 +1,23 @@
+# Production overrides for a small shared VPS (1 CPU, 1 GB RAM): memory caps so the stack cannot starve
+# other services on the host, and a PostgreSQL sized for that. Enable it from the server's .env:
+#   COMPOSE_FILE=compose.yaml:compose.prod.yaml
+
+services:
+  db:
+    command: ["postgres", "-c", "shared_buffers=64MB", "-c", "max_connections=40", "-c", "work_mem=4MB"]
+    mem_limit: 256m
+
+  media-init:
+    mem_limit: 64m
+
+  migrate:
+    mem_limit: 256m
+
+  api:
+    mem_limit: 320m
+
+  bot:
+    mem_limit: 192m
+
+  backup:
+    mem_limit: 96m
