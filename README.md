@@ -1,125 +1,93 @@
 # VÉLOX Detailing Studio
 
-Сайт, онлайн-запись, панель студии и Telegram-бот для студии детейлинга VÉLOX. Архитектура готова к подключению нескольких студий (SaaS): каждая сущность студии хранит `studio_id`, доступ изолирован.
+Сайт, онлайн-запись, панель студии и Telegram-бот для студии детейлинга. Один продукт на FastAPI и PostgreSQL:
+сайт, панель и бот работают с одной базой и одними правилами записи, поэтому ни один канал не может занять
+уже занятое время. Архитектура готова к нескольким студиям (SaaS): каждая запись в базе привязана к студии,
+доступ изолирован.
 
-Стек: Python 3.12, FastAPI, PostgreSQL 17, SQLAlchemy 2 (async), Alembic, Pydantic, aiogram 3, Jinja2 + ванильный JS, Docker Compose.
+Рабочий адрес: **https://topsite.goroshka.ru** (панель: `/admin`, бот: [@velox_detailing_bot](https://t.me/velox_detailing_bot)).
 
-## Быстрый старт (локально)
+## Что умеет
 
-Нужны Docker и Docker Compose v2.
+**Для клиента**
+- Сайт с услугами, ценами, работами «до и после», отзывами, сертификатами и контактами. Адаптивный: один шаблон
+  для телефона и компьютера.
+- Онлайн-запись: услуга, мастер (если студия разрешает выбор), свободные дни и время, контакты. Подтверждение
+  с номером записи, файл для календаря, страница управления записью (отмена до дедлайна).
+- Telegram-бот: запись кнопками или через календарь-мини-приложение, «Мои записи», перенос, отмена, вопрос
+  администратору, напоминания за сутки и за 2 часа.
 
-```sh
-cp .env.example .env
-# в .env замените POSTGRES_PASSWORD на длинный случайный пароль, например: openssl rand -hex 24
-docker compose up --build
-```
-
-Сервисы:
-
-| Сервис | Что делает |
-|---|---|
-| `db` | PostgreSQL 17, данные в volume `pgdata`, наружу не публикуется |
-| `migrate` | Однократно применяет миграции Alembic, затем завершается. Только он меняет схему |
-| `api` | FastAPI на `http://127.0.0.1:${API_PORT:-8000}` (порт открыт только на localhost) |
-| `bot` | Telegram-бот. Без `TELEGRAM_BOT_TOKEN` пишет предупреждение и завершается с кодом 0 |
-| `backup` | Раз в сутки `pg_dump` и архив медиа в `./backups`, хранит 14 дней |
-
-Проверка: `curl http://127.0.0.1:8000/health/ready` отвечает `{"status":"ok","checks":{"database":"ok","migrations":"ok"}}`.
-
-Если порт 8000 занят, задайте `API_PORT` в `.env`.
-
-## Первый администратор
-
-Публичной регистрации нет. Владелец студии создаётся командой (пароль спросит интерактивно, не короче 12 символов):
-
-```sh
-docker compose run --rm api python -m app.cli create-admin --email owner@example.com --name "Имя Фамилия"
-```
-
-Роли: `--role owner|admin|master` (по умолчанию owner). Сменить пароль: добавить `--reset-password`.
-Стартовые данные студии (услуги и цены из макетов, мастера, часы работы) создаёт `python -m app.cli seed`; сервис `migrate` запускает его автоматически и не перезаписывает изменения, сделанные в панели.
-
-## API
-
-- Публичное API формы записи: `/api/v1/public/studios/{slug}/...` (услуги, свободное время, создание заявки, управление заявкой по ссылке, `.ics`).
-- Панель студии: `/api/v1/auth/*` (вход, выход), `/api/v1/admin/studios/{studio_id}/...`.
-- Интерактивная документация в режиме разработки: `http://127.0.0.1:8000/api/docs`.
-
-Подробности защиты: `docs/security.md`.
-
-## Миграции
-
-Применяются автоматически сервисом `migrate` при каждом `docker compose up`. Вручную:
-
-```sh
-docker compose run --rm migrate                       # alembic upgrade head
-docker compose run --rm migrate alembic current
-docker compose run --rm migrate alembic history
-```
-
-Новую миграцию создают из изменённых моделей (нужна запущенная БД):
-
-```sh
-docker compose run --rm migrate alembic revision --autogenerate -m "describe change"
-```
-
-Схему production-базы руками не меняем: только через миграции.
-
-## Тесты
-
-Тесты работают только с отдельной базой, имя которой оканчивается на `_test`, и только при `APP_ENV=test`. Иначе запуск прерывается.
-
-В Docker (отдельный проект `velox-test`, база на tmpfs, основные данные не затрагиваются):
-
-```sh
-docker compose -f compose.test.yaml run --rm --build tests
-docker compose -f compose.test.yaml down
-```
-
-Локально (Python 3.12):
-
-```sh
-python -m venv .venv && . .venv/bin/activate      # Windows: .venv\Scripts\activate
-pip install -r requirements-dev.lock && pip install -e . --no-deps
-docker compose -f compose.test.yaml up -d --wait db-test   # тестовая БД на 127.0.0.1:55432
-pytest
-ruff check . && ruff format --check .
-```
-
-## Резервное копирование и восстановление
-
-- Автоматически: сервис `backup` (интервал `BACKUP_INTERVAL_SECONDS`, хранение `BACKUP_KEEP_DAYS`, каталог `BACKUP_DIR`).
-- Вручную: `sh scripts/backup.sh` (дамп БД и архив медиа в `./backups`).
-- Проверка восстановления без риска: `sh scripts/restore.sh backups/db-XXXX.dump` восстанавливает в отдельную базу
-  `velox_restore_check`, сравнивает точное число строк каждой таблицы с рабочей базой и удаляет проверочную базу
-  (`KEEP_RESTORE=yes` оставляет её для просмотра).
-- Восстановление рабочей базы (останавливает работающие api и bot на время восстановления):
-  `RESTORE_CONFIRM=yes sh scripts/restore.sh backups/db-XXXX.dump live`
-- Восстановление фото из архива (добавляет и заменяет файлы, ничего не удаляет):
-  `RESTORE_CONFIRM=yes sh scripts/restore.sh backups/media-XXXX.tar.gz media`
-- В Git Bash на Windows перед скриптами нужен `export MSYS_NO_PATHCONV=1` (иначе он подменяет пути вида `/app/media`).
-
-## Зависимости
-
-Версии зафиксированы в `requirements.lock` и `requirements-dev.lock` (собраны `pip-compile` для Linux, из `pyproject.toml`). Обновление:
-
-```sh
-docker run --rm -v "$PWD:/src" -w /src python:3.12-slim sh -c \
-  "pip install -q pip-tools && pip-compile -q --strip-extras -o requirements.lock pyproject.toml \
-   && pip-compile -q --strip-extras --extra dev -o requirements-dev.lock pyproject.toml"
-```
-
-## Структура
-
-```
-app/            приложение (core, db, models, schemas, repositories, services, api, web, bot)
-migrations/     миграции Alembic
-tests/          unit, integration, api, bot
-scripts/        распаковка макетов, бэкап и восстановление
-docs/           документация (аудит макетов и др.)
-design-reference/  исходные макеты без изменений + распакованные артборды
-```
+**Для студии**
+- Панель: главная со сводкой дня, записи (неделя, день по боксам, список), расписание, услуги и цены, мастера,
+  слоты и вместимость, клиенты, контент сайта, медиатека, «до и после», отзывы, настройки, доступ сотрудников.
+- Чат администраторов в Telegram: новые заявки с кнопками «Подтвердить», «Назначить мастера», «Отклонить»,
+  вопросы клиентов с ответом прямо из чата.
+- Защита от двойной записи на уровне базы данных, роли (владелец, администратор, мастер), удаление данных
+  клиента по запросу (152-ФЗ), ежедневные бэкапы.
 
 ## Документация
 
-- `docs/design-audit.md`: аудит исходных макетов, карта экранов, медиа, шрифты, проблемы.
+| Для кого | Документ |
+|---|---|
+| Владелец и администраторы | [Руководство по панели студии](docs/admin-panel.md) |
+| | [Сайт и онлайн-запись](docs/site.md) |
+| | [Telegram-бот](docs/telegram-bot.md) |
+| | [Частые вопросы и проблемы](docs/faq.md) |
+| Тот, кто обслуживает сервер | [Установка, обновление, бэкапы](docs/deployment.md) |
+| | [Настройки (.env)](docs/configuration.md) |
+| | [Безопасность](docs/security.md) |
+| Разработчик | [Архитектура](docs/architecture.md) |
+| | [Разработка и тесты](docs/development.md) |
+| | [API](docs/api.md) |
+| | [Модель записи и защита от гонок](docs/booking-model.md) |
+| | [Фото и лицензии](docs/media-sources.md), [аудит макетов](docs/design-audit.md) |
+| | [Статус разработки](docs/PROGRESS.md), [как продолжить](docs/CONTINUE.md) |
+
+## Быстрый старт на своём компьютере
+
+Нужен Docker с Compose v2.
+
+```sh
+cp .env.example .env
+# в .env: POSTGRES_PASSWORD заменить на длинный случайный пароль (openssl rand -hex 24)
+docker compose up --build
+```
+
+- Сайт: http://127.0.0.1:8000 (порт задаёт `API_PORT` в `.env`), проверка: http://127.0.0.1:8000/health/ready
+- Миграции и стартовые данные (услуги и цены из макетов, мастера, часы работы, тексты сайта, фото)
+  создаёт сервис `migrate` автоматически.
+- Первый владелец панели (пароль вводится в терминале и нигде не печатается):
+
+  ```sh
+  docker compose run --rm api python -m app.cli create-admin --email owner@example.com --name "Имя Фамилия"
+  ```
+
+- Панель: http://127.0.0.1:8000/admin
+
+Бот локально включается, только если в `.env` указан `TELEGRAM_BOT_TOKEN`. Один токен нельзя запускать
+в двух местах одновременно: для локальной отладки нужен отдельный тестовый бот.
+
+Тесты, миграции и правила разработки: [docs/development.md](docs/development.md).
+Выкладка на сервер и бэкапы: [docs/deployment.md](docs/deployment.md).
+
+## Стек
+
+Python 3.12, FastAPI, SQLAlchemy 2 (async) и Alembic, PostgreSQL 17, Pydantic 2, aiogram 3, Jinja2 и
+чистый JavaScript без фреймворков, Pillow (AVIF и WebP), pytest, ruff, Docker Compose, GitHub Actions.
+
+## Структура репозитория
+
+```
+app/              приложение (подробно: docs/architecture.md)
+  api/routes/     HTTP API          web/          страницы сайта и панели
+  bot/            Telegram-бот      services/     бизнес-логика
+  models/         таблицы           content/      схемы блоков сайта
+migrations/       миграции Alembic
+static/           CSS, JS, шрифты, картинки интерфейса
+tests/            unit, integration, api, bot
+scripts/          бэкап, восстановление, выкладка, распаковка макетов
+docs/             документация
+design-reference/ исходные макеты (не меняются)
+compose.yaml      локальный и боевой стек; compose.prod.yaml: лимиты памяти для сервера
+compose.test.yaml изолированный стек тестов
+```
