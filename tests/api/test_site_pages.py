@@ -111,7 +111,7 @@ async def test_service_photo_is_rendered_and_served(
 
 
 async def test_static_files_and_text_pages(client: httpx.AsyncClient, site_studio: Studio) -> None:
-    for path in ("/static/css/site.css", "/static/fonts/onest-cyrillic.woff2", "/static/img/favicon.svg"):
+    for path in ("/static/css/site.css", "/static/fonts/onest-cyrillic.woff2", "/favicon.svg"):
         assert (await client.get(path)).status_code == 200, path
     assert "Disallow: /admin" in (await client.get("/robots.txt")).text
     assert "<urlset" in (await client.get("/sitemap.xml")).text
