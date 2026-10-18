@@ -16,6 +16,7 @@ from app.api.routes import (
     admin_schedule,
     admin_slots,
     admin_staff,
+    admin_users,
     auth,
     health,
     public,
@@ -76,6 +77,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(admin_schedule.router)
     app.include_router(admin_slots.router)
     app.include_router(admin_content.router)
+    app.include_router(admin_users.router)
     app.include_router(panel.router)
     app.include_router(site.router)
     app.mount("/static", CachedStaticFiles(directory=BASE_DIR / "static"), name="static")
