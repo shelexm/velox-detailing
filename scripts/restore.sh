@@ -23,7 +23,7 @@ if [ "$mode" = "media" ]; then
     fi
     gzip -t "$dump"
     docker compose exec -T api tar -xzf - -C /app/media < "$dump"
-    files="$(docker compose exec -T api sh -c "tar -tzf - | grep -vc '/\$'" < "$dump")"
+    files="$(docker compose exec -T api sh -c "tar -tzf - | grep -vc '/\$'" < "$dump" || true)"
     echo "Media restored from $dump ($files files)"
     exit 0
 fi
