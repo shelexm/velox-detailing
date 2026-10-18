@@ -6,7 +6,7 @@
 
 ```sh
 docker compose -f compose.test.yaml up -d --wait db-test       # тестовая БД на 127.0.0.1:55432
-C:/Users/arizo/.venvs/velox/Scripts/python.exe -m pytest -q     # ожидается 147 passed
+C:/Users/arizo/.venvs/velox/Scripts/python.exe -m pytest -q     # ожидается 159 passed
 C:/Users/arizo/.venvs/velox/Scripts/ruff.exe check app tests
 docker compose up -d --build                                    # сайт: http://127.0.0.1:8010/ (API_PORT=8010 в .env)
 docker compose run --rm api python -m app.cli create-admin --email you@example.com --name "Имя"   # пароль вводится интерактивно
@@ -18,22 +18,12 @@ docker compose run --rm api python -m app.cli create-admin --email you@example.c
 длинные файлы лучше писать инструментом записи, а не heredoc. `docker compose cp` меняет файлы только в текущем
 контейнере, после `docker compose up` нужно `--build`.
 
-## Этап 7: Telegram-бот (следующий шаг)
+## Этап 7: осталось
 
-1. Бот на aiogram 3 в сервисе `bot` (`compose.yaml` уже есть, без токена сервис спокойно завершается).
-   Код в `app/bot/`: обработчики, клавиатуры, вызовы только сервисов `app/services/` (бронирование через
-   `booking.create_hold` / `complete_hold`, перенос и отмена через существующие функции).
-2. Сценарий по `design-reference/5` (распаковано в `design-reference/extracted/bot-*.html`): /start с deep-link
-   (`service_*`, `gift`, `booking_*`), выбор услуги и авто, дата и время кнопками с удержанием слота
-   (`studio.hold_minutes`), имя, «Поделиться номером», подтверждение; «Мои записи», перенос, отмена, вопрос администратору.
-3. Чат администраторов: привязка по одноразовому коду из «Настроек», кнопки Подтвердить / Перенести / Отклонить
-   с проверкой членства в студии.
-4. Outbox-воркер (`app/services/outbox.py`): `FOR UPDATE SKIP LOCKED`, повторы с паузой, статус dead после лимита;
-   напоминания за 24 ч и 2 ч, отказ от напоминаний.
-5. Мини-приложение `/tg/app` (календарь и контакты) с проверкой подписи `initData`; включается только при HTTPS
-   `PUBLIC_BASE_URL` (после деплоя), бот обновляет кнопку меню при старте.
-6. Тесты только с моками aiogram, реальные сообщения не отправляются.
-7. Создание бота: через Telegram Web пользователя у @BotFather, токен сразу в `.env`, в чат и в Git не попадает.
+Код бота готов (`app/bot/`, `docs/telegram-bot.md`). Осталось: с согласия владельца создать бота у @BotFather
+через его Telegram Web (имя, username, описание, команды /start /book /mine), токен сразу в `.env`
+(`TELEGRAM_BOT_TOKEN`), username в «Настройках» панели, `docker compose up -d bot`, привязать чат
+администраторов кодом из «Настроек» и пройти запись вживую.
 
 ## Потом
 
