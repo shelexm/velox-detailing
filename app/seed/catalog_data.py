@@ -8,7 +8,13 @@ from __future__ import annotations
 
 from datetime import time
 
-STUDIO = {"slug": "velox", "name": "VÉLOX Detailing Studio", "timezone": "Europe/Moscow"}
+STUDIO = {
+    "slug": "velox",
+    "name": "VÉLOX Detailing Studio",
+    "timezone": "Europe/Moscow",
+    "brand_name": "VÉLOX",
+    "brand_tagline": "DETAILING STUDIO",
+}
 
 # Pn-Sb 09:00-21:00, Vs 10:00-18:00 ("Контакты" block); weekday 0 = Monday.
 STUDIO_HOURS = {wd: (time(9), time(21)) for wd in range(6)} | {6: (time(10), time(18))}

@@ -20,7 +20,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import ConflictError, NotFoundError, ValidationFailedError
-from app.models import MediaAsset, PortfolioCase, Service, ServiceGroup, SiteSection
+from app.models import MediaAsset, PortfolioCase, Service, ServiceGroup, SiteSection, Studio
 
 MAX_UPLOAD_BYTES = 5 * 1024 * 1024
 MAX_PIXELS = 50_000_000
@@ -204,6 +204,9 @@ async def usage_map(session: AsyncSession, studio_id: int) -> dict[int, list[str
     from app.content.sections import SECTION_TITLES
 
     places: dict[int, list[str]] = {}
+    logo = await session.scalar(select(Studio.logo_image_id).where(Studio.id == studio_id))
+    if logo is not None:
+        places[logo] = ["Логотип студии"]
 
     def add(asset_id: int | None, label: str) -> None:
         if asset_id is not None and label not in places.setdefault(asset_id, []):

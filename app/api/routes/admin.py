@@ -8,10 +8,12 @@ from zoneinfo import ZoneInfo
 
 from fastapi import APIRouter, Query
 from fastapi.responses import Response
+from sqlalchemy import select
 
 from app.api.deps import AnyMember, DbSession, Manager, Owner
 from app.core import security
 from app.core.errors import ValidationFailedError
+from app.models import MediaAsset
 from app.models.enums import BookingStatus
 from app.schemas.booking import (
     AvailabilityOut,
@@ -232,6 +234,12 @@ async def get_settings(access: Manager) -> StudioSettingsOut:
 @router.patch("/settings")
 async def patch_settings(payload: StudioSettingsIn, access: Owner, session: DbSession) -> StudioSettingsOut:
     studio = access.studio
+    if payload.logo_image_id is not None:
+        owned = await session.scalar(
+            select(MediaAsset.id).where(MediaAsset.studio_id == studio.id, MediaAsset.id == payload.logo_image_id)
+        )
+        if owned is None:
+            raise ValidationFailedError(details=[{"field": "logo_image_id", "message": "Фото не найдено в медиатеке"}])
     for field, value in payload.model_dump(exclude_unset=True).items():
         if field in REQUIRED_SETTINGS and value is None:
             raise ValidationFailedError(details=[{"field": field, "message": "Поле не может быть пустым"}])

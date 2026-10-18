@@ -32,6 +32,9 @@ class StudioSettingsOut(Schema):
     schedule_text: str | None
     legal_name: str | None
     inn: str | None
+    brand_name: str | None
+    brand_tagline: str | None
+    logo_image_id: int | None
     online_booking_enabled: bool
     slot_step_minutes: int
     buffer_minutes: int
@@ -58,6 +61,9 @@ class StudioSettingsIn(Schema):
     schedule_text: str | None = Field(default=None, max_length=200)
     legal_name: str | None = Field(default=None, max_length=300)
     inn: str | None = Field(default=None, max_length=12)
+    brand_name: str | None = Field(default=None, max_length=24)
+    brand_tagline: str | None = Field(default=None, max_length=40)
+    logo_image_id: int | None = Field(default=None, ge=1)
     online_booking_enabled: bool | None = None
     slot_step_minutes: int | None = None
     buffer_minutes: int | None = Field(default=None, ge=0, le=240)
@@ -81,6 +87,12 @@ class StudioSettingsIn(Schema):
         if value is not None and not re.match(r"^https://[^\s<>\"']+$", str(value)):
             raise ValueError("Ссылка должна начинаться с https://")
         return value
+
+    @field_validator("brand_name", "brand_tagline", mode="before")
+    @classmethod
+    def _brand_text(cls, value: object) -> object:
+        value = _blank_to_none(value)
+        return None if value is None else " ".join(str(value).split())
 
     @field_validator("telegram_bot_username", mode="before")
     @classmethod

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from sqlalchemy import BigInteger, Boolean, CheckConstraint, DateTime, Integer, String
+from sqlalchemy import BigInteger, Boolean, CheckConstraint, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base, IdMixin, TimestampMixin
@@ -37,6 +37,13 @@ class Studio(IdMixin, TimestampMixin, Base):
     schedule_text: Mapped[str | None] = mapped_column(String(200))
     legal_name: Mapped[str | None] = mapped_column(String(300))
     inn: Mapped[str | None] = mapped_column(String(12))
+
+    # Logo: an uploaded image, or the brand word (falls back to the studio name) with a line under it.
+    brand_name: Mapped[str | None] = mapped_column(String(24))
+    brand_tagline: Mapped[str | None] = mapped_column(String(40))
+    logo_image_id: Mapped[int | None] = mapped_column(
+        BigInteger, ForeignKey("media_assets.id", ondelete="SET NULL", use_alter=True)
+    )
 
     # Online booking rules (admin "Слоты" screen).
     online_booking_enabled: Mapped[bool] = mapped_column(Boolean, default=True)
