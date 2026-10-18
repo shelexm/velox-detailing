@@ -110,6 +110,13 @@
           <div class="form__actions"><button class="btn btn--primary" type="submit">Сохранить</button></div>
         </form>
       </details>
+      {% if panel.is_owner %}
+      <details class="edit-block">
+        <summary>Удалить персональные данные</summary>
+        <p class="muted small">По запросу клиента (152-ФЗ): карточка, телефон, Telegram, автомобили, заметки и комментарии к записям удаляются безвозвратно. Прошлые визиты остаются в статистике без имени. Сначала отмените активные записи клиента.</p>
+        <button class="btn btn--link-danger btn--sm" type="button" data-api="{{ panel.api }}/clients/{{ detail.id }}" data-method="DELETE" data-confirm="Удалить данные клиента {{ detail.full_name }}?" data-confirm-text="Это нельзя отменить. В резервных копиях данные хранятся до их удаления по сроку." data-confirm-ok="Удалить данные" data-done="Данные клиента удалены" data-redirect="{{ panel.url('/clients') }}">Удалить данные клиента</button>
+      </details>
+      {% endif %}
     </div>
   </section>
   {% elif creating %}

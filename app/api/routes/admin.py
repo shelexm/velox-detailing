@@ -28,7 +28,7 @@ from app.schemas.booking import (
 )
 from app.schemas.studio import StudioSettingsIn, StudioSettingsOut
 from app.services import booking as booking_service
-from app.services import queries
+from app.services import privacy, queries
 from app.services.clients import create_client, update_client
 
 router = APIRouter(prefix="/api/v1/admin/studios/{studio_id}", tags=["admin"])
@@ -209,6 +209,13 @@ async def get_client(client_id: int, access: Manager, session: DbSession) -> Cli
 async def patch_client(client_id: int, payload: ClientUpdateIn, access: Manager, session: DbSession) -> ClientDetailOut:
     await update_client(session, access.studio.id, client_id, **payload.model_dump(exclude_unset=True))
     return await queries.client_detail(session, access.studio.id, client_id)
+
+
+@router.delete("/clients/{client_id}")
+async def erase_client(client_id: int, access: Owner, session: DbSession) -> dict:
+    """Erase the client's personal data on their request; past visits stay as anonymous rows."""
+    erased = await privacy.erase_client(session, access.studio.id, client_id, access.actor)
+    return {"bookings_anonymized": erased.bookings}
 
 
 def _settings_out(studio) -> StudioSettingsOut:

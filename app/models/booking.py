@@ -78,7 +78,8 @@ class Booking(IdMixin, TimestampMixin, Base):
         CheckConstraint("ends_at > starts_at", name="start_before_end"),
         CheckConstraint("occupied_until >= ends_at", name="occupied_after_end"),
         CheckConstraint("status <> 'hold' OR hold_expires_at IS NOT NULL", name="hold_has_expiry"),
-        CheckConstraint("client_id IS NOT NULL OR status IN ('hold', 'expired', 'cancelled')", name="client_required"),
+        # Active bookings need a client; past ones may be anonymous after the client's data was erased.
+        CheckConstraint("client_id IS NOT NULL OR status NOT IN ('new', 'confirmed')", name="client_required"),
         ForeignKeyConstraint(["studio_id", "client_id"], ["clients.studio_id", "clients.id"], ondelete="RESTRICT"),
         ForeignKeyConstraint(["studio_id", "service_id"], ["services.studio_id", "services.id"], ondelete="RESTRICT"),
         ForeignKeyConstraint(["studio_id", "staff_id"], ["staff.studio_id", "staff.id"], ondelete="RESTRICT"),
