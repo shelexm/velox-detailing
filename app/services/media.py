@@ -23,8 +23,12 @@ from app.core.errors import ConflictError, NotFoundError, ValidationFailedError
 from app.models import MediaAsset, PortfolioCase, Service, ServiceGroup, SiteSection, Studio
 
 MAX_UPLOAD_BYTES = 5 * 1024 * 1024
-MAX_PIXELS = 50_000_000
+# PNG, WebP and AVIF are decoded in full (3 bytes per pixel plus a copy); the api container has 320 MB.
+MAX_PIXELS = 36_000_000
+# JPEG is decoded at 1/2, 1/4 or 1/8 scale (see _draft_jpeg), so 50 to 108 MP phone cameras fit.
+MAX_JPEG_PIXELS = 120_000_000
 MIN_SIDE = 200
+HEIF_BRANDS = {b"heic", b"heix", b"hevc", b"hevx", b"heim", b"heis", b"mif1", b"msf1"}
 WIDTHS = (480, 960, 1600, 2400)
 ALLOWED = {"JPEG": "jpg", "PNG": "png", "WEBP": "webp", "AVIF": "avif"}
 ENCODERS: tuple[tuple[str, str, dict[str, Any]], ...] = (
@@ -34,7 +38,7 @@ ENCODERS: tuple[tuple[str, str, dict[str, Any]], ...] = (
 )
 VARIANT_NAME = r"^w\d{3,4}\.(avif|webp|jpg)$"
 
-Image.MAX_IMAGE_PIXELS = MAX_PIXELS
+Image.MAX_IMAGE_PIXELS = MAX_JPEG_PIXELS
 
 
 @dataclass
@@ -45,6 +49,25 @@ class ProcessedImage:
     variants: list[tuple[str, int, int, bytes]] = field(default_factory=list)  # format, width, height, data
 
 
+def _unreadable_message(data: bytes) -> str:
+    if data[4:8] == b"ftyp" and data[8:12] in HEIF_BRANDS:
+        return "Формат HEIC не поддерживается. Выберите фото в формате JPG (в настройках камеры «Наиболее совместимые»)"
+    return "Это не изображение или файл повреждён"
+
+
+def _draft_jpeg(image: Image.Image) -> float:
+    """Ask the JPEG decoder for 1/2, 1/4 or 1/8 scale when the photo is far wider than the biggest variant.
+
+    Variants are keyed by width, so the decoded width never drops below WIDTHS[-1].
+    Returns how many times the decoded size is smaller than the file's real size.
+    """
+    if image.format != "JPEG":
+        return 1.0
+    full_width = image.width
+    image.draft("RGB", (WIDTHS[-1], 1))
+    return full_width / image.width
+
+
 def process_image(data: bytes, *, max_bytes: int | None = MAX_UPLOAD_BYTES) -> ProcessedImage:
     """CPU-bound; call through asyncio.to_thread. Decoding is the validation (the extension is ignored)."""
     if max_bytes is not None and len(data) > max_bytes:
@@ -52,13 +75,23 @@ def process_image(data: bytes, *, max_bytes: int | None = MAX_UPLOAD_BYTES) -> P
     try:
         with Image.open(io.BytesIO(data)) as probe:
             fmt = probe.format
+            pixels = probe.width * probe.height
             probe.verify()
+    except Image.DecompressionBombError as exc:
+        raise ValidationFailedError("Слишком большое разрешение снимка") from exc
+    except (UnidentifiedImageError, OSError, SyntaxError) as exc:
+        raise ValidationFailedError(_unreadable_message(data)) from exc
+    if fmt not in ALLOWED:
+        raise ValidationFailedError("Поддерживаются JPG, PNG, WebP и AVIF")
+    limit = MAX_JPEG_PIXELS if fmt == "JPEG" else MAX_PIXELS
+    if pixels > limit:
+        raise ValidationFailedError(f"Слишком большое разрешение: до {limit // 1_000_000} Мпикс")
+    try:
         image = Image.open(io.BytesIO(data))
+        scale = _draft_jpeg(image)
         image.load()
     except (UnidentifiedImageError, OSError, SyntaxError, Image.DecompressionBombError) as exc:
         raise ValidationFailedError("Это не изображение или файл повреждён") from exc
-    if fmt not in ALLOWED:
-        raise ValidationFailedError("Поддерживаются JPG, PNG, WebP и AVIF")
     image = ImageOps.exif_transpose(image)
     if image.mode not in ("RGB", "L"):
         background = Image.new("RGB", image.size, (7, 7, 8))
@@ -67,10 +100,11 @@ def process_image(data: bytes, *, max_bytes: int | None = MAX_UPLOAD_BYTES) -> P
         image = background
     image = image.convert("RGB")
     width, height = image.size
-    if min(width, height) < MIN_SIDE:
+    full_width, full_height = round(width * scale), round(height * scale)
+    if min(full_width, full_height) < MIN_SIDE:
         raise ValidationFailedError(f"Слишком маленькое изображение: нужно от {MIN_SIDE} px по меньшей стороне")
 
-    result = ProcessedImage(original_ext=ALLOWED[fmt], width=width, height=height)
+    result = ProcessedImage(original_ext=ALLOWED[fmt], width=full_width, height=full_height)
     targets = sorted({w for w in WIDTHS if w < width} | {min(width, WIDTHS[-1])})
     for target in targets:
         resized = image if target == width else image.resize((target, round(height * target / width)), Image.LANCZOS)
