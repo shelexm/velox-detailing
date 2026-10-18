@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import logging
 import re
 from datetime import UTC, date, datetime, timedelta
@@ -324,36 +325,38 @@ async def pick_slot(callback: CallbackQuery, callback_data: kb.Pick, state: FSMC
 
 @client_router.message(F.web_app_data)
 async def from_calendar(message: Message, state: FSMContext, ctx: BotContext) -> None:
-    """The Mini App created a hold for this user (checked by initData on the server) and hands back its id."""
+    """The calendar Mini App hands back the chosen service and start; Telegram vouches for the sender."""
     try:
-        hold_id = int(message.web_app_data.data)
-    except (TypeError, ValueError):
+        choice = json.loads(message.web_app_data.data)
+        service_id = int(choice["service_id"])
+        start = datetime.fromisoformat(choice["starts_at"])
+        if start.tzinfo is None:
+            raise ValueError("naive start")
+    except (TypeError, ValueError, KeyError):
         await message.answer(texts.UNKNOWN, reply_markup=ReplyKeyboardRemove())
         return
     async with ctx.session() as session:
         studio = await logic.studio_by_slug(session, ctx.studio_slug)
-        hold = await session.scalar(
-            select(Booking).where(
-                Booking.studio_id == studio.id,
-                Booking.id == hold_id,
-                Booking.hold_owner == hold_owner(message.from_user.id),
-                Booking.status == BookingStatus.HOLD,
-            )
-        )
-        if hold is None:
-            await message.answer(texts.HOLD_EXPIRED, reply_markup=ReplyKeyboardRemove())
+        try:
+            await logic.get_service(session, studio.id, service_id)
+        except AppError as exc:
+            await message.answer(exc.message, reply_markup=ReplyKeyboardRemove())
             return
-        await state.update_data(service_id=hold.service_id, hold_id=hold.id)
-        await message.answer(
-            texts.HOLD_TAKEN.format(
-                when=texts.e(texts.when(hold.starts_at, logic.tz(studio))), minutes=studio.hold_minutes
-            ),
-            reply_markup=ReplyKeyboardRemove(),
-        )
-    await _name_step(message, state, ctx, message.from_user)
+    # The day is kept so that "« Назад" from the name step shows the times of that day.
+    await state.update_data(service_id=service_id, day=start.astimezone(logic.tz(studio)).date().isoformat())
+    await _hold(message, state, ctx, service_id, start, message.from_user, remove_keyboard=True)
 
 
-async def _hold(message: Message, state: FSMContext, ctx: BotContext, service_id: int, start: datetime, user) -> None:
+async def _hold(
+    message: Message,
+    state: FSMContext,
+    ctx: BotContext,
+    service_id: int,
+    start: datetime,
+    user,
+    *,
+    remove_keyboard: bool = False,
+) -> None:
     async with ctx.session() as session:
         studio = await logic.studio_by_slug(session, ctx.studio_slug)
         try:
@@ -370,7 +373,8 @@ async def _hold(message: Message, state: FSMContext, ctx: BotContext, service_id
         await message.answer(
             texts.HOLD_TAKEN.format(
                 when=texts.e(texts.when(hold.starts_at, logic.tz(studio))), minutes=studio.hold_minutes
-            )
+            ),
+            reply_markup=ReplyKeyboardRemove() if remove_keyboard else None,
         )
     await _name_step(message, state, ctx, user)
 

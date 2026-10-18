@@ -218,3 +218,34 @@ async def test_back_buttons(ctx: BotContext, state, session: AsyncSession, studi
     await h.menu(FakeCallback(chat), kb.Menu(action="admin"), state, ctx)
     await h.menu(FakeCallback(chat), kb.Menu(action="home"), state, ctx)
     assert await state.get_state() is None
+
+
+async def test_calendar_choice_is_held_by_the_bot(
+    ctx: BotContext, state, session: AsyncSession, studio: Studio
+) -> None:
+    import json
+
+    from app.bot import logic, texts
+    from tests.bot.conftest import WebAppData
+
+    light = await session.scalar(select(Service).where(Service.slug == "light-polish"))
+    day = (await logic.free_days(session, studio, light.id))[2]
+    start = (await logic.free_starts(session, studio, light.id, day))[0]
+    chat = FakeMessage()
+    await h.menu(FakeCallback(chat), kb.Menu(action="book"), state, ctx)
+
+    def sent(data: str) -> FakeMessage:
+        return FakeMessage(web_app_data=WebAppData(data), answers=chat.answers)
+
+    await h.from_calendar(sent("not json"), state, ctx)
+    await h.from_calendar(sent(json.dumps({"service_id": light.id, "starts_at": "2026-10-21T10:00:00"})), state, ctx)
+    assert all(text == chat.answers[-1][0] for text, _ in chat.answers[-2:])  # both refused the same way
+    await h.from_calendar(sent(json.dumps({"service_id": light.id, "starts_at": start.isoformat()})), state, ctx)
+    assert any("удерживается за вами" in text for text, _ in chat.answers) and "ШАГ 4 ИЗ 4" in chat.last
+    await session.commit()
+    hold = await session.scalar(select(Booking).where(Booking.status == BookingStatus.HOLD))
+    assert hold.hold_owner == f"tg:{USER_ID}" and hold.starts_at == start
+    # "« Назад" from the name step shows the times of the chosen day.
+    back = next(b for b in buttons(chat.answers[-1][1]) if b.text == "« Назад")
+    await h.back(FakeCallback(chat), kb.Pick.unpack(back.callback_data), state, ctx)
+    assert chat.last == texts.STEP_TIME.format(day=texts.day_long(day))

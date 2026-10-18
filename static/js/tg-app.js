@@ -1,5 +1,5 @@
-// Telegram Mini App calendar: free days and times from the public API; the chosen time is held on the server
-// (signed initData proves who the user is) and its id is handed back to the chat with sendData().
+// Telegram Mini App calendar: free days and times from the public API. The bot opens it from a keyboard button,
+// so the choice goes back to the chat with sendData(); the bot holds the slot and asks for the name and phone.
 
 const tg = window.Telegram?.WebApp;
 tg?.ready();
@@ -147,29 +147,17 @@ if (root && root.querySelector("[data-day-grid]")) {
     load();
   });
 
-  choose.addEventListener("click", async () => {
+  choose.addEventListener("click", () => {
     error.hidden = true;
-    if (!tg?.initData) {
+    // Outside Telegram (or not from the keyboard button) there is no chat to hand the choice to.
+    if (!tg || tg.platform === "unknown") {
       error.textContent = "Откройте календарь из чата с ботом: кнопка «Выбрать дату в календаре».";
       error.hidden = false;
       return;
     }
     choose.disabled = true;
-    const response = await fetch(`/api/v1/tg/studios/${slug}/hold`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Accept: "application/json" },
-      body: JSON.stringify({ init_data: tg.initData, service_id: Number(serviceSelect.value), starts_at: start }),
-    });
-    if (response.ok) {
-      const data = await response.json();
-      tg.sendData(String(data.hold_id)); // closes the Mini App; the chat continues with the name and phone
-      return;
-    }
-    const body = await response.json().catch(() => null);
-    error.textContent = body?.error?.message || "Не получилось. Попробуйте ещё раз.";
-    error.hidden = false;
-    if (response.status === 409) await load();
-    else choose.disabled = false;
+    // Closes the Mini App; the chat continues with the hold, the name and the phone.
+    tg.sendData(JSON.stringify({ service_id: Number(serviceSelect.value), starts_at: start }));
   });
 
   showPrice();
