@@ -1,6 +1,7 @@
 {% extends "panel/base.html" %}
 {% from "panel/_macros.html" import icon, field %}
 {% block title %}Настройки{% endblock %}
+{% block scripts %}<script type="module" src="{{ static_url('js/settings.js') }}"></script>{% endblock %}
 {% block main %}
 <header class="pn-head">
   <div class="pn-head__text"><span class="pn-eyebrow mono">ВИДНО НА САЙТЕ И В БОТЕ</span><h1 class="pn-title">Настройки студии</h1></div>
@@ -32,7 +33,17 @@
     </div>
     {{ field("whatsapp_url", "Ссылка WhatsApp", s.whatsapp_url, type="url", maxlength=300, placeholder="https://wa.me/79000000000", attrs='data-type="nullable"') }}
     {{ field("telegram_bot_username", "Telegram-бот (username)", s.telegram_bot_username, maxlength=64, placeholder="velox_studio_bot", hint="Без @. Пока пусто, кнопки и блок Telegram на сайте скрыты", attrs='data-type="nullable"') }}
-    <dl class="kv"><div><dt>Чат администраторов</dt><dd>{% if s.telegram_admin_chat_id %}<span class="gold-light">привязан</span>{% else %}<span class="muted">не привязан: появится вместе с ботом</span>{% endif %}</dd></div></dl>
+    <div class="tg-link">
+      <span class="fld__label">Чат администраторов в Telegram</span>
+      {% if s.telegram_admin_chat_id %}
+      <p><span class="gold-light">Привязан.</span> Заявки с сайта и из бота, отмены и вопросы клиентов приходят туда.</p>
+      <button class="btn btn--link-danger btn--sm" type="button" data-api="{{ panel.api }}/telegram/admin-chat" data-method="DELETE" data-confirm="Отвязать чат администраторов?" data-confirm-text="Уведомления о заявках перестанут приходить в Telegram." data-confirm-ok="Отвязать" data-done="Чат отвязан" data-reload>Отвязать</button>
+      {% else %}
+      <p class="muted small">Создайте группу для администраторов, добавьте туда бота и отправьте в группе команду с кодом. Код действует 15 минут.</p>
+      <button class="btn btn--dark btn--sm" type="button" data-api="{{ panel.api }}/telegram/link-code" data-method="POST" data-confirm="Получить код привязки?" data-confirm-text="Предыдущий код, если он был, перестанет действовать." data-confirm-ok="Получить код" data-confirm-safe data-link-code data-done="Код создан">Получить код привязки</button>
+      <code class="password-box mono" data-link-code-value hidden></code>
+      {% endif %}
+    </div>
   </section>
   <section class="card">
     <h2 class="card__title">Реквизиты (подвал сайта)</h2>

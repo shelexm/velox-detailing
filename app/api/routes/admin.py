@@ -7,8 +7,10 @@ from typing import Annotated
 from zoneinfo import ZoneInfo
 
 from fastapi import APIRouter, Query
+from fastapi.responses import Response
 
 from app.api.deps import AnyMember, DbSession, Manager, Owner
+from app.core import security
 from app.core.errors import ValidationFailedError
 from app.models.enums import BookingStatus
 from app.schemas.booking import (
@@ -230,6 +232,26 @@ async def patch_settings(payload: StudioSettingsIn, access: Owner, session: DbSe
     studio.updated_at = datetime.now(UTC)
     await session.commit()
     return _settings_out(studio)
+
+
+@router.post("/telegram/link-code")
+async def telegram_link_code(access: Owner, session: DbSession) -> dict:
+    """One-time code for "/link CODE" in the admins' Telegram chat; valid 15 minutes, only its hash is stored."""
+    code = security.new_token()[:10].upper().replace("-", "X").replace("_", "Y")
+    expires = datetime.now(UTC) + timedelta(minutes=15)
+    access.studio.telegram_link_code_hash = security.token_hash(code)
+    access.studio.telegram_link_expires_at = expires
+    await session.commit()
+    return {"code": code, "command": f"/link {code}", "expires_at": expires.isoformat()}
+
+
+@router.delete("/telegram/admin-chat", status_code=204)
+async def telegram_unlink(access: Owner, session: DbSession) -> Response:
+    access.studio.telegram_admin_chat_id = None
+    access.studio.telegram_link_code_hash = None
+    access.studio.telegram_link_expires_at = None
+    await session.commit()
+    return Response(status_code=204)
 
 
 @router.get("/me")

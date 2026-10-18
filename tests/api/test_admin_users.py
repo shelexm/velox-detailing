@@ -98,3 +98,23 @@ async def test_owner_pages_and_roles(client: httpx.AsyncClient, studio: Studio, 
         await admin.post(f"/api/v1/admin/studios/{studio.id}/users", json={"email": "x@y.zz", "full_name": "x"})
     ).status_code == 403
     await admin.aclose()
+
+
+async def test_telegram_link_code(client: httpx.AsyncClient, session: AsyncSession, studio: Studio, make_user) -> None:
+    from app.core import security
+
+    await make_user("owner@velox.test", studio)
+    await login(client, "owner@velox.test")
+    api = f"/api/v1/admin/studios/{studio.id}/telegram"
+    issued = await client.post(f"{api}/link-code")
+    assert issued.status_code == 200 and issued.json()["command"].startswith("/link ")
+    code = issued.json()["code"]
+    await session.refresh(studio)
+    assert studio.telegram_link_code_hash == security.token_hash(code)  # only the hash is stored
+    studio.telegram_admin_chat_id = -100123
+    await session.commit()
+    assert (await client.delete(f"{api}/admin-chat")).status_code == 204
+    await session.refresh(studio)
+    assert studio.telegram_admin_chat_id is None and studio.telegram_link_code_hash is None
+    page = await client.get(f"/admin/{studio.id}/settings", headers=HTML)
+    assert "Получить код привязки" in page.text
