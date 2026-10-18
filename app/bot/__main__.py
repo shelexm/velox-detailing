@@ -13,9 +13,12 @@ import sys
 
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
+from aiogram.exceptions import TelegramAPIError
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import BotCommand, ErrorEvent, MenuButtonCommands
+from sqlalchemy import select
 
+from app.bot import texts
 from app.bot.context import BotContext
 from app.bot.handlers import admin_router, client_router
 from app.bot.notifier import TelegramNotifier
@@ -23,6 +26,7 @@ from app.bot.worker import run_forever
 from app.core.config import Settings, get_settings
 from app.core.logging import configure_logging
 from app.db.session import create_engine, create_sessionmaker
+from app.models import Studio
 
 logger = logging.getLogger("app.bot")
 
@@ -59,6 +63,19 @@ async def setup_menu(bot: Bot, ctx: BotContext) -> None:
     await bot.set_chat_menu_button(menu_button=MenuButtonCommands())
 
 
+async def setup_profile(bot: Bot, ctx: BotContext) -> None:
+    """Fills the bot description once; texts changed later in @BotFather are kept."""
+    async with ctx.session() as session:
+        studio = await session.scalar(select(Studio.name).where(Studio.slug == ctx.studio_slug))
+    try:
+        if not (await bot.get_my_description()).description:
+            await bot.set_my_description(description=texts.bot_description(studio))
+        if not (await bot.get_my_short_description()).short_description:
+            await bot.set_my_short_description(short_description=texts.BOT_SHORT_DESCRIPTION)
+    except TelegramAPIError:
+        logger.warning("could not set the bot description", exc_info=True)
+
+
 async def run(settings: Settings) -> None:
     engine = create_engine(settings)
     ctx = BotContext(sessionmaker=create_sessionmaker(engine), settings=settings)
@@ -70,6 +87,7 @@ async def run(settings: Settings) -> None:
         me = await bot.get_me()
         logger.info("bot @%s started (polling)", me.username)
         await setup_menu(bot, ctx)
+        await setup_profile(bot, ctx)
         if settings.telegram_use_webhook:
             logger.warning("TELEGRAM_USE_WEBHOOK is not supported yet: falling back to long polling")
         await dp.start_polling(bot, handle_signals=True, allowed_updates=dp.resolve_used_update_types())

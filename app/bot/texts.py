@@ -32,6 +32,18 @@ STATUSES = {
 BRANDS = ("BMW", "Mercedes", "Audi", "Porsche", "Lexus", "Toyota", "Volkswagen", "Kia")
 
 
+def bot_description(studio: str | None) -> str:
+    """Shown in an empty chat before /start (plain text, up to 512 characters)."""
+    what = (
+        "Запись на свободное время, услуги и цены, мои записи, перенос и отмена, "
+        "напоминания о визите и вопросы администратору."
+    )
+    return f"{studio}\n\n{what}" if studio else what
+
+
+BOT_SHORT_DESCRIPTION = "Запись на детейлинг, мои записи и напоминания о визите"
+
+
 def e(value: object) -> str:
     return escape(str(value), quote=False) if value is not None else ""
 
