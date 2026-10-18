@@ -90,9 +90,14 @@ ruff check . && ruff format --check .
 
 - Автоматически: сервис `backup` (интервал `BACKUP_INTERVAL_SECONDS`, хранение `BACKUP_KEEP_DAYS`, каталог `BACKUP_DIR`).
 - Вручную: `sh scripts/backup.sh` (дамп БД и архив медиа в `./backups`).
-- Проверка восстановления без риска: `sh scripts/restore.sh backups/db-XXXX.dump` восстанавливает в отдельную базу `velox_restore_check` и печатает количество строк по таблицам.
-- Восстановление рабочей базы (останавливает api и bot на время восстановления):
+- Проверка восстановления без риска: `sh scripts/restore.sh backups/db-XXXX.dump` восстанавливает в отдельную базу
+  `velox_restore_check`, сравнивает точное число строк каждой таблицы с рабочей базой и удаляет проверочную базу
+  (`KEEP_RESTORE=yes` оставляет её для просмотра).
+- Восстановление рабочей базы (останавливает работающие api и bot на время восстановления):
   `RESTORE_CONFIRM=yes sh scripts/restore.sh backups/db-XXXX.dump live`
+- Восстановление фото из архива (добавляет и заменяет файлы, ничего не удаляет):
+  `RESTORE_CONFIRM=yes sh scripts/restore.sh backups/media-XXXX.tar.gz media`
+- В Git Bash на Windows перед скриптами нужен `export MSYS_NO_PATHCONV=1` (иначе он подменяет пути вида `/app/media`).
 
 ## Зависимости
 

@@ -14,5 +14,6 @@ docker compose exec -T db sh -c 'pg_dump --format=custom -U "$POSTGRES_USER" -d 
 mv "$backup_dir/db-$stamp.dump.partial" "$backup_dir/db-$stamp.dump"
 echo "database: $backup_dir/db-$stamp.dump"
 
-docker compose exec -T api tar -czf - -C /app/media . > "$backup_dir/media-$stamp.tar.gz"
+docker compose exec -T api tar -czf - -C /app/media . > "$backup_dir/media-$stamp.tar.gz.partial"
+mv "$backup_dir/media-$stamp.tar.gz.partial" "$backup_dir/media-$stamp.tar.gz"
 echo "media:    $backup_dir/media-$stamp.tar.gz"
