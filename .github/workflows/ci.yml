@@ -1,0 +1,60 @@
+# Lint and tests on every push and pull request. Tests use a throw-away PostgreSQL service
+# with the same credentials as compose.test.yaml; no secrets are needed.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    services:
+      db-test:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: velox_test
+          POSTGRES_USER: velox_test
+          POSTGRES_PASSWORD: velox_test_only
+        ports:
+          - 55432:5432
+        options: >-
+          --health-cmd "pg_isready -U velox_test -d velox_test"
+          --health-interval 2s --health-timeout 3s --health-retries 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-dev.lock
+
+      - name: Install dependencies
+        run: pip install -r requirements-dev.lock
+
+      - name: No tokens or private keys in tracked files
+        run: |
+          if git grep -nIE '[0-9]{8,10}:AA[A-Za-z0-9_-]{33}|-----BEGIN [A-Z ]*PRIVATE KEY|gh[pousr]_[A-Za-z0-9]{36}|github_pat_[A-Za-z0-9_]{40,}' -- . ':!design-reference'; then
+            echo "Possible secret found in the repository" >&2
+            exit 1
+          fi
+
+      - name: Ruff
+        run: |
+          ruff check app tests
+          ruff format --check app tests
+
+      - name: Tests
+        env:
+          APP_ENV: test
+        run: python -m pytest -q -p no:cacheprovider
