@@ -57,6 +57,11 @@ async def test_admin_chat_confirms_and_assigns(ctx: BotContext, state, session: 
     admin_msg = FakeMessage(chat=FakeChat(id=ADMIN_CHAT, type="supergroup"), html_text=text)
     await h.admin_masters(FakeCallback(admin_msg), kb.Admin(action="master", booking=booking.id), ctx)
     masters = [kb.Admin.unpack(b.callback_data) for b in buttons(admin_msg.edits[-1][1]) if b.callback_data]
+    # "« Назад" returns the request buttons.
+    back = next(m for m in masters if m.action == "back")
+    await h.admin_back(FakeCallback(admin_msg), back, ctx)
+    assert "✓ Подтвердить" in {b.text for b in buttons(admin_msg.edits[-1][1])}
+    masters = [m for m in masters if m.action == "set"]
     chosen = None
     for option in masters:
         pressed = FakeCallback(admin_msg)

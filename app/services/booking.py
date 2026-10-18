@@ -324,6 +324,21 @@ async def create_booking(
     return CreatedBooking(booking=booking, manage_token=manage_token)
 
 
+async def _release(session: AsyncSession, studio_id: int, owner: str, now: datetime) -> None:
+    await session.execute(
+        update(Booking)
+        .where(Booking.studio_id == studio_id, Booking.status == BookingStatus.HOLD, Booking.hold_owner == owner)
+        .values(status=BookingStatus.CANCELLED, cancelled_at=now, version=Booking.version + 1)
+        .execution_options(synchronize_session=False)
+    )
+
+
+async def release_holds(session: AsyncSession, studio_id: int, owner: str) -> None:
+    """Free the slot a client holds, e.g. when they step back in the bot dialog."""
+    await _release(session, studio_id, owner, utcnow())
+    await session.commit()
+
+
 async def create_hold(
     session: AsyncSession,
     studio_id: int,
@@ -344,12 +359,7 @@ async def create_hold(
         raise NotFoundError("Услуга не найдена")
     await _check_staff_choice(session, service, staff_id, online=True)
     await _expire_holds(session, studio_id, now)
-    await session.execute(
-        update(Booking)
-        .where(Booking.studio_id == studio_id, Booking.status == BookingStatus.HOLD, Booking.hold_owner == owner)
-        .values(status=BookingStatus.CANCELLED, cancelled_at=now, version=Booking.version + 1)
-        .execution_options(synchronize_session=False)
-    )
+    await _release(session, studio_id, owner, now)
     service, assignment = await _allocate(
         session, studio, service_id, starts_at, staff_id=staff_id, online=True, now=now
     )

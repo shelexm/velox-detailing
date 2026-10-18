@@ -174,3 +174,47 @@ async def test_question_goes_to_the_admin_chat(ctx: BotContext, state, session: 
     assert bot.sent[-1] == (CHAT_ID, "<b>Ответ администратора</b>\nДа, можно")
     elsewhere = FakeMessage(text="x", reply_to_message=original)
     assert not await h.in_admin_chat(elsewhere, bot, ctx)  # same reply from another chat is ignored
+
+
+async def test_back_buttons(ctx: BotContext, state, session: AsyncSession, studio: Studio) -> None:
+    from app.bot import texts
+
+    def back_of(markup) -> kb.Pick:
+        button = next(b for b in buttons(markup) if b.text == texts.BACK)
+        return kb.Pick.unpack(button.callback_data)
+
+    chat = FakeMessage()
+    light = await session.scalar(select(Service.id).where(Service.slug == "light-polish"))
+    await h.menu(FakeCallback(chat), kb.Menu(action="book"), state, ctx)
+    await h.pick_service(FakeCallback(chat), kb.Pick(kind="service", value=str(light)), state, ctx)
+    # Typing the model: back returns to the brand buttons.
+    await h.pick_brand(FakeCallback(chat), kb.Pick(kind="brand", value="Audi"), state)
+    await h.back(FakeCallback(chat), back_of(chat.answers[-1][1]), state, ctx)
+    assert "ШАГ 2 ИЗ 4" in chat.last
+    await h.vehicle_text(FakeMessage(text="Audi A6", answers=chat.answers), state, ctx)
+    day = next(
+        kb.Pick.unpack(b.callback_data) for b in buttons(chat.answers[-1][1]) if b.callback_data.startswith("p:day")
+    )
+    await h.pick_day(FakeCallback(chat), day, state, ctx)
+    times_text = chat.last
+    slot = kb.Pick.unpack(buttons(chat.answers[-1][1])[0].callback_data)
+    await h.pick_slot(FakeCallback(chat), slot, state, ctx)
+    # The name step goes back to the times of the same day, and no text is taken as a name meanwhile.
+    await h.back(FakeCallback(chat), back_of(chat.answers[-1][1]), state, ctx)
+    assert chat.last == times_text and await state.get_state() is None
+    await session.commit()
+    assert await session.scalar(select(Booking).where(Booking.status == BookingStatus.HOLD)) is None  # released
+    await h.pick_slot(FakeCallback(chat), slot, state, ctx)
+    await h.name_text(FakeMessage(text="Алексей", answers=chat.answers), state, ctx)
+    # The phone step has a "« Назад" button on its reply keyboard.
+    phone_keys = [k.text for row in chat.answers[-1][1].keyboard for k in row]
+    assert texts.BACK in phone_keys
+    await h.phone_back(FakeMessage(text=texts.BACK, answers=chat.answers), state, ctx)
+    assert "ШАГ 4 ИЗ 4" in chat.last and await state.get_state() == h.Flow.name.state
+    await h.name_text(FakeMessage(text="Алексей", answers=chat.answers), state, ctx)
+    await h.phone_text(FakeMessage(text="+7 913 452-18-07", answers=chat.answers), state, ctx)
+    assert "Заявка принята" in chat.last and texts.MENU in {b.text for b in buttons(chat.answers[-1][1])}
+    # A question to the admin can be left with "« В меню", which also leaves the question mode.
+    await h.menu(FakeCallback(chat), kb.Menu(action="admin"), state, ctx)
+    await h.menu(FakeCallback(chat), kb.Menu(action="home"), state, ctx)
+    assert await state.get_state() is None

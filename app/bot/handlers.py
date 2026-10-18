@@ -90,6 +90,8 @@ async def mine_command(message: Message, ctx: BotContext) -> None:
 async def menu(callback: CallbackQuery, callback_data: kb.Menu, state: FSMContext, ctx: BotContext) -> None:
     await callback.answer()
     message = callback.message
+    if callback_data.action in {"book", "home"}:
+        await _release_hold(state, ctx, callback.from_user.id)
     if callback_data.action == "book":
         await state.clear()
         await _service_step(message, ctx)
@@ -100,6 +102,7 @@ async def menu(callback: CallbackQuery, callback_data: kb.Menu, state: FSMContex
     elif callback_data.action == "admin":
         await _ask_admin(message, state, ctx)
     else:
+        await state.clear()
         async with ctx.session() as session:
             studio = await logic.studio_by_slug(session, ctx.studio_slug)
         await message.answer(texts.WELCOME.format(name=texts.e(studio.name)), reply_markup=kb.main_menu())
@@ -122,7 +125,9 @@ async def _show_prices(message: Message, ctx: BotContext) -> None:
         duration, price = logic.service_summary(service)
         lines.append(f"{texts.e(service.name)}: {texts.e(price)}" + (f" · {texts.e(duration)}" if duration else ""))
     lines.append("\nЦены для седана среднего размера, точную сумму назовём после осмотра.")
-    await message.answer("\n".join(lines), reply_markup=kb.choices([("Записаться", kb.Menu(action="book"))]))
+    await message.answer(
+        "\n".join(lines), reply_markup=kb.choices([("Записаться", kb.Menu(action="book"))], back=kb.Menu(action="home"))
+    )
 
 
 # ---------------------------------------------------------------- booking flow
@@ -205,7 +210,10 @@ async def pick_brand(callback: CallbackQuery, callback_data: kb.Pick, state: FSM
     await state.update_data(brand=brand)
     await state.set_state(Flow.vehicle)
     prompt = texts.STEP_VEHICLE_MODEL.format(brand=brand) if brand else "Напишите марку и модель одним сообщением."
-    await callback.message.answer(prompt, reply_markup=kb.choices([("Пропустить", kb.Pick(kind="skip"))]))
+    await callback.message.answer(
+        prompt,
+        reply_markup=kb.choices([("Пропустить", kb.Pick(kind="skip"))], back=kb.Pick(kind="back", value="vehicle")),
+    )
 
 
 @client_router.callback_query(kb.Pick.filter(F.kind == "skip"))
@@ -259,29 +267,49 @@ async def _day_step(message: Message, state: FSMContext, ctx: BotContext, *, veh
 @client_router.callback_query(kb.Pick.filter(F.kind == "day"))
 async def pick_day(callback: CallbackQuery, callback_data: kb.Pick, state: FSMContext, ctx: BotContext) -> None:
     await callback.answer()
-    data = await state.get_data()
-    day = date.fromisoformat(callback_data.value)
     await state.update_data(day=callback_data.value)
+    await _time_step(callback.message, state, ctx)
+
+
+async def _time_step(message: Message, state: FSMContext, ctx: BotContext) -> None:
+    data = await state.get_data()
+    await state.set_state(None)
+    day = date.fromisoformat(data["day"])
     async with ctx.session() as session:
         studio = await logic.studio_by_slug(session, ctx.studio_slug)
         starts = await logic.free_starts(session, studio, data["service_id"], day)
     if not starts:
-        await callback.message.answer("На этот день время уже разобрали. Выберите другой день.")
+        await message.answer(
+            "На этот день время уже разобрали. Выберите другой день.",
+            reply_markup=kb.choices([], back=kb.Pick(kind="back", value="day")),
+        )
         return
-    await callback.message.answer(
+    await message.answer(
         texts.STEP_TIME.format(day=texts.day_long(day)), reply_markup=kb.times(starts, logic.tz(studio))
     )
+
+
+async def _release_hold(state: FSMContext, ctx: BotContext, user_id: int) -> None:
+    if (await state.get_data()).get("hold_id") is None:
+        return
+    async with ctx.session() as session:
+        studio = await logic.studio_by_slug(session, ctx.studio_slug)
+        await booking_service.release_holds(session, studio.id, hold_owner(user_id))
+    await state.update_data(hold_id=None)
 
 
 @client_router.callback_query(kb.Pick.filter(F.kind == "back"))
 async def back(callback: CallbackQuery, callback_data: kb.Pick, state: FSMContext, ctx: BotContext) -> None:
     await callback.answer()
+    await _release_hold(state, ctx, callback.from_user.id)
     data = await state.get_data()
     if callback_data.value == "vehicle" and data.get("service_id"):
         await state.set_state(Flow.vehicle)
         await callback.message.answer(texts.STEP_VEHICLE, reply_markup=kb.brands())
     elif callback_data.value == "day" and data.get("service_id"):
         await _day_step(callback.message, state, ctx, vehicle=data.get("vehicle"))
+    elif callback_data.value == "time" and data.get("service_id") and data.get("day"):
+        await _time_step(callback.message, state, ctx)
     else:
         await _service_step(callback.message, ctx)
 
@@ -333,7 +361,7 @@ async def _hold(message: Message, state: FSMContext, ctx: BotContext, service_id
                 session, studio.id, service_id=service_id, starts_at=start, owner=hold_owner(user.id)
             )
         except SlotUnavailableError:
-            await message.answer(texts.SLOT_TAKEN)
+            await message.answer(texts.SLOT_TAKEN, reply_markup=kb.choices([], back=kb.Pick(kind="back", value="time")))
             return
         except AppError as exc:
             await message.answer(exc.message, reply_markup=kb.main_menu())
@@ -353,7 +381,8 @@ async def _name_step(message: Message, state: FSMContext, ctx: BotContext, user)
         studio = await logic.studio_by_slug(session, ctx.studio_slug)
         client = await logic.client_by_telegram(session, studio.id, user.id)
     known = client.full_name if client else user.first_name
-    markup = kb.choices([(f"Я {known}", kb.Pick(kind="name", value="known"))]) if known else None
+    items = [(f"Я {known}", kb.Pick(kind="name", value="known"))] if known else []
+    markup = kb.choices(items, back=kb.Pick(kind="back", value="time"))
     await state.update_data(known_name=known)
     await message.answer(texts.STEP_NAME, reply_markup=markup)
 
@@ -381,6 +410,13 @@ async def _phone_step(message: Message, state: FSMContext, ctx: BotContext, name
         f"{texts.STEP_PHONE.format(name=texts.e(name))}\n\n{texts.CONSENT.format(url=ctx.base_url + '/privacy')}",
         reply_markup=kb.share_phone(),
     )
+
+
+@client_router.message(Flow.phone, F.text == texts.BACK)
+async def phone_back(message: Message, state: FSMContext, ctx: BotContext) -> None:
+    # The hold stays: the name step goes on to the same time.
+    await message.answer("Вернёмся на шаг назад.", reply_markup=ReplyKeyboardRemove())
+    await _name_step(message, state, ctx, message.from_user)
 
 
 @client_router.message(Flow.phone, F.contact)
@@ -599,14 +635,16 @@ async def cancel_yes(callback: CallbackQuery, callback_data: kb.Mine, ctx: BotCo
 @client_router.callback_query(kb.Mine.filter(F.action == "keep"))
 async def cancel_keep(callback: CallbackQuery) -> None:
     await callback.answer()
-    await callback.message.answer("Запись остаётся в силе. " + texts.SEE_YOU)
+    await callback.message.answer(
+        "Запись остаётся в силе. " + texts.SEE_YOU, reply_markup=kb.to_menu([("Мои записи", kb.Menu(action="mine"))])
+    )
 
 
 @client_router.callback_query(kb.Remind.filter())
 async def reminder_answer(callback: CallbackQuery, callback_data: kb.Remind, ctx: BotContext) -> None:
     await callback.answer()
     if callback_data.action == "yes":
-        await callback.message.answer(texts.SEE_YOU)
+        await callback.message.answer(texts.SEE_YOU, reply_markup=kb.to_menu())
         return
     async with ctx.session() as session:
         studio = await logic.studio_by_slug(session, ctx.studio_slug)
@@ -614,7 +652,7 @@ async def reminder_answer(callback: CallbackQuery, callback_data: kb.Remind, ctx
         if client is not None:
             client.reminders_enabled = False
             await session.commit()
-    await callback.message.answer(texts.REMINDERS_OFF)
+    await callback.message.answer(texts.REMINDERS_OFF, reply_markup=kb.to_menu())
 
 
 # ---------------------------------------------------------------- questions to the studio
@@ -629,7 +667,7 @@ async def _ask_admin(message: Message, state: FSMContext, ctx: BotContext) -> No
         return
     await state.set_state(Flow.question)
     hours = f": {texts.e(studio.schedule_text)}" if studio.schedule_text else ""
-    await message.answer(texts.ASK_ADMIN.format(hours=hours))
+    await message.answer(texts.ASK_ADMIN.format(hours=hours), reply_markup=kb.to_menu())
 
 
 @client_router.message(Flow.question, F.text)
@@ -755,6 +793,17 @@ async def admin_masters(callback: CallbackQuery, callback_data: kb.Admin, ctx: B
             callback_data.booking, staff, ctx.panel_booking_url(studio.id, callback_data.booking)
         )
     )
+
+
+@admin_router.callback_query(kb.Admin.filter(F.action == "back"))
+async def admin_back(callback: CallbackQuery, callback_data: kb.Admin, ctx: BotContext) -> None:
+    async with ctx.session() as session:
+        studio = await _admin_studio(callback, session, ctx)
+        if studio is None:
+            return
+    await callback.answer()
+    panel = ctx.panel_booking_url(studio.id, callback_data.booking)
+    await callback.message.edit_reply_markup(reply_markup=kb.admin_request(callback_data.booking, panel))
 
 
 @admin_router.callback_query(kb.Admin.filter(F.action == "set"))

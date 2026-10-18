@@ -41,6 +41,9 @@ def bot_description(studio: str | None) -> str:
     return f"{studio}\n\n{what}" if studio else what
 
 
+BACK = "« Назад"
+MENU = "« В меню"
+
 BOT_SHORT_DESCRIPTION = "Запись на детейлинг, мои записи и напоминания о визите"
 
 

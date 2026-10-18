@@ -38,7 +38,7 @@ class Remind(CallbackData, prefix="r"):
 
 
 class Admin(CallbackData, prefix="a"):
-    action: str  # ok | reject | master | set
+    action: str  # ok | reject | master | set | back
     booking: int
     staff: int = 0
 
@@ -54,15 +54,27 @@ def main_menu() -> InlineKeyboardMarkup:
 
 
 def choices(
-    items: list[tuple[str, CallbackData]], *, back: CallbackData | None = None, width: int = 1
+    items: list[tuple[str, CallbackData]],
+    *,
+    back: CallbackData | None = None,
+    back_text: str = texts.BACK,
+    width: int = 1,
 ) -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
     for label, data in items:
         kb.button(text=label, callback_data=data)
     kb.adjust(width)
     if back is not None:
-        kb.row(InlineKeyboardButton(text="« Назад", callback_data=back.pack()))
+        kb.row(InlineKeyboardButton(text=back_text, callback_data=back.pack()))
     return kb.as_markup()
+
+
+def _menu_row(kb: InlineKeyboardBuilder) -> None:
+    kb.row(InlineKeyboardButton(text=texts.MENU, callback_data=Menu(action="home").pack()))
+
+
+def to_menu(items: list[tuple[str, CallbackData]] | None = None) -> InlineKeyboardMarkup:
+    return choices(items or [], back=Menu(action="home"), back_text=texts.MENU)
 
 
 def brands() -> InlineKeyboardMarkup:
@@ -73,7 +85,7 @@ def brands() -> InlineKeyboardMarkup:
     kb.adjust(3)
     kb.row(
         InlineKeyboardButton(text="Без автомобиля", callback_data=Pick(kind="skip").pack()),
-        InlineKeyboardButton(text="« Назад", callback_data=Pick(kind="back", value="service").pack()),
+        InlineKeyboardButton(text=texts.BACK, callback_data=Pick(kind="back", value="service").pack()),
     )
     return kb.as_markup()
 
@@ -90,7 +102,7 @@ def days(
             kb.button(text=label, callback_data=Mine(action="day", booking=booking, value=day.isoformat()))
     kb.adjust(4)
     back = Pick(kind="back", value="vehicle") if booking is None else Menu(action="mine")
-    kb.row(InlineKeyboardButton(text="« Назад", callback_data=back.pack()))
+    kb.row(InlineKeyboardButton(text=texts.BACK, callback_data=back.pack()))
     return kb.as_markup()
 
 
@@ -105,7 +117,7 @@ def times(starts: list[datetime], tz, *, booking: int | None = None) -> InlineKe
             kb.button(text=label, callback_data=Mine(action="slot", booking=booking, value=stamp))
     kb.adjust(3)
     back = Pick(kind="back", value="day") if booking is None else Mine(action="move", booking=booking)
-    kb.row(InlineKeyboardButton(text="« Назад", callback_data=back.pack()))
+    kb.row(InlineKeyboardButton(text=texts.BACK, callback_data=back.pack()))
     return kb.as_markup()
 
 
@@ -120,7 +132,10 @@ def calendar_button(url: str) -> ReplyKeyboardMarkup:
 
 def share_phone() -> ReplyKeyboardMarkup:
     return ReplyKeyboardMarkup(
-        keyboard=[[KeyboardButton(text="Поделиться номером телефона", request_contact=True)]],
+        keyboard=[
+            [KeyboardButton(text="Поделиться номером телефона", request_contact=True)],
+            [KeyboardButton(text=texts.BACK)],
+        ],
         resize_keyboard=True,
         one_time_keyboard=True,
         input_field_placeholder="+7 900 000-00-00",
@@ -135,6 +150,7 @@ def after_booking(booking_id: int, route_url: str | None) -> InlineKeyboardMarku
     kb.button(text="Отменить", callback_data=Mine(action="cancel", booking=booking_id))
     kb.button(text="Мои записи", callback_data=Menu(action="mine"))
     kb.adjust(2)
+    _menu_row(kb)
     return kb.as_markup()
 
 
@@ -157,6 +173,7 @@ def my_bookings(upcoming: list[int], route_url: str | None) -> InlineKeyboardMar
     row.append(InlineKeyboardButton(text="Администратор", callback_data=Menu(action="admin").pack()))
     kb.row(*row)
     kb.row(InlineKeyboardButton(text="Записаться ещё", callback_data=Menu(action="book").pack()))
+    _menu_row(kb)
     return kb.as_markup()
 
 
@@ -173,6 +190,7 @@ def after_cancel() -> InlineKeyboardMarkup:
     kb.button(text="Записаться снова", callback_data=Menu(action="book"))
     kb.button(text="Администратор", callback_data=Menu(action="admin"))
     kb.adjust(2)
+    _menu_row(kb)
     return kb.as_markup()
 
 
@@ -205,6 +223,7 @@ def admin_masters(booking_id: int, staff: list[tuple[int, str]], panel_url: str)
     for staff_id, name in staff:
         kb.button(text=name, callback_data=Admin(action="set", booking=booking_id, staff=staff_id))
     kb.adjust(2)
+    kb.row(InlineKeyboardButton(text=texts.BACK, callback_data=Admin(action="back", booking=booking_id).pack()))
     kb.row(InlineKeyboardButton(text="Открыть в панели студии ↗", url=panel_url))
     return kb.as_markup()
 
