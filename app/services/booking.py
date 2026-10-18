@@ -126,7 +126,10 @@ def _is_exclusion_violation(exc: IntegrityError) -> bool:
 
 
 async def _lock_studio(session: AsyncSession, studio_id: int) -> Studio:
-    studio = await session.scalar(select(Studio).where(Studio.id == studio_id).with_for_update())
+    # populate_existing: the request may have loaded the studio before the lock; its counter must be re-read.
+    studio = await session.scalar(
+        select(Studio).where(Studio.id == studio_id).with_for_update().execution_options(populate_existing=True)
+    )
     if studio is None:
         raise NotFoundError("Студия не найдена")
     return studio
@@ -144,7 +147,7 @@ async def _expire_holds(session: AsyncSession, studio_id: int, now: datetime) ->
 async def _get_booking(session: AsyncSession, studio_id: int, booking_id: int, *, lock: bool = True) -> Booking:
     query = select(Booking).where(Booking.studio_id == studio_id, Booking.id == booking_id)
     if lock:
-        query = query.with_for_update()
+        query = query.with_for_update().execution_options(populate_existing=True)
     booking = await session.scalar(query)
     if booking is None:
         raise NotFoundError("Запись не найдена")

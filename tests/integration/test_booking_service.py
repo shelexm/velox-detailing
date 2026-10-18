@@ -124,6 +124,21 @@ async def test_parallel_requests_for_one_slot_never_double_book(
     assert numbers == [1001, 1002]
 
 
+async def test_numbers_stay_unique_when_the_studio_was_loaded_before_the_lock(
+    sessionmaker: async_sessionmaker[AsyncSession], studio: Studio
+) -> None:
+    """The public API loads the studio before booking; the lock must re-read the number counter."""
+    async with sessionmaker() as early, sessionmaker() as other:
+        light = await service_id(early, studio, "light-polish")
+        loaded = await early.get(Studio, studio.id)  # kept alive, as the API route keeps its studio
+        first = await svc.create_booking(other, studio.id, request(light, at(WEDNESDAY, 10)), CLIENT, now=NOW)
+        second = await svc.create_booking(
+            early, studio.id, request(light, at(WEDNESDAY, 10), phone="+79130000009"), CLIENT, now=NOW
+        )
+        assert loaded.booking_seq == second.booking.number
+    assert second.booking.number == first.booking.number + 1
+
+
 async def test_database_rejects_overlap_even_without_service_layer(
     sessionmaker: async_sessionmaker[AsyncSession], studio: Studio
 ) -> None:
