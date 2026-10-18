@@ -1,0 +1,40 @@
+/* Telegram Mini App calendar (design-reference/5, screen 04). */
+@font-face { font-family: "Unbounded"; font-weight: 200 500; font-display: swap; src: url("/static/fonts/unbounded-cyrillic.woff2") format("woff2"); unicode-range: U+0400-045F; }
+@font-face { font-family: "Unbounded"; font-weight: 200 500; font-display: swap; src: url("/static/fonts/unbounded-latin.woff2") format("woff2"); unicode-range: U+0000-00FF; }
+@font-face { font-family: "Onest"; font-weight: 400 600; font-display: swap; src: url("/static/fonts/onest-cyrillic.woff2") format("woff2"); unicode-range: U+0400-045F; }
+@font-face { font-family: "Onest"; font-weight: 400 600; font-display: swap; src: url("/static/fonts/onest-latin.woff2") format("woff2"); unicode-range: U+0000-00FF; }
+@font-face { font-family: "JetBrains Mono"; font-weight: 400 500; font-display: swap; src: url("/static/fonts/jetbrains-mono-latin.woff2") format("woff2"); unicode-range: U+0000-00FF; }
+
+:root { --bg: #0E0F11; --cell: #15161A; --line: #23252A; --text: #F3F1EC; --muted: #8C8A85; --gold: #C8A86B; --on-gold: #0B0B0C; --danger: #E8957B; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 400 15px/1.5 "Onest", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+button, select { font: inherit; color: inherit; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.tga { max-width: 480px; margin: 0 auto; padding: 16px 16px calc(96px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 18px; }
+.tga__head { text-align: center; }
+.tga__brand { font-weight: 600; }
+.tga__summary { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 4px; }
+.tga__step { display: block; font: 400 11px "JetBrains Mono", monospace; letter-spacing: .14em; color: var(--gold); }
+.tga__service { appearance: none; border: 0; background: none; padding: 2px 0; font-weight: 500; max-width: 230px; }
+.tga__service option { background: var(--bg); }
+.tga__price { font: 400 14px "JetBrains Mono", monospace; white-space: nowrap; color: var(--muted); }
+.tga__month-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.tga__month-title { margin: 0; font: 300 24px/1.2 "Unbounded", sans-serif; }
+.tga__nav { display: flex; gap: 8px; }
+.tga__nav button { width: 44px; height: 44px; border: 1px solid var(--line); border-radius: 2px; background: none; font-size: 20px; cursor: pointer; }
+.tga__nav button[disabled] { opacity: .35; cursor: default; }
+.tga__weekdays, .tga__days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; text-align: center; }
+.tga__weekdays span { font-size: 12px; color: var(--muted); padding: 4px 0; }
+.tga__day { height: 46px; border: 1px solid transparent; border-radius: 2px; background: var(--cell); font: 400 15px "JetBrains Mono", monospace; cursor: pointer; }
+.tga__day[disabled] { background: none; color: #5E5C58; text-decoration: line-through; cursor: default; }
+.tga__day.is-empty { visibility: hidden; }
+.tga__day.is-today { border-color: var(--text); }
+.tga__day[aria-pressed="true"] { background: var(--gold); color: var(--on-gold); }
+.tga__label { margin: 0 0 10px; color: var(--muted); font-size: 14px; }
+.tga__times { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.tga__time { height: 48px; border: 1px solid var(--line); border-radius: 2px; background: none; font: 400 15px "JetBrains Mono", monospace; cursor: pointer; }
+.tga__time[aria-pressed="true"] { background: var(--gold); border-color: var(--gold); color: var(--on-gold); }
+.tga__note { margin: 10px 0 0; font-size: 13px; color: var(--muted); }
+.tga__error { margin: 0; color: var(--danger); font-size: 14px; }
+.tga__choose { position: fixed; left: 16px; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom)); max-width: 448px; margin: 0 auto; height: 56px; border: 0; border-radius: 2px; background: var(--gold); color: var(--on-gold); font: 600 13px "Onest", sans-serif; letter-spacing: .14em; text-transform: uppercase; cursor: pointer; }
+.tga__choose[disabled] { opacity: .45; cursor: default; }

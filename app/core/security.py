@@ -72,8 +72,10 @@ CSP = "; ".join(
         "frame-ancestors 'none'",
     ]
 )
-# The Telegram Mini App page is embedded by Telegram's web client.
-CSP_TELEGRAM_APP = CSP.replace("frame-ancestors 'none'", "frame-ancestors https://web.telegram.org")
+# The Telegram Mini App page is embedded by Telegram clients and needs their small bridge script.
+CSP_TELEGRAM_APP = CSP.replace("frame-ancestors 'none'", "frame-ancestors https://web.telegram.org").replace(
+    "script-src 'self'", "script-src 'self' https://telegram.org"
+)
 
 
 class SecurityHeadersMiddleware:

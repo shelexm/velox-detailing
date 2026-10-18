@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>{{ studio.name }} · запись</title>
+<link rel="stylesheet" href="{{ static_url('css/tg-app.css') }}">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+<main class="tga" data-tg-app data-studio="{{ studio.slug }}" data-horizon="{{ horizon }}">
+  <header class="tga__head">
+    <span class="tga__brand">VÉLOX · запись</span>
+  </header>
+  {% if chosen %}
+  <section class="tga__summary">
+    <div>
+      <span class="tga__step">ШАГ 3 ИЗ 4</span>
+      <label class="visually-hidden" for="tga-service">Услуга</label>
+      <select class="tga__service" id="tga-service" data-service>
+        {% for s in services %}<option value="{{ s.id }}" data-days="{{ s.duration_days or '' }}" data-label="{{ s.duration_label or '' }}" data-price="{{ s.price_from or '' }}" {% if s.id == chosen.id %}selected{% endif %}>{{ s.name }}</option>{% endfor %}
+      </select>
+    </div>
+    <span class="tga__price" data-price-label></span>
+  </section>
+
+  <section class="tga__month" aria-label="Дата">
+    <div class="tga__month-head">
+      <h1 class="tga__month-title" data-month-title></h1>
+      <div class="tga__nav">
+        <button type="button" data-month-prev aria-label="Предыдущий месяц">‹</button>
+        <button type="button" data-month-next aria-label="Следующий месяц">›</button>
+      </div>
+    </div>
+    <div class="tga__weekdays"><span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Вс</span></div>
+    <div class="tga__days" data-days role="group" aria-label="Дни"></div>
+  </section>
+
+  <section class="tga__times-wrap">
+    <p class="tga__label" data-times-label>Загружаем свободное время…</p>
+    <div class="tga__times" data-times role="group" aria-label="Время"></div>
+    <p class="tga__note" data-note hidden></p>
+  </section>
+
+  <p class="tga__error" data-error role="alert" hidden></p>
+  <button class="tga__choose" type="button" data-choose disabled>Выберите дату и время</button>
+  {% else %}
+  <p class="tga__label">Онлайн-запись сейчас недоступна. Напишите администратору в чате.</p>
+  {% endif %}
+</main>
+<script type="module" src="{{ static_url('js/tg-app.js') }}"></script>
+</body>
+</html>

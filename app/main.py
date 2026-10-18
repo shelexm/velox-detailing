@@ -20,6 +20,7 @@ from app.api.routes import (
     auth,
     health,
     public,
+    tg,
 )
 from app.core.config import BASE_DIR, Settings, get_settings
 from app.core.errors import register_error_handlers
@@ -78,6 +79,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(admin_slots.router)
     app.include_router(admin_content.router)
     app.include_router(admin_users.router)
+    app.include_router(tg.router)
     app.include_router(panel.router)
     app.include_router(site.router)
     app.mount("/static", CachedStaticFiles(directory=BASE_DIR / "static"), name="static")
