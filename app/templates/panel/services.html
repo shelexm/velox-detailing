@@ -124,7 +124,7 @@
   {{ field("detail.footnote", "Сноска", d.footnote, maxlength=300, attrs='data-type="nullable"') }}
   <fieldset class="fld fld--plain">
     <legend class="fld__label">Галерея страницы</legend>
-    <div class="repeat" id="gallery-rows" data-repeat>
+    <div class="repeat" id="gallery-rows" data-repeat data-repeat-prefix="detail.gallery">
       {% for item in (d.gallery or []) %}
       <div class="repeat__row" data-repeat-row>
         {{ media_field("detail.gallery." ~ loop.index0 ~ ".image_id", item.image_id, media, label="Фото " ~ loop.index, hint="", required=true) }}

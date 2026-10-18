@@ -125,4 +125,4 @@ async def test_staff_screen(client: httpx.AsyncClient, session: AsyncSession, st
     assert "Елена Орлова" in opened.text and "онлайн-запись через студию" in opened.text
     assert 'name="days.6.is_working"' in opened.text
     assert "Новый мастер" in (await client.get(f"/admin/{studio.id}/staff?new=1", headers=HTML)).text
-    assert "<dialog class=\"confirm\" data-confirm-dialog " in page.text
+    assert '<dialog class="confirm" data-confirm-dialog ' in page.text

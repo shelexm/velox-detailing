@@ -202,6 +202,7 @@ async function submitForm(form, submitter) {
   form.dispatchEvent(new CustomEvent("panel:saved", { detail: result.data, bubbles: true }));
   if (form.dataset.reset !== undefined) form.reset();
   form.querySelectorAll("[data-dirty-note]").forEach((n) => (n.hidden = true));
+  if (form.id) document.querySelectorAll(`[data-dirty-for="${form.id}"]`).forEach((n) => (n.hidden = true));
   // A saved form can still warn, e.g. "в эти дни у мастера 2 записи": data-warn-key + data-warn-text with {n}.
   const warnValue = form.dataset.warnKey ? result.data?.[form.dataset.warnKey] : 0;
   const message = warnValue ? form.dataset.warnText.replace("{n}", warnValue) : form.dataset.success || "Сохранено";
@@ -217,9 +218,16 @@ document.addEventListener("submit", (event) => {
   submitForm(form, event.submitter);
 });
 
+// "Есть несохранённые изменения" inside the form or linked to it by id (data-dirty-for).
+function markDirty(form) {
+  if (!form) return;
+  form.querySelectorAll("[data-dirty-note]").forEach((n) => (n.hidden = false));
+  if (form.id) document.querySelectorAll(`[data-dirty-for="${form.id}"]`).forEach((n) => (n.hidden = false));
+}
+
 document.addEventListener("input", (event) => {
   const form = event.target.closest("form[data-form]");
-  if (form) form.querySelectorAll("[data-dirty-note]").forEach((n) => (n.hidden = false));
+  markDirty(form);
   const el = event.target;
   if (el.matches("[aria-invalid]")) el.removeAttribute("aria-invalid");
   const counter = el.id && document.querySelector(`[data-count-for="${CSS.escape(el.id)}"]`);
@@ -274,7 +282,7 @@ document.addEventListener("click", async (event) => {
   button.focus();
   if (list.matches("[data-repeat]")) {
     renumber(list);
-    list.closest("form")?.querySelectorAll("[data-dirty-note]").forEach((n) => (n.hidden = false));
+    markDirty(list.closest("form"));
     return;
   }
   if (!list.dataset.orderApi) return;
@@ -285,9 +293,12 @@ document.addEventListener("click", async (event) => {
 
 // Repeated rows (gallery items, list entries): [data-repeat] holds rows, a <template data-repeat-template>,
 // buttons [data-repeat-add] and [data-repeat-remove]; names use __i__ for the row index.
+// data-repeat-prefix="days.0.breaks" renumbers only that level, so nested lists keep their parent index.
 function renumber(box) {
+  const prefix = box.dataset.repeatPrefix;
+  const pattern = prefix ? new RegExp(`^${prefix.replace(/\./g, "\\.")}\\.\\d+\\.`) : /\.\d+\./;
   [...box.querySelectorAll(":scope > [data-repeat-row]")].forEach((row, index) => {
-    row.querySelectorAll("[name]").forEach((el) => (el.name = el.name.replace(/\.\d+\./, `.${index}.`)));
+    row.querySelectorAll("[name]").forEach((el) => (el.name = el.name.replace(pattern, prefix ? `${prefix}.${index}.` : `.${index}.`)));
   });
 }
 document.addEventListener("click", (event) => {
@@ -299,6 +310,7 @@ document.addEventListener("click", (event) => {
     const index = box.querySelectorAll(":scope > [data-repeat-row]").length;
     const html = template.innerHTML.replaceAll("__i__", String(index));
     template.insertAdjacentHTML("beforebegin", html);
+    markDirty(box.closest("form"));
     box.querySelectorAll(":scope > [data-repeat-row]")[index]?.querySelector("input, textarea, button")?.focus();
     return;
   }
@@ -308,7 +320,7 @@ document.addEventListener("click", (event) => {
     const box = row.parentElement;
     row.remove();
     renumber(box);
-    box.closest("form")?.querySelectorAll("[data-dirty-note]").forEach((n) => (n.hidden = false));
+    markDirty(box.closest("form"));
   }
 });
 

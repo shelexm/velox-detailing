@@ -1,0 +1,155 @@
+{% extends "panel/base.html" %}
+{% from "panel/_macros.html" import icon, field %}
+{% block title %}Расписание{% endblock %}
+{% set WD = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"] %}
+{% block main %}
+<header class="pn-head">
+  <div class="pn-head__text"><span class="pn-eyebrow mono">ЧАСЫ, ВЫХОДНЫЕ, БЛОКИРОВКИ</span><h1 class="pn-title">Расписание</h1></div>
+  <div class="pn-head__actions">
+    <span class="pn-saved" data-dirty-for="hours-form" hidden>Есть несохранённые изменения</span>
+    <button class="btn btn--primary" type="submit" form="hours-form">Сохранить</button>
+  </div>
+</header>
+
+<div class="sched">
+  <div class="stack">
+    <section class="card" aria-labelledby="hours-title">
+      <div class="card__head"><h2 class="card__title" id="hours-title">Рабочие дни и часы студии</h2><span class="muted small">Онлайн-запись доступна только в рабочие часы</span></div>
+      <form id="hours-form" class="hours" data-form data-action="{{ panel.api }}/schedule/hours" data-method="PUT" data-success="Часы студии сохранены" data-warn-key="staff_shifts_outside" data-warn-text="Сохранено. Смен мастеров за пределами часов студии: {n}. Проверьте графики мастеров ниже." data-reload novalidate>
+        <div class="form-alert" data-form-alert hidden>{{ icon("alert", 18) }}<span data-form-alert-text></span></div>
+        {% for h in hours %}
+        {% set i = loop.index0 %}
+        <div class="hours__day">
+          <input type="hidden" name="days.{{ i }}.weekday" value="{{ i }}" data-type="int">
+          <label class="hours__name"><input class="switch" type="checkbox" role="switch" name="days.{{ i }}.is_open" data-type="bool" {% if h and h.is_open %}checked{% endif %}><span>{{ weekday_names[i] }}</span></label>
+          <div class="hours__time">
+            <input class="input input--mono input--num" type="time" step="900" name="days.{{ i }}.opens_at" value="{{ h.opens_at.strftime('%H:%M') if h else '09:00' }}" data-type="nullable" aria-label="Открытие, {{ weekday_names[i] }}">
+            <span class="muted">–</span>
+            <input class="input input--mono input--num" type="time" step="900" name="days.{{ i }}.closes_at" value="{{ h.closes_at.strftime('%H:%M') if h else '21:00' }}" data-type="nullable" aria-label="Закрытие, {{ weekday_names[i] }}">
+          </div>
+          <div class="hours__breaks">
+            <div class="breaks" id="breaks-{{ i }}" data-repeat data-repeat-prefix="days.{{ i }}.breaks">
+              {% for b in breaks[i] %}
+              <span class="break-chip" data-repeat-row><span class="mono small">перерыв</span>
+                <input class="break-chip__time" type="time" step="900" name="days.{{ i }}.breaks.{{ loop.index0 }}.starts_at" value="{{ b.starts_at.strftime('%H:%M') }}" aria-label="Начало перерыва">–<input class="break-chip__time" type="time" step="900" name="days.{{ i }}.breaks.{{ loop.index0 }}.ends_at" value="{{ b.ends_at.strftime('%H:%M') }}" aria-label="Конец перерыва">
+                <button type="button" class="break-chip__x" data-repeat-remove aria-label="Убрать перерыв">{{ icon("close", 12) }}</button></span>
+              {% endfor %}
+              <template data-repeat-template>
+                <span class="break-chip" data-repeat-row><span class="mono small">перерыв</span>
+                  <input class="break-chip__time" type="time" step="900" name="days.{{ i }}.breaks.__i__.starts_at" value="13:00" aria-label="Начало перерыва">–<input class="break-chip__time" type="time" step="900" name="days.{{ i }}.breaks.__i__.ends_at" value="13:30" aria-label="Конец перерыва">
+                  <button type="button" class="break-chip__x" data-repeat-remove aria-label="Убрать перерыв">{{ icon("close", 12) }}</button></span>
+              </template>
+            </div>
+            <button class="chip chip--dashed chip--sm" type="button" data-repeat-add="#breaks-{{ i }}">+ перерыв</button>
+          </div>
+          <span class="fld__error hours__error" data-error-for="days.{{ i }}" hidden></span>
+        </div>
+        {% endfor %}
+      </form>
+    </section>
+
+    <section class="card" aria-labelledby="staff-title">
+      <div class="card__head"><h2 class="card__title" id="staff-title">Графики мастеров</h2><a class="link" href="{{ panel.url('/staff') }}">Все мастера</a></div>
+      <div class="shifts-scroll">
+        <table class="shifts">
+          <thead><tr><th>Мастер</th>{% for d in WD %}<th>{{ d }}</th>{% endfor %}</tr></thead>
+          <tbody>
+            {% for m in staff %}
+            {% set row = shifts.get(m.id, {}) %}
+            <tr>
+              <th scope="row"><a class="row-link" href="{{ panel.url('/staff?open=' ~ m.id) }}"><strong>{{ m.short_name }}</strong><span class="{% if m.id in now_absent %}gold-light{% else %}muted{% endif %} small">{% if m.id in now_absent %}{% set a = now_absent[m.id] %}отпуск {{ a.starts_on.strftime("%d.%m") }}–{{ a.ends_on.strftime("%d.%m") }}{% else %}{{ m.specializations | join(", ") | lower }}{% endif %}</span></a></th>
+              {% for i in range(7) %}
+              {% set s = row.get(i) %}
+              {% set studio_day = hours[i] %}
+              {% set outside = s and s.is_working and (not studio_day or not studio_day.is_open or s.starts_at < studio_day.opens_at or s.ends_at > studio_day.closes_at) %}
+              <td><a class="shift {% if not (s and s.is_working) %}shift--off{% endif %} {% if outside %}shift--warn{% endif %}" href="{{ panel.url('/staff?open=' ~ m.id) }}" {% if outside %}title="Смена выходит за часы студии"{% endif %}>{% if s and s.is_working %}{{ s.starts_at.hour }}–{{ s.ends_at.hour }}{% else %}вых.{% endif %}</a></td>
+              {% endfor %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <p class="muted small">График мастера не может выходить за часы студии. Клик по ячейке открывает карточку мастера, где меняются часы и выходные.</p>
+    </section>
+  </div>
+
+  <div class="stack">
+    <section class="card" aria-labelledby="special-title">
+      <div class="card__head">
+        <h2 class="card__title" id="special-title">Выходные и особые дни</h2>
+        <div class="month-nav"><a class="icon-btn" href="?month={{ prev_month }}" aria-label="Предыдущий месяц">{{ icon("chevron-left") }}</a><span class="month-nav__title">{{ month_title }}</span><a class="icon-btn" href="?month={{ next_month }}" aria-label="Следующий месяц">{{ icon("chevron-right") }}</a></div>
+      </div>
+      <div class="month">
+        {% for d in WD %}<span class="month__wd muted small">{{ d }}</span>{% endfor %}
+        {% for c in cells %}
+        {% set sp = c.special %}
+        <span class="month__day {% if not c.in_month %}is-out{% endif %} {% if c.day == today %}is-today{% endif %} {% if sp and sp.kind == SpecialDayKind.CLOSED %}is-closed{% elif sp %}is-short{% elif c.weekly_closed %}is-weekly-off{% endif %} {% if c.vacation %}is-vacation{% endif %}" {% if sp %}title="{{ sp.note or ('выходной' if sp.kind == SpecialDayKind.CLOSED else 'сокращённый день') }}"{% endif %}>{% if c.in_month %}{{ c.day.day }}{% endif %}</span>
+        {% endfor %}
+      </div>
+      <div class="card__legend"><span class="legend legend--closed">Выходной</span><span class="legend legend--short">Сокращённый день</span><span class="legend legend--vacation">Отпуск мастера</span></div>
+      <ul class="specials">
+        {% for s in specials %}
+        <li class="special">
+          <span><strong>{{ s.day | day_long }} · {% if s.kind == SpecialDayKind.CLOSED %}выходной{% else %}{{ s.opens_at.strftime("%H:%M") }}–{{ s.closes_at.strftime("%H:%M") }}{% endif %}</strong>{% if s.note %}<span class="muted small">{{ s.note }}</span>{% endif %}</span>
+          <button class="icon-btn icon-btn--plain" type="button" data-api="{{ panel.api }}/schedule/special-days/{{ s.id }}" data-method="DELETE" data-confirm="Удалить особый день {{ s.day.strftime('%d.%m') }}?" data-confirm-ok="Удалить" data-done="Удалено" data-reload aria-label="Удалить">{{ icon("trash", 16) }}</button>
+        </li>
+        {% else %}
+        <li class="muted small">Особых дней впереди нет: студия работает по недельному графику.</li>
+        {% endfor %}
+      </ul>
+      <details class="add-box">
+        <summary>+ Добавить выходной или особый день</summary>
+        <form class="form" data-form data-action="{{ panel.api }}/schedule/special-days" data-method="POST" data-success="День сохранён" data-reload novalidate>
+          <div class="form-alert" data-form-alert hidden>{{ icon("alert", 18) }}<span data-form-alert-text></span></div>
+          <div class="fld-row">
+            {{ field("day", "Дата", today.isoformat(), type="date", required=true, cls="fld--mono") }}
+            <div class="fld"><label class="fld__label" for="sp-kind">Что меняется</label>
+              <select class="select" id="sp-kind" name="kind"><option value="closed">Студия закрыта</option><option value="short">Сокращённый день</option></select></div>
+          </div>
+          <div class="fld-row if-short">
+            {{ field("opens_at", "Открытие", "10:00", type="time", attrs='step="900" data-type="nullable"', cls="fld--mono") }}
+            {{ field("closes_at", "Закрытие", "17:00", type="time", attrs='step="900" data-type="nullable"', cls="fld--mono") }}
+          </div>
+          {{ field("note", "Причина (видна только в панели)", maxlength=200, placeholder="День народного единства", attrs='data-type="nullable"') }}
+          <div class="form__actions"><button class="btn btn--primary btn--sm" type="submit">Сохранить день</button></div>
+        </form>
+      </details>
+    </section>
+
+    <section class="card" aria-labelledby="blocks-title">
+      <h2 class="card__title" id="blocks-title">Блокировка времени</h2>
+      <ul class="blocks">
+        {% for b in blocks %}
+        {% set s = b.starts_at.astimezone(panel.tz) %}
+        {% set e = b.ends_at.astimezone(panel.tz) %}
+        <li class="block-item">
+          <span><strong>{{ s.date() | day_short }} · {{ s | hm }}–{{ e | hm }}</strong>
+            <span class="muted small">{% if b.resource_id %}{{ resources.get(b.resource_id, "Бокс") }}{% elif b.staff_id %}{{ staff_names.get(b.staff_id, "Мастер") }}{% else %}Вся студия{% endif %}{% if b.reason %} · {{ b.reason }}{% endif %}</span></span>
+          <button class="btn btn--link-danger" type="button" data-api="{{ panel.api }}/schedule/blocks/{{ b.id }}" data-method="DELETE" data-confirm="Снять блокировку?" data-confirm-ok="Снять" data-done="Блокировка снята" data-reload>Снять</button>
+        </li>
+        {% else %}
+        <li class="muted small">Заблокированного времени нет.</li>
+        {% endfor %}
+      </ul>
+      <form class="form block-form" data-form data-action="{{ panel.api }}/schedule/blocks" data-method="POST" data-success="Время заблокировано" data-warn-key="bookings_inside" data-warn-text="Время заблокировано. На это время уже есть записи: {n}. Они остались, перенесите их при необходимости." data-reload novalidate>
+        <div class="form-alert" data-form-alert hidden>{{ icon("alert", 18) }}<span data-form-alert-text></span></div>
+        <div class="fld-row fld-row--3">
+          {{ field("day", "Дата", today.isoformat(), type="date", required=true, cls="fld--mono") }}
+          {{ field("starts_at", "С", "13:00", type="time", required=true, attrs='step="900"', cls="fld--mono") }}
+          {{ field("ends_at", "До", "15:00", type="time", required=true, attrs='step="900"', cls="fld--mono") }}
+        </div>
+        <div class="fld-row">
+          <div class="fld"><label class="fld__label" for="bl-scope">Что блокируем</label>
+            <select class="select" id="bl-scope" name="scope"><option value="studio">Вся студия</option>{% if resource_list %}<option value="resource">Один бокс</option>{% endif %}{% if staff %}<option value="staff">Один мастер</option>{% endif %}</select></div>
+          <div class="fld if-resource"><label class="fld__label" for="bl-res">Бокс</label>
+            <select class="select" id="bl-res" name="resource_id" data-type="int">{% for r in resource_list %}<option value="{{ r.id }}">{{ r.name }}</option>{% endfor %}</select></div>
+          <div class="fld if-staff"><label class="fld__label" for="bl-staff">Мастер</label>
+            <select class="select" id="bl-staff" name="staff_id" data-type="int">{% for m in staff %}<option value="{{ m.id }}">{{ m.short_name }}</option>{% endfor %}</select></div>
+        </div>
+        {{ field("reason", "Причина", maxlength=200, placeholder="Обучение мастеров", attrs='data-type="nullable"') }}
+        <div class="form__actions"><button class="btn btn--dark btn--lg btn--block" type="submit">Заблокировать время</button></div>
+      </form>
+    </section>
+  </div>
+</div>
+{% endblock %}
