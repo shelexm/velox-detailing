@@ -324,6 +324,12 @@ document.addEventListener("click", (event) => {
   }
 });
 
+// Filter forms (form[data-autosubmit]) reload the page as soon as a field changes.
+document.addEventListener("change", (event) => {
+  const form = event.target.closest("form[data-autosubmit]");
+  if (form && event.target.matches("select, input")) form.submit();
+});
+
 // Whole table rows open their record; links and controls inside keep working.
 document.addEventListener("click", (event) => {
   const row = event.target.closest("[data-href]");

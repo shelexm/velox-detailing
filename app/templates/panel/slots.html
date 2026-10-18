@@ -1,0 +1,128 @@
+{% extends "panel/base.html" %}
+{% from "panel/_macros.html" import icon, field, toggle %}
+{% block title %}Слоты и вместимость{% endblock %}
+{% set s = panel.studio %}
+{% block main %}
+<header class="pn-head">
+  <div class="pn-head__text"><span class="pn-eyebrow mono">ПРАВИЛА ОНЛАЙН-ЗАПИСИ</span><h1 class="pn-title">Слоты и вместимость</h1></div>
+  <div class="pn-head__actions">
+    <span class="pn-saved" data-dirty-for="rules-form" hidden>Есть несохранённые изменения</span>
+    <button class="btn btn--primary" type="submit" form="rules-form">Сохранить</button>
+  </div>
+</header>
+
+<div class="slots-layout">
+  <div class="stack">
+    <section class="card" aria-labelledby="step-title">
+      <h2 class="card__title" id="step-title">Длительность интервала</h2>
+      <div class="seg seg--block" role="group" aria-label="Шаг слотов">
+        {% for minutes, label in [(30, "30 минут"), (60, "1 час"), (120, "2 часа")] %}
+        <button class="seg__item" type="button" aria-pressed="{{ 'true' if s.slot_step_minutes == minutes else 'false' }}" data-api="{{ panel.api }}/booking-rules" data-method="PATCH" data-body='{"slot_step_minutes": {{ minutes }}}' data-done="Шаг слотов: {{ label }}" data-reload>{{ label }}</button>
+        {% endfor %}
+      </div>
+      <p class="muted small">Шаг, с которым клиент видит время на сайте. Длинные услуги занимают несколько интервалов подряд.</p>
+
+      <div class="capacity">
+        <div class="capacity__head">
+          <div><h3 class="capacity__title">Автомобилей в одном слоте</h3><p class="muted small">Сколько машин студия принимает одновременно: одно место = один бокс</p></div>
+          <div class="stepper" role="group" aria-label="Количество мест">
+            {% if boxes | length > 1 %}
+            <button class="stepper__btn" type="button" aria-label="Убрать место" data-api="{{ panel.api }}/resources/{{ boxes[-1].id }}" data-method="DELETE" data-confirm="Убрать «{{ boxes[-1].name }}»?" data-confirm-text="Одновременно студия сможет принять на одну машину меньше. Место с предстоящими записями убрать нельзя." data-confirm-ok="Убрать" data-done="Место убрано" data-reload>{{ icon("minus", 18) }}</button>
+            {% else %}<button class="stepper__btn" type="button" disabled aria-label="Убрать место">{{ icon("minus", 18) }}</button>{% endif %}
+            <span class="stepper__value" aria-live="polite">{{ boxes | length }}</span>
+            <button class="stepper__btn" type="button" aria-label="Добавить место" data-api="{{ panel.api }}/resources" data-method="POST" data-body='{}' data-done="Место добавлено" data-reload>{{ icon("plus", 18) }}</button>
+          </div>
+        </div>
+        <ul class="boxes" data-sortable data-order-api="{{ panel.api }}/resources/order">
+          {% for b in boxes %}
+          <li class="box" data-id="{{ b.id }}">
+            <span class="box__car" aria-hidden="true">{{ icon("car", 28) }}</span>
+            <form class="inline-form" data-form data-action="{{ panel.api }}/resources/{{ b.id }}" data-method="PATCH" data-success="Название сохранено" novalidate>
+              <label class="visually-hidden" for="box-{{ b.id }}">Название места</label>
+              <input class="input input--sm" id="box-{{ b.id }}" name="name" value="{{ b.name }}" maxlength="64" required>
+              <button class="btn btn--ghost btn--sm" type="submit">ОК</button>
+            </form>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="stat-tiles">
+        <div class="stat-tile"><span class="muted small">Слотов в день</span><span class="stat-tile__num">{{ slots_per_day }}</span></div>
+        <div class="stat-tile"><span class="muted small">Мест в день</span><span class="stat-tile__num gold-light">{{ places_per_day }}</span></div>
+        <div class="stat-tile"><span class="muted small">Боксов</span><span class="stat-tile__num">{{ boxes | length }}</span></div>
+      </div>
+      <p class="muted small">Вместимость совпадает с числом боксов. Осмотры и услуги без бокса места не занимают.</p>
+    </section>
+
+    <section class="card" aria-labelledby="rules-title">
+      <div class="switch-row switch-row--top">
+        <span class="switch-row__text"><span class="switch-row__label" id="rules-title">Учитывать занятость мастеров</span><span class="switch-row__hint">Слот доступен, только если свободен мастер нужной специализации</span></span>
+        <input class="switch" type="checkbox" role="switch" aria-labelledby="rules-title" {% if s.respect_staff_availability %}checked{% endif %} data-toggle="{{ panel.api }}/booking-rules" data-field="respect_staff_availability" data-on="Занятость мастеров учитывается" data-off="Занятость мастеров не учитывается">
+      </div>
+      <table class="table table--plain">
+        <thead><tr><th>Мастер</th><th>Одновременно</th><th>Онлайн-запись</th></tr></thead>
+        <tbody>
+          {% for m in staff %}
+          <tr><td>{{ m.short_name }}</td><td class="mono">1 автомобиль</td>
+            <td><label class="mini-toggle"><input class="switch switch--sm" type="checkbox" role="switch" aria-label="Онлайн-запись к мастеру {{ m.short_name }}" {% if m.client_selectable %}checked{% endif %} data-toggle="{{ panel.api }}/staff/{{ m.id }}" data-field="client_selectable" data-on="Клиенты могут выбрать мастера" data-off="Мастера назначает студия"><span class="{% if m.client_selectable %}gold-light{% else %}muted{% endif %} small">{{ "включена" if m.client_selectable else "через студию" }}</span></label></td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <h3 class="sub-title">Пересечение записей</h3>
+      <p class="muted small">Один мастер ведёт одну машину: две записи у одного мастера на одно время база данных не допустит. Услуги без мастера и без бокса (осмотр, выдача) могут идти параллельно с работами: это задаётся в настройках услуги.</p>
+
+      <form id="rules-form" class="form" data-form data-action="{{ panel.api }}/booking-rules" data-method="PATCH" data-success="Правила записи сохранены" data-reload novalidate>
+        <div class="form-alert" data-form-alert hidden>{{ icon("alert", 18) }}<span data-form-alert-text></span></div>
+        <div class="fld-row">
+          {{ field("buffer_minutes", "Буфер между записями, мин", s.buffer_minutes, type="number", attrs='min="0" max="240" step="5"', cls="fld--mono") }}
+          <div class="fld"><label class="fld__label" for="f-min_lead_minutes">Не позднее чем за</label>
+            <select class="select" id="f-min_lead_minutes" name="min_lead_minutes" data-type="int">
+              {% for minutes, label in [(0, "без ограничения"), (30, "30 минут"), (60, "1 час"), (120, "2 часа"), (180, "3 часа"), (360, "6 часов"), (720, "12 часов"), (1440, "1 день"), (2880, "2 дня")] %}
+              <option value="{{ minutes }}" {% if s.min_lead_minutes == minutes %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+              {% if s.min_lead_minutes not in [0, 30, 60, 120, 180, 360, 720, 1440, 2880] %}<option value="{{ s.min_lead_minutes }}" selected>{{ s.min_lead_minutes }} мин</option>{% endif %}
+            </select></div>
+        </div>
+        <div class="fld-row">
+          {{ field("horizon_days", "Горизонт записи, дней", s.horizon_days, type="number", attrs='min="1" max="365"', cls="fld--mono") }}
+          {{ field("cancel_deadline_hours", "Отмена онлайн не позже чем за, ч", s.cancel_deadline_hours, type="number", attrs='min="0" max="720"', cls="fld--mono") }}
+        </div>
+        {{ field("hold_minutes", "Удержание времени в боте, мин", s.hold_minutes, type="number", hint="Сколько минут слот держится за клиентом, пока он заполняет запись в Telegram", attrs='min="1" max="60"', cls="fld--mono") }}
+        {{ toggle("online_booking_enabled", s.online_booking_enabled, "Онлайн-запись включена", "Выключите, чтобы временно принимать записи только по телефону") }}
+      </form>
+    </section>
+  </div>
+
+  <section class="card preview" aria-labelledby="preview-title">
+    <div class="card__head">
+      <h2 class="card__title" id="preview-title">Как это видит клиент</h2>
+      <span class="mono muted small">{{ preview_day | day_long | upper }}{% if chosen %} · {{ chosen.name | upper }}{% endif %}</span>
+    </div>
+    <form class="preview__controls" method="get" data-autosubmit>
+      <label class="visually-hidden" for="pv-service">Услуга</label>
+      <select class="select select--sm" id="pv-service" name="service">{% for svc in services %}<option value="{{ svc.id }}" {% if chosen and svc.id == chosen.id %}selected{% endif %}>{{ svc.name }}</option>{% endfor %}</select>
+      <label class="visually-hidden" for="pv-day">Дата</label>
+      <input class="input input--sm input--mono" id="pv-day" type="date" name="day" value="{{ preview_day.isoformat() }}" min="{{ today.isoformat() }}">
+    </form>
+    {% if preview and preview.slots %}
+    <div class="pv-grid">
+      {% for slot in preview.slots %}
+      {% set taken = slot.total_places - slot.free_places %}
+      <div class="pv-slot {% if slot.blocked %}is-blocked{% elif not slot.available %}is-full{% elif taken %}is-partial{% endif %}">
+        <span class="pv-slot__time mono">{{ slot.start.astimezone(panel.tz) | hm }}</span>
+        <span class="pv-slot__places" aria-hidden="true">{% for i in range(slot.total_places) %}<span class="{% if i < taken %}is-taken{% endif %}"></span>{% endfor %}</span>
+        <span class="pv-slot__label small">{% if slot.blocked %}заблокировано{% elif not slot.available and slot.free_places %}нет свободного мастера{% elif not slot.available %}занято{% else %}свободно {{ slot.free_places }} из {{ slot.total_places }}{% endif %}</span>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="card__legend"><span class="legend legend--busy">место занято</span><span class="legend legend--free">место свободно</span><span class="legend legend--blocked">время заблокировано</span></div>
+    {% if note %}<div class="note">{{ icon("info", 20) }}<span>{{ note }}</span></div>{% endif %}
+    {% elif preview %}
+    <p class="muted">{% if not preview.open %}В этот день студия закрыта.{% else %}На этот день свободных стартов нет.{% endif %}</p>
+    {% else %}
+    <p class="muted">Нет услуг с онлайн-записью.</p>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

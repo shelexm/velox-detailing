@@ -156,8 +156,6 @@ if (creator) {
   });
 }
 
-// Staff filter submits itself.
-document.querySelectorAll("form[data-autosubmit] select").forEach((select) => select.addEventListener("change", () => select.form.submit()));
 
 // Keep the "now" line moving without a reload.
 const nowLine = document.querySelectorAll(".cal__now");
