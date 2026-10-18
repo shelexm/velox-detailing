@@ -17,11 +17,11 @@ const parse = (s) => {
   return new Date(y, m - 1, d);
 };
 
-if (root && root.querySelector("[data-days]")) {
+if (root && root.querySelector("[data-day-grid]")) {
   const slug = root.dataset.studio;
   const horizon = Number(root.dataset.horizon || 30);
   const serviceSelect = root.querySelector("[data-service]");
-  const daysBox = root.querySelector("[data-days]");
+  const daysBox = root.querySelector("[data-day-grid]");
   const timesBox = root.querySelector("[data-times]");
   const timesLabel = root.querySelector("[data-times-label]");
   const note = root.querySelector("[data-note]");

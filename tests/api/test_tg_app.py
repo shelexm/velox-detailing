@@ -27,6 +27,8 @@ def init_data(user_id: int = 5001, token: str = TOKEN) -> str:
 async def test_calendar_page(client: httpx.AsyncClient, studio: Studio) -> None:
     page = await client.get("/tg/app", headers={"Accept": "text/html"})
     assert page.status_code == 200 and "data-tg-app" in page.text
+    # The script finds the day grid by this hook; service options carry data-days of their own.
+    assert page.text.count("data-day-grid") == 1
     csp = page.headers["content-security-policy"]
     assert "frame-ancestors https://web.telegram.org" in csp and "https://telegram.org" in csp
     # Other pages keep the strict policy.
