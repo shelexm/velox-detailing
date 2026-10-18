@@ -213,3 +213,54 @@ async def client_stats(session: AsyncSession, studio_id: int, now: datetime) -> 
     repeat = await session.scalar(select(func.count()).select_from(visits).where(visits.c.n > 1)) or 0
     share = round(100 * repeat / with_visits) if with_visits else 0
     return ClientStats(total=total, new_30_days=new, repeat_percent=share)
+
+
+@dataclass
+class StaffDay:
+    day: date
+    working: bool
+    absent: bool = False
+    percent: int = 0
+    window: Interval | None = None
+
+
+async def staff_week(session: AsyncSession, studio: Studio, first: date) -> dict[int, list[StaffDay]]:
+    """Per master and day: is the master working (own shift inside the studio hours, not absent) and how
+    much of that shift is booked, in percent."""
+    tz = _tz(studio)
+    start = datetime.combine(first, time(0), tzinfo=tz)
+    end = start + timedelta(days=7)
+    snap = await load_snapshot(session, studio, start, end)
+    rows = await session.execute(
+        select(Booking.staff_id, Booking.starts_at, Booking.ends_at).where(
+            Booking.studio_id == studio.id,
+            Booking.staff_id.is_not(None),
+            Booking.status.in_(WORK_STATUSES),
+            Booking.starts_at < end,
+            Booking.ends_at > start,
+        )
+    )
+    by_staff: dict[int, list[Interval]] = defaultdict(list)
+    for staff_id, starts_at, ends_at in rows.all():
+        by_staff[staff_id].append(Interval(starts_at, ends_at))
+
+    result: dict[int, list[StaffDay]] = {}
+    for staff_id, hours in snap.staff_hours.items():
+        days = []
+        for offset in range(7):
+            day = first + timedelta(days=offset)
+            absent = any(a <= day <= b for a, b in snap.staff_absences.get(staff_id, []))
+            shift, opening = hours.get(day.weekday()), snap.opening(day)
+            if absent or shift is None or opening is None:
+                days.append(StaffDay(day, working=False, absent=absent))
+                continue
+            window = Interval(
+                max(opening.start, snap.at(day, shift.opens)), min(opening.end, snap.at(day, shift.closes))
+            )
+            if window.end <= window.start:
+                days.append(StaffDay(day, working=False))
+                continue
+            busy = _minutes(_merge(_clip(by_staff.get(staff_id, []), window)))
+            days.append(StaffDay(day, True, percent=round(100 * busy / _minutes([window])), window=window))
+        result[staff_id] = days
+    return result

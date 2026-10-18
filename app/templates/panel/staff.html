@@ -1,0 +1,192 @@
+{% extends "panel/base.html" %}
+{% from "panel/_macros.html" import icon, avatar, field, toggle, move_buttons %}
+{% block title %}Мастера{% endblock %}
+
+{% macro profile_form(m, creating=false) -%}
+<form class="form" data-form novalidate
+  {% if creating %}data-action="{{ panel.api }}/staff" data-method="POST" data-redirect="?open={id}" data-success="Мастер добавлен"
+  {% else %}data-action="{{ panel.api }}/staff/{{ m.id }}" data-method="PATCH" data-reload{% endif %}>
+  <div class="form-alert" data-form-alert hidden>{{ icon("alert", 18) }}<span data-form-alert-text></span></div>
+  <div class="fld-row">
+    {{ field("full_name", "Имя и фамилия", m.full_name if m else "", required=true, maxlength=200) }}
+    {{ field("short_name", "Как видит клиент", m.short_name if m else "", maxlength=64, placeholder="Андрей К.", hint="Если пусто: имя и первая буква фамилии" if creating else "", attrs='data-type="nullable"') }}
+  </div>
+  <div class="fld-row">
+    {{ field("title", "Должность", m.title if m else "", maxlength=120, placeholder="Старший мастер", attrs='data-type="nullable"') }}
+    {{ field("since_year", "В студии с (год)", m.since_year if m else "", type="number", attrs='min="1980" max="2100" inputmode="numeric"') }}
+  </div>
+  <div class="fld-row">
+    {{ field("phone", "Телефон (виден только в панели)", m.phone if m else "", type="tel", maxlength=20, placeholder="+7 900 000-00-00", attrs='data-type="nullable" inputmode="tel"', cls="fld--mono") }}
+    {{ field("specializations", "Специализации через запятую", (m.specializations | join(", ")) if m else "", placeholder="Полировка, Керамика", attrs='data-type="list"') }}
+  </div>
+  {{ toggle("client_selectable", m.client_selectable if m else true, "Онлайн-запись к мастеру", "Клиент может выбрать этого мастера на сайте и в боте") }}
+  <div class="form__actions form__actions--split">
+    {% if not creating %}<button class="btn btn--link-danger" type="button" data-api="{{ panel.api }}/staff/{{ m.id }}" data-method="DELETE" data-confirm="Убрать мастера {{ m.full_name }}?" data-confirm-text="Мастер пропадёт из записи и расписания. История записей сохранится." data-confirm-ok="Убрать" data-done="Мастер убран" data-redirect="?">Убрать мастера</button>{% else %}<span></span>{% endif %}
+    <button class="btn btn--primary" type="submit">{{ "Добавить мастера" if creating else "Сохранить" }}</button>
+  </div>
+</form>
+{%- endmacro %}
+
+{% block main %}
+<header class="pn-head">
+  <div class="pn-head__text">
+    <span class="pn-eyebrow mono">{{ masters | length }} {{ plural(masters | length, "мастер", "мастера", "мастеров") }} · {{ working_today }} сегодня в студии</span>
+    <h1 class="pn-title">Мастера</h1>
+  </div>
+  <div class="pn-head__actions"><a class="btn btn--primary" href="?new=1">{{ icon("plus", 16) }}Добавить мастера</a></div>
+</header>
+
+<div class="staff-layout">
+  <div class="stack">
+    <ul class="staff-list" data-sortable data-order-api="{{ panel.api }}/staff/order">
+      {% for m in masters %}
+      {% set d = week[m.id][today_index] if m.id in week else none %}
+      {% set pct = week_percent(m.id) %}
+      <li class="staff-card {% if selected and selected.id == m.id %}is-selected{% endif %}" data-id="{{ m.id }}" data-href="?open={{ m.id }}">
+        <div class="staff-card__top">
+          {{ avatar(initials(m.full_name), "lg") }}
+          <a class="staff-card__name row-link" href="?open={{ m.id }}"><strong>{{ m.full_name }}</strong><span class="muted">{{ m.specializations | join(" · ") }}</span></a>
+          <span class="staff-card__move">{{ move_buttons(m.id) }}</span>
+        </div>
+        <div class="staff-card__status">
+          {% if d and d.working %}
+          <span><span class="dot dot--on" aria-hidden="true"></span>В студии · {{ d.window.start.astimezone(panel.tz) | hm }}–{{ d.window.end.astimezone(panel.tz) | hm }}</span>
+          {% elif d and d.absent %}
+          <span><span class="dot" aria-hidden="true"></span>Отсутствует сегодня</span>
+          {% else %}
+          <span><span class="dot" aria-hidden="true"></span>Выходной</span>
+          {% endif %}
+          <span class="mono {% if pct >= 80 %}gold-light{% endif %}">{{ pct }} %</span>
+        </div>
+        <span class="meter" aria-hidden="true"><span style="width: {{ [pct, 100] | min }}%"></span></span>
+      </li>
+      {% else %}
+      <li class="empty">Мастеров пока нет. Добавьте первого.</li>
+      {% endfor %}
+    </ul>
+    <p class="muted small">Процент: загрузка текущей недели по графику мастера.</p>
+  </div>
+
+  {% if creating %}
+  <section class="card">
+    <h2 class="card__title">Новый мастер</h2>
+    {{ profile_form(none, creating=true) }}
+    <p class="muted small">График нового мастера сначала совпадает с часами студии, его можно сузить после добавления.</p>
+  </section>
+  {% elif selected %}
+  {% set m = selected %}
+  <section class="card card--flush master {% if explicit %}is-explicit{% endif %}">
+    <a class="master__back only-mobile" href="?list=1">{{ icon("chevron-left", 18) }}Все мастера</a>
+    <div class="master__head">
+      {{ avatar(initials(m.full_name), "xl") }}
+      <div class="master__who">
+        <h2 class="master__name">{{ m.full_name }}</h2>
+        <span class="muted">{{ m.title or "Мастер" }}{% if m.since_year %} · в студии с {{ m.since_year }}{% endif %}{% if not m.client_selectable %} · онлайн-запись через студию{% endif %}</span>
+        {% if m.specializations %}<div class="chip-row">{% for s in m.specializations %}<span class="tag tag--gold">{{ s }}</span>{% endfor %}</div>{% endif %}
+      </div>
+      <div class="master__actions">
+        {% if m.phone %}<a class="icon-btn icon-btn--lg" href="tel:{{ m.phone }}" aria-label="Позвонить мастеру">{{ icon("phone", 20) }}</a>{% endif %}
+      </div>
+    </div>
+    <details class="master__edit">
+      <summary class="btn btn--ghost">Редактировать профиль</summary>
+      {{ profile_form(m) }}
+    </details>
+
+    <div class="master__grid">
+      <div class="master__col">
+        <h3 class="sub-title">Выполняет услуги</h3>
+        <form class="form" data-form data-action="{{ panel.api }}/staff/{{ m.id }}/services" data-method="PUT" data-success="Услуги мастера сохранены" data-reload novalidate>
+          <div class="check-list">
+            {% for s in detail.services %}
+            <label class="check {% if s.id not in detail.linked %}is-off{% endif %}"><input type="checkbox" name="ids" value="{{ s.id }}" data-type="ids" {% if s.id in detail.linked %}checked{% endif %}>{{ s.name }}</label>
+            {% endfor %}
+          </div>
+          <span class="fld__error" data-error-for="ids" hidden></span>
+          <div class="form__actions"><button class="btn btn--ghost btn--sm" type="submit">Сохранить услуги</button><span class="muted small">Одновременно ведёт 1 автомобиль · <a class="link" href="{{ panel.url('/slots') }}">настройка слотов</a></span></div>
+        </form>
+      </div>
+      <div class="master__col">
+        <div class="card__head"><h3 class="sub-title">Индивидуальный график</h3><span class="muted small">{{ detail.weekly_hours }}</span></div>
+        <div class="week-hours" role="list">
+          {% for h in detail.hours %}
+          <div class="week-hours__day" role="listitem"><span class="muted small">{{ ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"][loop.index0] }}</span>
+            {% if h and h.is_working %}<span class="week-hours__cell mono">{{ h.starts_at.strftime("%H") }}<br>{{ h.ends_at.strftime("%H") }}</span>{% else %}<span class="week-hours__cell week-hours__cell--off">вых.</span>{% endif %}
+          </div>
+          {% endfor %}
+        </div>
+        <details class="edit-block">
+          <summary>Изменить график</summary>
+          <form class="form" data-form data-action="{{ panel.api }}/staff/{{ m.id }}/hours" data-method="PUT" data-success="График сохранён" data-reload novalidate>
+            <div class="form-alert" data-form-alert hidden>{{ icon("alert", 18) }}<span data-form-alert-text></span></div>
+            {% for h in detail.hours %}
+            {% set i = loop.index0 %}
+            <div class="hours-row">
+              <input type="hidden" name="days.{{ i }}.weekday" value="{{ i }}" data-type="int">
+              <label class="check hours-row__day"><input type="checkbox" name="days.{{ i }}.is_working" data-type="bool" {% if h and h.is_working %}checked{% endif %}>{{ ["Понедельник","Вторник","Среда","Четверг","Пятница","Суббота","Воскресенье"][i] }}</label>
+              <input class="input input--sm input--mono" type="time" step="900" name="days.{{ i }}.starts_at" value="{{ h.starts_at.strftime('%H:%M') if h else '' }}" data-type="nullable" aria-label="Начало">
+              <span class="muted">–</span>
+              <input class="input input--sm input--mono" type="time" step="900" name="days.{{ i }}.ends_at" value="{{ h.ends_at.strftime('%H:%M') if h else '' }}" data-type="nullable" aria-label="Конец">
+              <span class="fld__error hours-row__error" data-error-for="days.{{ i }}" hidden></span>
+            </div>
+            {% endfor %}
+            <p class="muted small">График мастера не может выходить за часы студии.</p>
+            <div class="form__actions"><button class="btn btn--primary btn--sm" type="submit">Сохранить график</button></div>
+          </form>
+        </details>
+
+        <h3 class="sub-title">Выходные и отсутствие</h3>
+        <ul class="absences">
+          {% for a in detail.absences %}
+          <li class="absence">
+            <span><strong>{{ absence_labels[a.kind] }} · {{ a.starts_on.strftime("%d.%m") }}{% if a.ends_on != a.starts_on %}–{{ a.ends_on.strftime("%d.%m") }}{% endif %}</strong><span class="muted small">{{ a.note or "Онлайн-запись к мастеру закрыта" }}</span></span>
+            <button class="icon-btn icon-btn--plain" type="button" data-api="{{ panel.api }}/staff/{{ m.id }}/absences/{{ a.id }}" data-method="DELETE" data-confirm="Удалить отсутствие?" data-confirm-ok="Удалить" data-done="Удалено" data-reload aria-label="Удалить отсутствие">{{ icon("close", 16) }}</button>
+          </li>
+          {% endfor %}
+        </ul>
+        <details class="edit-block">
+          <summary>+ Выходной, отпуск или больничный</summary>
+          <form class="form" data-form data-action="{{ panel.api }}/staff/{{ m.id }}/absences" data-method="POST" data-success="Добавлено" data-warn-key="bookings_inside" data-warn-text="Добавлено. В эти дни у мастера записей: {n}. Перенесите их в календаре." data-reload novalidate>
+            <div class="fld-row">
+              {{ field("starts_on", "С", today.isoformat(), type="date", required=true, cls="fld--mono") }}
+              {{ field("ends_on", "По", today.isoformat(), type="date", required=true, cls="fld--mono") }}
+            </div>
+            <div class="fld-row">
+              <div class="fld"><label class="fld__label" for="ab-kind">Причина</label>
+                <select class="select" id="ab-kind" name="kind">{% for kind, label in absence_labels.items() %}<option value="{{ kind }}">{{ label }}</option>{% endfor %}</select></div>
+              {{ field("note", "Комментарий", maxlength=200, attrs='data-type="nullable"') }}
+            </div>
+            <div class="form__actions"><button class="btn btn--primary btn--sm" type="submit">Добавить</button></div>
+          </form>
+        </details>
+      </div>
+    </div>
+
+    <div class="master__load">
+      <div class="card__head"><h3 class="sub-title">Занятость на неделе</h3><a class="link" href="{{ panel.url('/bookings?staff=' ~ m.id) }}">Открыть в календаре</a></div>
+      <div class="load-bars">
+        {% for d in detail.days %}
+        <div class="load-bars__day {% if not d.working %}is-off{% endif %} {% if d.day == today %}is-today{% endif %}">
+          <span class="load-bars__bar"><span style="height: {{ d.percent if d.working else 0 }}%"></span></span>
+          <span class="small {% if d.working and d.percent >= 100 %}gold-light{% else %}muted{% endif %}">{{ ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"][loop.index0] }} · {% if d.working %}{{ d.percent }}%{% elif d.absent %}нет{% else %}вых.{% endif %}</span>
+        </div>
+        {% endfor %}
+      </div>
+      <ul class="upcoming">
+        {% for b in detail.upcoming %}
+        {% set s = b.starts_at.astimezone(panel.tz) %}
+        {% set e = b.ends_at.astimezone(panel.tz) %}
+        <li><a class="upcoming__row" href="{{ panel.url('/bookings?date=' ~ s.date().isoformat() ~ '&open=' ~ b.id) }}">
+          <span class="mono">{{ s.date() | day_short }} · {{ s | hm }}</span>
+          <span>{{ b.service_name }} · {{ b.contact_name or b.client_name }}{% if b.vehicle %} · {{ b.vehicle }}{% endif %}</span>
+          <span class="muted small">{% if e.date() == today %}<span class="gold-light">выдача сегодня</span>{% elif e.date() != s.date() %}{{ (e.date() - s.date()).days + 1 }} {{ plural((e.date() - s.date()).days + 1, "день", "дня", "дней") }}{% else %}{{ ((b.ends_at - b.starts_at).total_seconds() / 60) | duration }}{% endif %}</span>
+        </a></li>
+        {% else %}
+        <li class="muted">Ближайших записей нет.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </section>
+  {% endif %}
+</div>
+{% endblock %}
