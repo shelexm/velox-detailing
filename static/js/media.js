@@ -1,11 +1,13 @@
 // Media library: upload several files (button or drag and drop) and replace a file in place.
 
+import { isImageFile, prepareImage } from "./image-prep.js";
 import { api, panel, toast } from "./panel.js";
 
 const progress = document.querySelector("[data-upload-progress]");
 
 async function uploadAll(files) {
-  const images = [...files].filter((f) => f.type.startsWith("image/"));
+  const images = [...files].filter(isImageFile);
+  if (images.length < files.length) toast("Это не фото, такие файлы пропущены", "error");
   if (!images.length) return;
   let done = 0;
   let failed = 0;
@@ -13,7 +15,7 @@ async function uploadAll(files) {
   for (const file of images) {
     progress.textContent = `Загружаю ${done + failed + 1} из ${images.length}…`;
     const form = new FormData();
-    form.append("file", file);
+    form.append("file", await prepareImage(file));
     const result = await api(`${panel.api}/media`, { method: "POST", formData: form });
     if (result.ok) done += 1;
     else {
@@ -54,7 +56,7 @@ document.querySelector("[data-replace]")?.addEventListener("change", async (even
   const label = input.closest("label");
   label.setAttribute("aria-busy", "true");
   const form = new FormData();
-  form.append("file", file);
+  form.append("file", await prepareImage(file));
   const result = await api(input.dataset.replace, { method: "POST", formData: form });
   label.removeAttribute("aria-busy");
   input.value = "";

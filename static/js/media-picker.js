@@ -2,6 +2,7 @@
 // Markup: [data-media-field] with a hidden input (the image id), a preview and buttons
 // [data-media-pick] / [data-media-clear]. One shared <dialog data-media-dialog> lists the library.
 
+import { prepareImage } from "./image-prep.js";
 import { api, panel, toast } from "./panel.js";
 
 const dialog = document.querySelector("[data-media-dialog]");
@@ -90,11 +91,11 @@ if (dialog) {
   upload?.addEventListener("change", async () => {
     const file = upload.files[0];
     if (!file) return;
-    const form = new FormData();
-    form.append("file", file);
-    form.append("alt", dialog.querySelector("[data-media-alt]")?.value || "");
     const label = dialog.querySelector("[data-media-upload-label]");
     label.setAttribute("aria-busy", "true");
+    const form = new FormData();
+    form.append("file", await prepareImage(file));
+    form.append("alt", dialog.querySelector("[data-media-alt]")?.value || "");
     const result = await api(`${panel.api}/media`, { method: "POST", formData: form });
     label.removeAttribute("aria-busy");
     upload.value = "";

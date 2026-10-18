@@ -32,7 +32,16 @@ export async function api(url, { method = "GET", data, formData } = {}) {
   }
   let json = null;
   if (response.status !== 204) json = await response.json().catch(() => null);
-  if (!response.ok) return { ok: false, status: response.status, error: json?.error || { message: "Ошибка сервера" } };
+  if (!response.ok) {
+    // A proxy answers 413 or 502/504 with HTML, not JSON: say what happened instead of a generic error.
+    const fallback =
+      response.status === 413
+        ? "Файл слишком большой для загрузки"
+        : response.status === 502 || response.status === 504
+          ? "Сервер не успел ответить. Попробуйте ещё раз или выберите файл поменьше"
+          : "Ошибка сервера";
+    return { ok: false, status: response.status, error: json?.error || { message: fallback } };
+  }
   return { ok: true, status: response.status, data: json };
 }
 
