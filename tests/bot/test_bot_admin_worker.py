@@ -7,13 +7,19 @@ import time
 from datetime import UTC, datetime, timedelta
 
 import pytest
+from aiogram.exceptions import (
+    TelegramForbiddenError,
+    TelegramMigrateToChat,
+    TelegramNotFound,
+    TelegramUnauthorizedError,
+)
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.bot import handlers as h
 from app.bot import keyboards as kb
 from app.bot.context import BotContext
-from app.bot.notifier import DeliveryError, RecordingNotifier
+from app.bot.notifier import DeliveryError, RecordingNotifier, TelegramNotifier
 from app.bot.worker import deliver_batch, schedule_reminders
 from app.core import security
 from app.core.telegram import InvalidInitData, sign_init_data, verify_init_data
@@ -116,6 +122,87 @@ async def test_delivery_retries_and_skips(ctx: BotContext, state, session: Async
     )
     await session.refresh(row)
     assert row.status == OutboxStatus.DEAD
+
+
+class FailingFor:
+    """Fails for one chat with the given exception and records everything else."""
+
+    def __init__(self, chat_id: int, error: Exception) -> None:
+        self.chat_id, self.error, self.sent = chat_id, error, []
+
+    async def send(self, chat_id, text, markup=None) -> None:
+        if chat_id == self.chat_id:
+            raise self.error
+        self.sent.append((chat_id, text, markup))
+
+
+class FailFirst(RecordingNotifier):
+    """The first send raises, the rest are recorded."""
+
+    async def send(self, chat_id, text, markup=None) -> None:
+        if self.fail_with is not None:
+            error, self.fail_with = self.fail_with, None
+            raise error
+        self.sent.append((chat_id, text, markup))
+
+
+async def test_unexpected_error_fails_one_row_and_keeps_the_rest(
+    ctx: BotContext, state, session: AsyncSession, studio: Studio
+) -> None:
+    await _link(session, studio, ctx)
+    booking = await book_light_polish(ctx, state, session)
+    await h.cancel_yes(FakeCallback(FakeMessage()), kb.Mine(action="cancel_yes", booking=booking.id), ctx)
+    # Two rows for the admin chat now: the new request and its cancellation. The first send breaks.
+    notifier = FailFirst(fail_with=RuntimeError("socket closed"))
+    now = datetime.now(UTC)
+    assert await deliver_batch(ctx, notifier, now=now) == 2
+    first, second = await session.scalars(
+        select(NotificationOutbox).where(NotificationOutbox.booking_id == booking.id).order_by(NotificationOutbox.id)
+    )
+    await session.refresh(first)
+    await session.refresh(second)
+    assert first.status == OutboxStatus.FAILED and first.attempts == 1 and "RuntimeError" in first.last_error
+    assert second.status == OutboxStatus.SENT and len(notifier.sent) == 1
+    # On the next pass only the failed row goes out: the sent one is not repeated.
+    again = RecordingNotifier()
+    await deliver_batch(ctx, again, now=now + timedelta(hours=2))
+    assert len(again.sent) == 1
+    await session.refresh(first)
+    assert first.status == OutboxStatus.SENT
+
+
+async def test_admin_group_migrated_to_supergroup(
+    ctx: BotContext, state, session: AsyncSession, studio: Studio
+) -> None:
+    await _link(session, studio, ctx)
+    await book_light_polish(ctx, state, session)
+    supergroup = -1001234567890
+    await deliver_batch(ctx, FailingFor(ADMIN_CHAT, DeliveryError("migrated", migrate_to=supergroup)))
+    db_studio = await session.get(Studio, studio.id)
+    await session.refresh(db_studio)
+    assert db_studio.telegram_admin_chat_id == supergroup
+    notifier = RecordingNotifier()
+    await deliver_batch(ctx, notifier)
+    assert [m[0] for m in notifier.sent] == [supergroup]
+
+
+@pytest.mark.parametrize(
+    ("error", "permanent", "migrate_to"),
+    [
+        (TelegramMigrateToChat(method=None, message="migrated", migrate_to_chat_id=-100555), False, -100555),
+        (TelegramUnauthorizedError(method=None, message="Unauthorized"), False, None),
+        (TelegramNotFound(method=None, message="Not Found"), False, None),
+        (TelegramForbiddenError(method=None, message="blocked"), True, None),
+    ],
+)
+async def test_telegram_errors_become_delivery_errors(error, permanent, migrate_to) -> None:
+    class Bot:
+        async def send_message(self, *args, **kwargs):
+            raise error
+
+    with pytest.raises(DeliveryError) as caught:
+        await TelegramNotifier(Bot()).send(1, "text")
+    assert caught.value.permanent is permanent and caught.value.migrate_to == migrate_to
 
 
 async def test_reminders(ctx: BotContext, state, session: AsyncSession, studio: Studio) -> None:
