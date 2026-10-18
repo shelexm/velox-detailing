@@ -1,0 +1,45 @@
+{% extends "panel/base.html" %}
+{% from "panel/_macros.html" import icon, field %}
+{% block title %}Настройки{% endblock %}
+{% block main %}
+<header class="pn-head">
+  <div class="pn-head__text"><span class="pn-eyebrow mono">ВИДНО НА САЙТЕ И В БОТЕ</span><h1 class="pn-title">Настройки студии</h1></div>
+  <div class="pn-head__actions">
+    <span class="pn-saved" data-dirty-for="settings-form" hidden>Есть несохранённые изменения</span>
+    <button class="btn btn--primary" type="submit" form="settings-form">Сохранить</button>
+  </div>
+</header>
+<p class="note">{{ icon("info", 18) }}<span>Пустое поле на сайте не показывается: строка просто исчезает. Блок контактов и онлайн-запись работают, даже если контакты не заполнены.</span></p>
+
+<form id="settings-form" class="settings" data-form data-action="{{ panel.api }}/settings" data-method="PATCH" data-success="Настройки сохранены: сайт уже обновился" data-reload novalidate>
+  <div class="form-alert" data-form-alert hidden>{{ icon("alert", 18) }}<span data-form-alert-text></span></div>
+  <section class="card">
+    <h2 class="card__title">Студия</h2>
+    {{ field("name", "Название", s.name, required=true, maxlength=200) }}
+    <div class="fld-row">
+      {{ field("city", "Город", s.city, maxlength=120, attrs='data-type="nullable"') }}
+      {{ field("address", "Адрес", s.address, maxlength=300, placeholder="улица, дом", attrs='data-type="nullable"') }}
+    </div>
+    {{ field("address_note", "Как найти", s.address_note, maxlength=300, placeholder="Въезд со двора, ворота 3", attrs='data-type="nullable"') }}
+    {{ field("route_url", "Ссылка на маршрут (карты)", s.route_url, type="url", maxlength=500, placeholder="https://yandex.ru/maps/...", attrs='data-type="nullable"') }}
+    {{ field("schedule_text", "График текстом (необязательно)", s.schedule_text, maxlength=200, hint="Если пусто, сайт покажет часы из раздела «Расписание»", attrs='data-type="nullable"') }}
+  </section>
+  <section class="card">
+    <h2 class="card__title">Связь</h2>
+    <div class="fld-row">
+      {{ field("phone", "Телефон", phone_display, type="tel", maxlength=32, placeholder="+7 900 000-00-00", attrs='data-type="nullable" inputmode="tel"', cls="fld--mono") }}
+      {{ field("email", "E-mail для клиентов", s.email, type="email", maxlength=254, attrs='data-type="nullable"') }}
+    </div>
+    {{ field("whatsapp_url", "Ссылка WhatsApp", s.whatsapp_url, type="url", maxlength=300, placeholder="https://wa.me/79000000000", attrs='data-type="nullable"') }}
+    {{ field("telegram_bot_username", "Telegram-бот (username)", s.telegram_bot_username, maxlength=64, placeholder="velox_studio_bot", hint="Без @. Пока пусто, кнопки и блок Telegram на сайте скрыты", attrs='data-type="nullable"') }}
+    <dl class="kv"><div><dt>Чат администраторов</dt><dd>{% if s.telegram_admin_chat_id %}<span class="gold-light">привязан</span>{% else %}<span class="muted">не привязан: появится вместе с ботом</span>{% endif %}</dd></div></dl>
+  </section>
+  <section class="card">
+    <h2 class="card__title">Реквизиты (подвал сайта)</h2>
+    <div class="fld-row">
+      {{ field("legal_name", "Юрлицо или ИП", s.legal_name, maxlength=300, placeholder="ИП Иванов И. И.", attrs='data-type="nullable"') }}
+      {{ field("inn", "ИНН", s.inn, maxlength=12, placeholder="10 или 12 цифр", attrs='data-type="nullable" inputmode="numeric"', cls="fld--mono") }}
+    </div>
+  </section>
+</form>
+{% endblock %}

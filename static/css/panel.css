@@ -875,3 +875,8 @@ form:has(select[name="scope"] option[value="staff"]:checked) .if-staff { display
 .stars { color: var(--line-3); letter-spacing: 2px; font-size: 13px; }
 .stars .is-on { color: var(--gold); }
 .review-text { font-weight: 400; line-height: 1.45; }
+
+/* ---------- settings and access ---------- */
+.settings { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(460px, 100%), 1fr)); gap: 16px; align-items: start; }
+.settings > .form-alert { grid-column: 1 / -1; }
+.password-box { display: block; padding: 14px 16px; border: 1px solid var(--gold-line); border-radius: var(--radius); background: var(--gold-deep); font-size: 20px; letter-spacing: .04em; user-select: all; word-break: break-all; }

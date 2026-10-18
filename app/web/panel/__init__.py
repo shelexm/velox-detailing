@@ -11,6 +11,7 @@ from app.web.panel import (
     content,
     dashboard,
     media,
+    owner,
     schedule,
     services,
     site_lists,
@@ -30,3 +31,4 @@ router.include_router(slots.router)
 router.include_router(media.router)
 router.include_router(content.router)
 router.include_router(site_lists.router)
+router.include_router(owner.router)
