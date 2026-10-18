@@ -58,13 +58,13 @@
 {% endif %}
 
 <div class="toast-zone" aria-live="polite" data-toasts></div>
-<dialog class="confirm" data-confirm aria-labelledby="confirm-title">
+<dialog class="confirm" data-confirm-dialog aria-labelledby="confirm-title">
   <form method="dialog" class="confirm__box">
-    <h2 class="confirm__title" id="confirm-title" data-confirm-title></h2>
-    <p class="confirm__text" data-confirm-text></p>
+    <h2 class="confirm__title" id="confirm-title" data-confirm-dialog-title></h2>
+    <p class="confirm__text" data-confirm-dialog-text></p>
     <div class="confirm__actions">
       <button class="btn btn--ghost" value="cancel">Отмена</button>
-      <button class="btn btn--danger" value="ok" data-confirm-ok>Да</button>
+      <button class="btn btn--danger" value="ok" data-confirm-dialog-ok>Да</button>
     </div>
   </form>
 </dialog>

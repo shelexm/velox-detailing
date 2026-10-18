@@ -63,11 +63,12 @@ try {
 } catch {}
 
 export function confirmAction({ title, text = "", ok = "Да", danger = true }) {
-  const dialog = document.querySelector("[data-confirm]");
+  // Own data-confirm-dialog-* hooks: buttons use data-confirm/data-confirm-ok for their texts.
+  const dialog = document.querySelector("[data-confirm-dialog]");
   if (!dialog?.showModal) return Promise.resolve(window.confirm(title));
-  dialog.querySelector("[data-confirm-title]").textContent = title;
-  dialog.querySelector("[data-confirm-text]").textContent = text;
-  const button = dialog.querySelector("[data-confirm-ok]");
+  dialog.querySelector("[data-confirm-dialog-title]").textContent = title;
+  dialog.querySelector("[data-confirm-dialog-text]").textContent = text;
+  const button = dialog.querySelector("[data-confirm-dialog-ok]");
   button.textContent = ok;
   button.className = `btn ${danger ? "btn--danger" : "btn--primary"}`;
   dialog.returnValue = "";
@@ -201,9 +202,12 @@ async function submitForm(form, submitter) {
   form.dispatchEvent(new CustomEvent("panel:saved", { detail: result.data, bubbles: true }));
   if (form.dataset.reset !== undefined) form.reset();
   form.querySelectorAll("[data-dirty-note]").forEach((n) => (n.hidden = true));
+  // A saved form can still warn, e.g. "в эти дни у мастера 2 записи": data-warn-key + data-warn-text with {n}.
+  const warnValue = form.dataset.warnKey ? result.data?.[form.dataset.warnKey] : 0;
+  const message = warnValue ? form.dataset.warnText.replace("{n}", warnValue) : form.dataset.success || "Сохранено";
   const target = submitter?.dataset.redirect ? submitter : form;
   if (target.dataset.redirect?.includes("{id}") && result.data?.id) target.dataset.redirect = target.dataset.redirect.replace("{id}", result.data.id);
-  finish(target, form.dataset.success || "Сохранено");
+  finish(target, message);
 }
 
 document.addEventListener("submit", (event) => {
