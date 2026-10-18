@@ -428,7 +428,8 @@ async def complete_hold(
         to_status=BookingStatus.NEW,
         data={"source": BookingSource.TELEGRAM},
     )
-    await outbox.enqueue(session, hold, "booking_created", audiences=(outbox.AUDIENCE_ADMINS, outbox.AUDIENCE_CLIENT))
+    # The client is in the bot chat right now and gets the answer there; only the admins are notified.
+    await outbox.enqueue(session, hold, "booking_created", audiences=(outbox.AUDIENCE_ADMINS,))
     await session.commit()
     return CreatedBooking(booking=hold, manage_token=manage_token)
 

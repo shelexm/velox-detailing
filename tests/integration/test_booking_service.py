@@ -247,7 +247,7 @@ async def test_bot_hold_completion(session: AsyncSession, studio: Studio) -> Non
     )
     assert done.booking.status == BookingStatus.NEW and done.booking.client_id is not None
     audiences = sorted((await session.scalars(select(NotificationOutbox.audience))).all())
-    assert audiences == ["admins", "client"]  # the client is reachable in Telegram
+    assert audiences == ["admins"]  # the client gets the answer right in the bot chat, no second message
     with pytest.raises(NotFoundError):  # someone else's hold
         await svc.complete_hold(session, studio.id, hold.id, owner="tg:8", data=request(ceramic, NOW), now=NOW)
 

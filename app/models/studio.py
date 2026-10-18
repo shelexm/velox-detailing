@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from sqlalchemy import BigInteger, Boolean, CheckConstraint, Integer, String
+from datetime import datetime
+
+from sqlalchemy import BigInteger, Boolean, CheckConstraint, DateTime, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base, IdMixin, TimestampMixin
@@ -47,5 +49,8 @@ class Studio(IdMixin, TimestampMixin, Base):
     respect_staff_availability: Mapped[bool] = mapped_column(Boolean, default=True)
 
     telegram_admin_chat_id: Mapped[int | None] = mapped_column(BigInteger)
+    # One-time code for linking the admins' chat ("/link CODE" in that chat); only its hash is stored.
+    telegram_link_code_hash: Mapped[str | None] = mapped_column(String(64))
+    telegram_link_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     # Last issued booking number; incremented under a row lock, which also serializes booking allocation.
     booking_seq: Mapped[int] = mapped_column(Integer, default=1000)
