@@ -92,6 +92,8 @@ ul, ol { padding: 0; list-style: none; }
 .logo-accent { position: absolute; left: .18em; top: -.36em; width: .5em; height: .08em; background: var(--gold); transform: rotate(-22deg); transform-origin: left center; }
 .logo-sub { font-size: 8px; letter-spacing: .56em; color: var(--text-2); font-weight: 500; }
 .logo--footer .logo-word { font-size: 20px; }
+.logo-img { display: block; height: 34px; width: auto; max-width: 200px; object-fit: contain; }
+.logo--footer .logo-img, .logo-mark--cert .logo-img { height: 30px; }
 
 /* ---------- icons ---------- */
 .icon { flex-shrink: 0; }

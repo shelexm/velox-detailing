@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
-<title>{{ studio.name }} · запись</title>
+<title>{{ brand.name }} · запись</title>
 <link rel="stylesheet" href="{{ static_url('css/tg-app.css') }}">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
 <main class="tga" data-tg-app data-studio="{{ studio.slug }}" data-horizon="{{ horizon }}">
   <header class="tga__head">
-    <span class="tga__brand">VÉLOX · запись</span>
+    <span class="tga__brand">{{ brand.name }} · запись</span>
   </header>
   {% if chosen %}
   <section class="tga__summary">

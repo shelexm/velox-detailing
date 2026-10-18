@@ -22,6 +22,7 @@ from app.core.errors import ForbiddenError, NotFoundError
 from app.models import Booking, Studio, StudioMembership, User
 from app.models.enums import BookingStatus, Role
 from app.services.auth import resolve_session
+from app.web.brand import Brand, load_brand
 from app.web.panel import fmt
 from app.web.templating import build_templates, render_attrs
 
@@ -63,6 +64,7 @@ class Panel:
     membership: StudioMembership
     memberships: list[tuple[StudioMembership, Studio]] = field(default_factory=list)
     new_count: int = 0
+    brand: Brand | None = None
 
     @property
     def role(self) -> Role:
@@ -153,6 +155,13 @@ async def _resolve_user(request: Request, session) -> tuple[User, list[tuple[Stu
     return user, await memberships(session, user.id)
 
 
+async def default_brand(request: Request, session: DbSession) -> Brand | None:
+    """The brand on the pages before a studio is chosen (sign-in, studio picker)."""
+    slug = request.app.state.settings.default_studio_slug
+    studio = await session.scalar(select(Studio).where(Studio.slug == slug))
+    return await load_brand(session, studio) if studio else None
+
+
 async def panel_user(request: Request, session: DbSession) -> tuple[User, list[tuple[StudioMembership, Studio]]]:
     return await _resolve_user(request, session)
 
@@ -174,6 +183,7 @@ def panel_access(*roles: Role):
             membership=membership,
             memberships=rows,
             new_count=await _new_bookings(session, studio.id),
+            brand=await load_brand(session, studio),
         )
 
     return dependency

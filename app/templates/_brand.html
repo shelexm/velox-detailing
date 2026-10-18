@@ -1,0 +1,12 @@
+{# The brand word letter by letter (the logo spaces them out); É keeps the gold accent stroke of the design. #}
+{% macro letters(name, e_cls, accent_cls="") -%}
+{%- for ch in name -%}
+{%- if ch in "ÉÈÊËéèêë" -%}
+<span class="{{ e_cls }}">{{ "E" if ch.isupper() else "e" }}<span{% if accent_cls %} class="{{ accent_cls }}"{% endif %} aria-hidden="true"></span></span>
+{%- elif ch == " " -%}
+<span aria-hidden="true">&nbsp;</span>
+{%- else -%}
+<span>{{ ch }}</span>
+{%- endif -%}
+{%- endfor -%}
+{%- endmacro %}

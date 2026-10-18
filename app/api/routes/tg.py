@@ -15,6 +15,7 @@ from fastapi.responses import HTMLResponse
 
 from app.api.deps import DbSession
 from app.services import queries
+from app.web.brand import load_brand
 from app.web.templating import build_templates
 
 router = APIRouter()
@@ -33,5 +34,11 @@ async def mini_app(
     return templates.TemplateResponse(
         request,
         "tg/app.html",
-        {"studio": studio, "services": services, "chosen": chosen, "horizon": studio.horizon_days},
+        {
+            "studio": studio,
+            "brand": await load_brand(session, studio),
+            "services": services,
+            "chosen": chosen,
+            "horizon": studio.horizon_days,
+        },
     )

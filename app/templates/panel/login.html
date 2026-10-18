@@ -4,7 +4,7 @@
 {% block body_class %}pn--login{% endblock %}
 {% block solo %}
 <section class="login">
-  <div class="login__brand">{{ logo() }}</div>
+  <div class="login__brand">{{ logo(brand) }}</div>
   <form class="login__form" data-login data-next="{{ next_url }}" novalidate>
     <h1 class="login__title">Вход в панель</h1>
     <div class="form-alert" data-form-alert hidden>{{ icon("alert", 18) }}<span data-form-alert-text></span></div>

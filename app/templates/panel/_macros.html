@@ -1,3 +1,4 @@
+{% from "_brand.html" import letters %}
 {% macro icon(name, size=18, cls="") -%}
 <svg class="ic {{ cls }}" aria-hidden="true" width="{{ size }}" height="{{ size }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
 {%- if name == "grid" %}<rect x="3" y="3" width="7.5" height="7.5"/><rect x="13.5" y="3" width="7.5" height="7.5"/><rect x="3" y="13.5" width="7.5" height="7.5"/><rect x="13.5" y="13.5" width="7.5" height="7.5"/>
@@ -45,9 +46,11 @@
 </svg>
 {%- endmacro %}
 
-{% macro logo(sub="ПАНЕЛЬ СТУДИИ") -%}
+{% macro logo(brand, sub="ПАНЕЛЬ СТУДИИ") -%}
 <span class="pn-logo">
-  <span class="pn-logo__word" aria-label="VÉLOX"><span>V</span><span class="pn-logo__e">E<span aria-hidden="true"></span></span><span>L</span><span>O</span><span>X</span></span>
+  {% if brand and brand.image_url %}<img class="pn-logo__img" src="{{ brand.image_url }}" alt="{{ brand.name }}">
+  {% elif brand %}<span class="pn-logo__word" aria-label="{{ brand.name }}">{{ letters(brand.name, "pn-logo__e") }}</span>
+  {% endif %}
   {% if sub %}<span class="pn-logo__sub mono">{{ sub }}</span>{% endif %}
 </span>
 {%- endmacro %}

@@ -10,7 +10,7 @@ from fastapi.responses import RedirectResponse, Response
 from app.api.deps import DbSession
 from app.core import security
 from app.services.auth import resolve_session
-from app.web.panel.common import AnyPanel, panel_user, render
+from app.web.panel.common import AnyPanel, default_brand, panel_user, render
 
 router = APIRouter()
 
@@ -28,15 +28,17 @@ async def login_page(
 ) -> Response:
     if await resolve_session(session, request.cookies.get(security.SESSION_COOKIE)):
         return RedirectResponse(_safe_next(next), status_code=303)
-    return render(request, "panel/login.html", None, next_url=_safe_next(next))
+    brand = await default_brand(request, session)
+    return render(request, "panel/login.html", None, next_url=_safe_next(next), brand=brand)
 
 
 @router.get("/admin")
-async def panel_home(request: Request, user: Annotated[tuple, Depends(panel_user)]) -> Response:
+async def panel_home(request: Request, session: DbSession, user: Annotated[tuple, Depends(panel_user)]) -> Response:
     _user, rows = user
     if len(rows) == 1:
         return RedirectResponse(f"/admin/{rows[0][1].id}/", status_code=303)
-    return render(request, "panel/studios.html", None, rows=rows, user=_user)
+    brand = await default_brand(request, session)
+    return render(request, "panel/studios.html", None, rows=rows, user=_user, brand=brand)
 
 
 @router.get("/admin/{studio_id}/more")

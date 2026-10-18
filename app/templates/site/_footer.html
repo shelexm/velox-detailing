@@ -4,7 +4,7 @@
   <div class="wrap site-footer__inner">
     <div class="site-footer__cols">
       <div class="site-footer__brand">
-        <span class="logo logo--footer">{{ logo() }}</span>
+        <span class="logo logo--footer">{{ logo(site.brand) }}</span>
         {% if footer.about %}<p>{{ footer.about }}</p>{% endif %}
       </div>
       {% if site.groups %}

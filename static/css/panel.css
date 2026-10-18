@@ -82,6 +82,7 @@ ul, ol { padding: 0; list-style: none; }
 .pn-logo__e { position: relative; }
 .pn-logo__e > span { position: absolute; left: .18em; top: -.38em; width: .5em; height: .09em; background: var(--gold); transform: rotate(-22deg); transform-origin: left center; }
 .pn-logo__sub { font-size: 10px; letter-spacing: .18em; color: var(--text-3); }
+.pn-logo__img { display: block; height: 28px; width: auto; max-width: 180px; object-fit: contain; }
 
 /* ---------- shell ---------- */
 /* The sidebar colour runs the full page height even when the sticky column ends. */

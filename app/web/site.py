@@ -15,6 +15,7 @@ from app.core.errors import NotFoundError
 from app.models import ServiceGroup, Studio
 from app.services import booking as booking_service
 from app.services.media import VARIANT_NAME
+from app.web.brand import favicon_svg, load_brand
 from app.web.context import load_site
 from app.web.templating import build_templates, render_attrs
 
@@ -133,6 +134,12 @@ async def media_file(studio_id: int, key: str, filename: str, request: Request) 
     if not path.is_file():
         raise NotFoundError()
     return FileResponse(path, headers={"Cache-Control": "public, max-age=31536000, immutable"})
+
+
+@router.get("/favicon.svg")
+async def favicon(request: Request, session: DbSession) -> Response:
+    brand = await load_brand(session, await current_studio(request, session))
+    return Response(favicon_svg(brand), media_type="image/svg+xml", headers={"Cache-Control": "public, max-age=86400"})
 
 
 def render_error(request: Request, status: int, message: str) -> HTMLResponse:

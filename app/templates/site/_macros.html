@@ -1,5 +1,8 @@
-{% macro logo(sub=False, cls="") -%}
-<span class="logo-mark {{ cls }}"><span class="logo-word"><span>V</span><span class="logo-e">E<span class="logo-accent" aria-hidden="true"></span></span><span>L</span><span>O</span><span>X</span></span>{% if sub %}<span class="logo-sub">DETAILING STUDIO</span>{% endif %}</span>
+{% from "_brand.html" import letters %}
+{% macro logo(brand, sub=False, cls="") -%}
+{% if brand.image_url %}<span class="logo-mark logo-mark--image {{ cls }}"><img class="logo-img" src="{{ brand.image_url }}" alt="{{ brand.name }}"></span>
+{%- else %}<span class="logo-mark {{ cls }}"><span class="logo-word">{{ letters(brand.name, "logo-e", "logo-accent") }}</span>{% if sub and brand.tagline %}<span class="logo-sub">{{ brand.tagline }}</span>{% endif %}</span>
+{%- endif %}
 {%- endmacro %}
 
 {% macro icon(name, size=18, cls="") -%}

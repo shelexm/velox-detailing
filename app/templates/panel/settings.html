@@ -1,7 +1,7 @@
 {% extends "panel/base.html" %}
-{% from "panel/_macros.html" import icon, field %}
+{% from "panel/_macros.html" import icon, field, media_field, media_dialog %}
 {% block title %}Настройки{% endblock %}
-{% block scripts %}<script type="module" src="{{ static_url('js/settings.js') }}"></script>{% endblock %}
+{% block scripts %}<script type="module" src="{{ static_url('js/settings.js') }}"></script><script type="module" src="{{ static_url('js/media-picker.js') }}"></script>{% endblock %}
 {% block main %}
 <header class="pn-head">
   <div class="pn-head__text"><span class="pn-eyebrow mono">ВИДНО НА САЙТЕ И В БОТЕ</span><h1 class="pn-title">Настройки студии</h1></div>
@@ -24,6 +24,15 @@
     {{ field("address_note", "Как найти", s.address_note, maxlength=300, placeholder="Въезд со двора, ворота 3", attrs='data-type="nullable"') }}
     {{ field("route_url", "Ссылка на маршрут (карты)", s.route_url, type="url", maxlength=500, placeholder="https://yandex.ru/maps/...", attrs='data-type="nullable"') }}
     {{ field("schedule_text", "График текстом (необязательно)", s.schedule_text, maxlength=200, hint="Если пусто, сайт покажет часы из раздела «Расписание»", attrs='data-type="nullable"') }}
+  </section>
+  <section class="card">
+    <h2 class="card__title">Бренд</h2>
+    <p class="muted small">Логотип на сайте, в панели, на сертификате и в календаре Telegram-бота. Иконка вкладки браузера: первая буква названия.</p>
+    <div class="fld-row">
+      {{ field("brand_name", "Логотип: название", s.brand_name, maxlength=24, placeholder=s.name, hint="Если пусто, показывается название студии. Буква É рисуется с фирменным штрихом", attrs='data-type="nullable"') }}
+      {{ field("brand_tagline", "Подпись под логотипом", s.brand_tagline, maxlength=40, placeholder="DETAILING STUDIO", attrs='data-type="nullable"') }}
+    </div>
+    {{ media_field("logo_image_id", s.logo_image_id, media, label="Логотип-картинка (необязательно)", hint="Заменяет текстовый логотип. Светлый логотип на тёмном или прозрачном фоне, от 200 px по высоте") }}
   </section>
   <section class="card">
     <h2 class="card__title">Связь</h2>
@@ -53,4 +62,5 @@
     </div>
   </section>
 </form>
+{{ media_dialog() }}
 {% endblock %}

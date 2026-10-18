@@ -8,7 +8,7 @@ from sqlalchemy import select
 
 from app.api.deps import DbSession
 from app.core.phone import format_ru_phone
-from app.models import StudioMembership, User
+from app.models import MediaAsset, StudioMembership, User
 from app.web.panel.bookings import active_staff
 from app.web.panel.common import ROLE_LABELS, OwnerPanel, render
 
@@ -16,14 +16,21 @@ router = APIRouter()
 
 
 @router.get("/admin/{studio_id}/settings")
-async def settings_page(request: Request, panel: OwnerPanel) -> Response:
+async def settings_page(request: Request, panel: OwnerPanel, session: DbSession) -> Response:
     studio = panel.studio
+    media = {
+        m.id: m
+        for m in await session.scalars(
+            select(MediaAsset).where(MediaAsset.studio_id == studio.id).order_by(MediaAsset.sort_order, MediaAsset.id)
+        )
+    }
     return render(
         request,
         "panel/settings.html",
         panel,
         active="settings",
         s=studio,
+        media=media,
         phone_display=format_ru_phone(studio.phone) if studio.phone else "",
     )
 

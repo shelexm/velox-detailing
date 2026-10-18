@@ -17,7 +17,7 @@
 <meta property="og:url" content="{{ base_url }}{{ request.url.path }}">
 {% set og_image = media_src(media, site.section("hero").image_id, 1600) %}
 {% if og_image %}<meta property="og:image" content="{{ base_url }}{{ og_image }}">{% endif %}
-<link rel="icon" href="{{ static_url('img/favicon.svg') }}" type="image/svg+xml">
+<link rel="icon" href="/favicon.svg?v={{ site.brand.version }}" type="image/svg+xml">
 <link rel="preload" href="/static/fonts/onest-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/static/fonts/unbounded-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="{{ static_url('css/site.css') }}">

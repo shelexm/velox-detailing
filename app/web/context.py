@@ -24,6 +24,7 @@ from app.models import (
     StudioHours,
 )
 from app.models.enums import ServiceKind
+from app.web.brand import Brand, brand_of
 
 WEEKDAYS_SHORT = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"]
 
@@ -64,6 +65,7 @@ class SiteContext:
     gifts: list[GiftOption]
     media: dict[int, MediaAsset]
     hours: list[tuple[str, str]]
+    brand: Brand
     year: int = field(default_factory=lambda: datetime.now(UTC).year)
 
     def section(self, key: str) -> dict[str, Any]:
@@ -220,4 +222,5 @@ async def load_site(session: AsyncSession, studio: Studio) -> SiteContext:
         gifts=gifts,
         media=media,
         hours=hours,
+        brand=brand_of(studio, media.get(studio.logo_image_id) if studio.logo_image_id else None),
     )
