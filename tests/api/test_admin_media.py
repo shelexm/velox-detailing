@@ -68,6 +68,24 @@ def _png() -> bytes:
     return buffer.getvalue()
 
 
+async def test_variants_and_fonts_have_image_and_font_types(
+    client: httpx.AsyncClient, studio: Studio, make_user
+) -> None:
+    await make_user("owner@velox.test", studio)
+    await login(client, "owner@velox.test")
+    asset = (
+        await client.post(
+            f"/api/v1/admin/studios/{studio.id}/media", files={"file": ("photo.jpg", jpeg(), "image/jpeg")}
+        )
+    ).json()
+    base = asset["thumb"].rsplit("/", 1)[0]
+    for name, expected in (("w480.webp", "image/webp"), ("w480.avif", "image/avif"), ("w480.jpg", "image/jpeg")):
+        response = await client.get(f"{base}/{name}")
+        assert response.status_code == 200 and response.headers["content-type"] == expected, name
+    font = await client.get("/static/fonts/onest-latin.woff2")
+    assert font.status_code == 200 and font.headers["content-type"] == "font/woff2"
+
+
 async def test_upload_rejects_bad_files(client: httpx.AsyncClient, studio: Studio, make_user) -> None:
     await make_user("owner@velox.test", studio)
     await login(client, "owner@velox.test")

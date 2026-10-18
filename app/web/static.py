@@ -6,8 +6,15 @@ revalidated on every load (a cheap 304) and never get out of step with the page 
 
 from __future__ import annotations
 
+import mimetypes
+
 from starlette.staticfiles import StaticFiles
 from starlette.types import Scope
+
+# The slim image has no /etc/mime.types: without these WebP photos and fonts are served as
+# application/octet-stream, which older mobile browsers (no AVIF, so they pick WebP) can refuse.
+for _mime, _suffix in (("image/webp", ".webp"), ("image/avif", ".avif"), ("font/woff2", ".woff2")):
+    mimetypes.add_type(_mime, _suffix)
 
 
 class CachedStaticFiles(StaticFiles):
