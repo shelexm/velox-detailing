@@ -174,7 +174,7 @@
 {% if tab == "services" %}
 <div class="pn-cols pn-cols--main-side {% if not (selected or creating) %}pn-cols--single{% endif %}">
   <section class="card card--flush">
-    <table class="table table--services">
+    <table class="table table--stack table--services">
       <thead><tr><th class="table__thumb"></th><th>Название</th><th>Цена</th><th>Время</th><th>Онлайн</th><th class="visually-hidden">Порядок</th></tr></thead>
       {% for title, rows in sections %}
       <tbody data-sortable data-order-api="{{ panel.api }}/services/order">
