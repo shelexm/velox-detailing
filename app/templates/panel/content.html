@@ -1,0 +1,140 @@
+{% extends "panel/base.html" %}
+{% from "panel/_macros.html" import icon, field, toggle, media_field, media_dialog, move_buttons %}
+{% block title %}Контент сайта{% endblock %}
+
+{% macro render_field(f, value, prefix) -%}
+{% set name = prefix ~ f.name %}
+{% if f.kind == "image" %}
+  {{ media_field(name, value, media, label=f.label, hint="") }}
+{% elif f.kind == "textarea" %}
+  <div class="fld">
+    <label class="fld__label" for="f-{{ name }}">{{ f.label }}</label>
+    <textarea class="input input--area" id="f-{{ name }}" name="{{ name }}" {% if f.max_length %}maxlength="{{ f.max_length }}"{% endif %} rows="3">{{ value or "" }}</textarea>
+    {% if f.max_length %}<span class="fld__count" data-count-for="f-{{ name }}"></span>{% endif %}
+    <span class="fld__error" data-error-for="{{ name | replace('content.', '', 1) }}" hidden></span>
+  </div>
+{% elif f.kind == "lines" %}
+  <div class="fld">
+    <label class="fld__label" for="f-{{ name }}">{{ f.label }} <span class="muted">· по одной в строке</span></label>
+    <textarea class="input input--area" id="f-{{ name }}" name="{{ name }}" data-type="lines" rows="3">{{ (value or []) | join("\n") }}</textarea>
+    <span class="fld__error" data-error-for="{{ name | replace('content.', '', 1) }}" hidden></span>
+  </div>
+{% elif f.kind == "url" %}
+  <div class="fld">
+    <label class="fld__label" for="f-{{ name }}">{{ f.label }}</label>
+    <input class="input" id="f-{{ name }}" name="{{ name }}" type="url" value="{{ value or '' }}" data-type="nullable" placeholder="https://">
+    <span class="fld__error" data-error-for="{{ name | replace('content.', '', 1) }}" hidden></span>
+  </div>
+{% elif f.kind == "select" %}
+  <div class="fld">
+    <label class="fld__label" for="f-{{ name }}">{{ f.label }}</label>
+    <select class="select" id="f-{{ name }}" name="{{ name }}">{% for v, label in f.options %}<option value="{{ v }}" {% if v == value %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+  </div>
+{% elif f.kind == "list" %}
+  {% set box_id = "rows-" ~ (name | replace(".", "-")) %}
+  <fieldset class="fld fld--plain list-field">
+    <legend class="fld__label">{{ f.label }}{% if f.max_items %} <span class="muted">· до {{ f.max_items }}</span>{% endif %}</legend>
+    <div class="repeat" id="{{ box_id }}" data-repeat data-repeat-prefix="{{ name }}">
+      {% for item in (value or []) %}
+      <div class="repeat__row repeat__row--stack" data-repeat-row>
+        <div class="repeat__fields">{% for child in f.children %}{{ render_field(child, item[child.name], name ~ "." ~ loop.index0 ~ ".") }}{% endfor %}</div>
+        <div class="repeat__tools">{{ move_buttons(0) }}<button class="icon-btn icon-btn--xs" type="button" data-repeat-remove aria-label="Убрать">{{ icon("close", 14) }}</button></div>
+      </div>
+      {% endfor %}
+      <template data-repeat-template>
+        <div class="repeat__row repeat__row--stack" data-repeat-row>
+          <div class="repeat__fields">{% for child in f.children %}{{ render_field(child, none, name ~ ".__i__.") }}{% endfor %}</div>
+          <div class="repeat__tools">{{ move_buttons(0) }}<button class="icon-btn icon-btn--xs" type="button" data-repeat-remove aria-label="Убрать">{{ icon("close", 14) }}</button></div>
+        </div>
+      </template>
+    </div>
+    <button class="btn btn--ghost btn--sm" type="button" data-repeat-add="#{{ box_id }}">{{ icon("plus", 14) }}Добавить</button>
+    <span class="fld__error" data-error-for="{{ name | replace('content.', '', 1) }}" hidden></span>
+  </fieldset>
+{% else %}
+  <div class="fld">
+    <label class="fld__label" for="f-{{ name }}">{{ f.label }}</label>
+    <input class="input" id="f-{{ name }}" name="{{ name }}" value="{{ value if value is not none else '' }}" {% if f.max_length %}maxlength="{{ f.max_length }}"{% endif %}>
+    <span class="fld__error" data-error-for="{{ name | replace('content.', '', 1) }}" hidden></span>
+  </div>
+{% endif %}
+{%- endmacro %}
+
+{% block main %}
+<header class="pn-head">
+  <div class="pn-head__text"><span class="pn-eyebrow mono">ТЕКСТЫ, ФОТО И ПОРЯДОК БЛОКОВ</span><h1 class="pn-title">Контент сайта</h1></div>
+  <div class="pn-head__actions"><a class="btn btn--ghost" href="/" target="_blank" rel="noopener">{{ icon("external", 16) }}Открыть сайт</a></div>
+</header>
+
+<nav class="tabs" aria-label="Разделы">
+  <a class="tabs__item" href="?tab=blocks" {% if tab == "blocks" %}aria-current="page"{% endif %}>Блоки главной</a>
+  <a class="tabs__item" href="?tab=gifts" {% if tab == "gifts" %}aria-current="page"{% endif %}>Сертификаты</a>
+  <a class="tabs__item" href="{{ panel.url('/portfolio') }}">До и после</a>
+  <a class="tabs__item" href="{{ panel.url('/reviews') }}">Отзывы</a>
+</nav>
+
+{% if tab == "blocks" %}
+<div class="content-layout">
+  <section class="card card--flush" aria-label="Блоки главной страницы">
+    <ul class="item-list" data-sortable data-order-api="{{ panel.api }}/sections/order" data-order-field="keys">
+      {% for k in order %}
+      {% set r = rows.get(k) %}
+      <li class="item-list__row {% if k == key %}is-selected{% endif %}" {% if k not in fixed %}data-id="{{ k }}"{% endif %}>
+        <a class="item-list__text row-link" href="?tab=blocks&block={{ k }}"><strong>{{ titles[k] }}</strong><span class="muted small">{% if k in fixed %}всегда на месте{% elif r and not r.is_visible %}скрыт{% else %}на сайте{% endif %}</span></a>
+        {% if k not in fixed %}
+        <input class="switch switch--sm" type="checkbox" role="switch" aria-label="Показывать блок «{{ titles[k] }}»" {% if not r or r.is_visible %}checked{% endif %} data-toggle="{{ panel.api }}/sections/{{ k }}" data-field="is_visible" data-on="Блок показан на сайте" data-off="Блок скрыт с сайта">
+        {{ move_buttons(k) }}
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <section class="card" aria-labelledby="block-title">
+    <div class="card__head">
+      <h2 class="card__title" id="block-title">{{ titles[key] }}</h2>
+      <button class="btn btn--ghost btn--sm" type="button" data-api="{{ panel.api }}/sections/{{ key }}/reset" data-confirm="Вернуть тексты макета?" data-confirm-text="Тексты и списки блока станут как в исходном дизайне. Фото останутся." data-confirm-ok="Вернуть" data-confirm-safe data-done="Тексты возвращены" data-reload>Вернуть тексты макета</button>
+    </div>
+    {% if hint %}<p class="note">{{ icon("info", 18) }}<span>{{ hint }}</span></p>{% endif %}
+    <form class="form" data-form data-action="{{ panel.api }}/sections/{{ key }}" data-method="PATCH" data-success="Блок сохранён: изменения уже на сайте" data-reload novalidate>
+      <div class="form-alert" data-form-alert hidden>{{ icon("alert", 18) }}<span data-form-alert-text></span></div>
+      {% for f in spec %}{{ render_field(f, content[f.name], "content.") }}{% endfor %}
+      <div class="form__actions form__actions--sticky"><span class="pn-saved" data-dirty-note hidden>Есть несохранённые изменения</span><button class="btn btn--primary btn--lg" type="submit">Сохранить блок</button></div>
+    </form>
+  </section>
+</div>
+
+{% else %}
+<section class="card pn-cols--narrow" aria-labelledby="gifts-title">
+  <h2 class="card__title" id="gifts-title">Номиналы сертификатов</h2>
+  <p class="muted small">Кнопки выбора в блоке «Сертификаты». Первый номинал показан на карточке по умолчанию.</p>
+  <ul class="item-list" data-sortable data-order-api="{{ panel.api }}/gifts/order">
+    {% for g in gifts %}
+    <li class="item-list__row gift-row" data-id="{{ g.id }}">
+      <form class="inline-form gift-form" data-form data-action="{{ panel.api }}/gifts/{{ g.id }}" data-method="PATCH" data-success="Номинал сохранён" novalidate>
+        <input class="input input--sm" name="label" value="{{ g.label }}" maxlength="60" required aria-label="Кнопка">
+        <input class="input input--sm" name="value_text" value="{{ g.value_text }}" maxlength="80" required aria-label="Сумма на карточке">
+        <input class="input input--sm" name="subtitle" value="{{ g.subtitle or '' }}" maxlength="160" data-type="nullable" placeholder="Подпись" aria-label="Подпись на карточке">
+        <button class="btn btn--ghost btn--sm" type="submit">ОК</button>
+        <span class="fld__error" data-error-for="label" hidden></span>
+      </form>
+      <input class="switch switch--sm" type="checkbox" role="switch" aria-label="Показывать «{{ g.label }}»" {% if g.is_visible %}checked{% endif %} data-toggle="{{ panel.api }}/gifts/{{ g.id }}" data-field="is_visible" data-on="Номинал показан" data-off="Номинал скрыт">
+      <button class="icon-btn icon-btn--xs" type="button" data-api="{{ panel.api }}/gifts/{{ g.id }}" data-method="DELETE" data-confirm="Удалить номинал «{{ g.label }}»?" data-confirm-ok="Удалить" data-done="Номинал удалён" data-reload aria-label="Удалить">{{ icon("trash", 14) }}</button>
+      {{ move_buttons(g.id) }}
+    </li>
+    {% else %}
+    <li class="muted">Номиналов нет: блок сертификатов покажет только текст.</li>
+    {% endfor %}
+  </ul>
+  <form class="inline-form gift-form" data-form data-action="{{ panel.api }}/gifts" data-method="POST" data-success="Номинал добавлен" data-reload novalidate>
+    <input class="input input--sm" name="label" maxlength="60" required placeholder="Кнопка: 15 000 ₽" aria-label="Кнопка">
+    <input class="input input--sm" name="value_text" maxlength="80" required placeholder="На карточке: 15 000 ₽" aria-label="Сумма на карточке">
+    <input class="input input--sm" name="subtitle" maxlength="160" data-type="nullable" placeholder="Подпись: На любые услуги студии" aria-label="Подпись на карточке">
+    <button class="btn btn--primary btn--sm" type="submit">{{ icon("plus", 14) }}Добавить</button>
+    <span class="fld__error" data-error-for="label" hidden></span>
+  </form>
+</section>
+{% endif %}
+{{ media_dialog() }}
+{% endblock %}
+{% block scripts %}<script type="module" src="{{ static_url('js/media-picker.js') }}"></script>{% endblock %}

@@ -286,8 +286,10 @@ document.addEventListener("click", async (event) => {
     return;
   }
   if (!list.dataset.orderApi) return;
-  const ids = [...list.children].filter((n) => n.dataset.id).map((n) => Number(n.dataset.id));
-  const result = await api(list.dataset.orderApi, { method: "POST", data: { ids } });
+  // Most lists are ordered by numeric ids; landing blocks by their keys (data-order-field="keys").
+  const field = list.dataset.orderField || "ids";
+  const values = [...list.children].filter((n) => n.dataset.id).map((n) => (field === "ids" ? Number(n.dataset.id) : n.dataset.id));
+  const result = await api(list.dataset.orderApi, { method: "POST", data: { [field]: values } });
   toast(result.ok ? "Порядок сохранён" : result.error?.message || "Порядок не сохранился", result.ok ? "ok" : "error");
 });
 

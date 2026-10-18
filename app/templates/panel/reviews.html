@@ -1,0 +1,72 @@
+{% extends "panel/base.html" %}
+{% from "panel/_macros.html" import icon, field, toggle, move_buttons %}
+{% block title %}Отзывы{% endblock %}
+
+{% macro stars(n) -%}
+<span class="stars" aria-label="Оценка {{ n }} из 5">{% for i in range(5) %}<span class="{% if i < n %}is-on{% endif %}">★</span>{% endfor %}</span>
+{%- endmacro %}
+
+{% macro review_form(r, creating=false) -%}
+<form class="drawer__body form" data-form novalidate
+  {% if creating %}data-action="{{ panel.api }}/reviews" data-method="POST" data-redirect="?open={id}" data-success="Отзыв добавлен"
+  {% else %}data-action="{{ panel.api }}/reviews/{{ r.id }}" data-method="PATCH" data-reload{% endif %}>
+  <div class="form-alert" data-form-alert hidden>{{ icon("alert", 18) }}<span data-form-alert-text></span></div>
+  {{ field("text", "Текст отзыва", r.text if r else "", type="textarea", required=true, maxlength=1500) }}
+  <div class="fld-row">
+    <div class="fld"><label class="fld__label" for="f-rating">Оценка</label>
+      <select class="select" id="f-rating" name="rating" data-type="int">
+        <option value="">без звёзд</option>
+        {% for n in [5, 4, 3, 2, 1] %}<option value="{{ n }}" {% if r and r.rating == n %}selected{% elif creating and n == 5 %}selected{% endif %}>{{ "★" * n }} · {{ n }}</option>{% endfor %}
+      </select></div>
+    {{ field("service_label", "Услуга", r.service_label if r else "", maxlength=80, placeholder="Полировка + керамика", attrs='data-type="nullable"') }}
+  </div>
+  <div class="fld-row">
+    {{ field("author_name", "Имя автора", r.author_name if r else "", maxlength=120, hint="С согласия клиента. Можно только имя", attrs='data-type="nullable"') }}
+    {{ field("car", "Автомобиль", r.car if r else "", maxlength=120, attrs='data-type="nullable"') }}
+  </div>
+  {{ field("source_url", "Ссылка на оригинал (карты, отзовики)", r.source_url if r else "", type="url", maxlength=500, attrs='data-type="nullable"') }}
+  <div class="switches">
+    {{ toggle("is_published", r.is_published if r else true, "Показывать на сайте") }}
+    {{ toggle("is_demo", r.is_demo if r else false, "Демо-отзыв из макета", "На сайте получает метку «ДЕМО». Замените демо-отзывы настоящими") }}
+  </div>
+  <div class="form__actions form__actions--split">
+    {% if not creating %}<button class="btn btn--link-danger" type="button" data-api="{{ panel.api }}/reviews/{{ r.id }}" data-method="DELETE" data-confirm="Удалить отзыв?" data-confirm-ok="Удалить" data-done="Отзыв удалён" data-redirect="?">Удалить</button>{% else %}<span></span>{% endif %}
+    <button class="btn btn--primary btn--lg" type="submit">{{ "Добавить" if creating else "Сохранить" }}</button>
+  </div>
+</form>
+{%- endmacro %}
+
+{% block main %}
+{% set demo = reviews | selectattr("is_demo") | list | length %}
+<header class="pn-head">
+  <div class="pn-head__text"><span class="pn-eyebrow mono">{{ reviews | length }} {{ plural(reviews | length, "отзыв", "отзыва", "отзывов") }}{% if demo %} · {{ demo }} демо{% endif %}</span><h1 class="pn-title">Отзывы</h1></div>
+  <div class="pn-head__actions"><a class="btn btn--primary" href="?new=1">{{ icon("plus", 16) }}Добавить отзыв</a></div>
+</header>
+{% if demo %}<p class="note">{{ icon("info", 18) }}<span>Демо-отзывы из макета помечены на сайте как «ДЕМО». Когда появятся настоящие отзывы, добавьте их и скройте или удалите демо.</span></p>{% endif %}
+
+<div class="pn-cols pn-cols--main-side {% if not (selected or creating) %}pn-cols--single{% endif %}">
+  <section class="card card--flush">
+    <ul class="item-list" data-sortable data-order-api="{{ panel.api }}/reviews/order">
+      {% for r in reviews %}
+      <li class="item-list__row {% if selected and selected.id == r.id %}is-selected{% endif %}" data-id="{{ r.id }}">
+        <a class="item-list__text row-link" href="?open={{ r.id }}">
+          <span class="review-top">{% if r.rating %}{{ stars(r.rating) }}{% endif %}{% if r.is_demo %}<span class="tag tag--xs">ДЕМО</span>{% endif %}</span>
+          <strong class="review-text">«{{ r.text | truncate(140) }}»</strong>
+          <span class="muted small">{{ [r.author_name, r.service_label] | select | join(" · ") or "без подписи" }}</span>
+        </a>
+        <input class="switch switch--sm" type="checkbox" role="switch" aria-label="Показывать отзыв" {% if r.is_published %}checked{% endif %} data-toggle="{{ panel.api }}/reviews/{{ r.id }}" data-field="is_published" data-on="Отзыв показан" data-off="Отзыв скрыт">
+        {{ move_buttons(r.id) }}
+      </li>
+      {% else %}
+      <li class="empty">Отзывов пока нет.</li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% if selected or creating %}
+  <section class="drawer" aria-labelledby="rev-title">
+    <div class="drawer__head"><h2 class="drawer__title" id="rev-title">{{ "Новый отзыв" if creating else "Отзыв" }}</h2><a class="icon-btn icon-btn--round" href="?" aria-label="Закрыть">{{ icon("close", 18) }}</a></div>
+    {{ review_form(selected, creating=creating) }}
+  </section>
+  {% endif %}
+</div>
+{% endblock %}

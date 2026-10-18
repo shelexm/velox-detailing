@@ -1,0 +1,72 @@
+{% extends "panel/base.html" %}
+{% from "panel/_macros.html" import icon, field, toggle, media_field, media_dialog, move_buttons %}
+{% block title %}До и после{% endblock %}
+
+{% macro case_form(c, creating=false) -%}
+<form class="drawer__body form" data-form novalidate
+  {% if creating %}data-action="{{ panel.api }}/portfolio" data-method="POST" data-redirect="?open={id}" data-success="Пример добавлен"
+  {% else %}data-action="{{ panel.api }}/portfolio/{{ c.id }}" data-method="PATCH" data-reload{% endif %}>
+  <div class="form-alert" data-form-alert hidden>{{ icon("alert", 18) }}<span data-form-alert-text></span></div>
+  <div class="fld-row">
+    {{ media_field("before_image_id", c.before_image_id if c else none, media, label="Фото «до»", hint="") }}
+    {{ media_field("after_image_id", c.after_image_id if c else none, media, label="Фото «после»", hint="") }}
+  </div>
+  <p class="muted small">На сайте пара показывается, только когда выбраны оба фото. Лучше снимать с одной точки и при одном свете.</p>
+  <div class="fld-row">
+    {{ field("before_label", "Подпись «до»", c.before_label if c else "ДО", maxlength=30) }}
+    {{ field("after_label", "Подпись «после»", c.after_label if c else "ПОСЛЕ", maxlength=30) }}
+  </div>
+  <div class="fld-row">
+    {{ field("title", "Название", c.title if c else "", required=true, maxlength=120, placeholder="Восстановление блеска") }}
+    {{ field("short_title", "Коротко (кнопка выбора)", c.short_title if c else "", maxlength=40, placeholder="Блеск кузова", attrs='data-type="nullable"') }}
+  </div>
+  {{ field("description", "Описание", c.description if c else "", type="textarea", maxlength=400, attrs='data-type="nullable"') }}
+  <div class="fld-row">
+    {{ field("works", "Что сделали", c.works if c else "", maxlength=200, placeholder="Восстановительная полировка, керамика", attrs='data-type="nullable"') }}
+    {{ field("term", "Срок", c.term if c else "", maxlength=60, placeholder="3 дня", attrs='data-type="nullable"') }}
+  </div>
+  {{ field("car", "Автомобиль", c.car if c else "", maxlength=120, attrs='data-type="nullable"') }}
+  <div class="switches">
+    {{ toggle("is_published", c.is_published if c else true, "Показывать на сайте") }}
+    {{ toggle("is_example", c.is_example if c else false, "Пример, а не работа студии", "На сайте пара получит метку «Примеры работ». Выключите для своих работ") }}
+  </div>
+  <div class="form__actions form__actions--split">
+    {% if not creating %}<button class="btn btn--link-danger" type="button" data-api="{{ panel.api }}/portfolio/{{ c.id }}" data-method="DELETE" data-confirm="Удалить «{{ c.title }}»?" data-confirm-text="Фото останутся в медиатеке." data-confirm-ok="Удалить" data-done="Удалено" data-redirect="?">Удалить</button>{% else %}<span></span>{% endif %}
+    <button class="btn btn--primary btn--lg" type="submit">{{ "Добавить" if creating else "Сохранить" }}</button>
+  </div>
+</form>
+{%- endmacro %}
+
+{% block main %}
+<header class="pn-head">
+  <div class="pn-head__text"><span class="pn-eyebrow mono">{{ cases | length }} {{ plural(cases | length, "пара", "пары", "пар") }} фото · {{ cases | selectattr("is_published") | list | length }} на сайте</span><h1 class="pn-title">До и после</h1></div>
+  <div class="pn-head__actions"><a class="btn btn--primary" href="?new=1">{{ icon("plus", 16) }}Добавить пару</a></div>
+</header>
+
+<div class="pn-cols pn-cols--main-side {% if not (selected or creating) %}pn-cols--single{% endif %}">
+  <section class="card card--flush">
+    <ul class="item-list" data-sortable data-order-api="{{ panel.api }}/portfolio/order">
+      {% for c in cases %}
+      <li class="item-list__row case-row {% if selected and selected.id == c.id %}is-selected{% endif %}" data-id="{{ c.id }}">
+        <span class="case-thumbs">
+          {% for img in (c.before_image_id, c.after_image_id) %}{% if img and media.get(img) %}<img class="thumb" src="{{ media_src(media, img, 480) }}" alt="">{% else %}<span class="thumb thumb--empty">{{ icon("image", 16) }}</span>{% endif %}{% endfor %}
+        </span>
+        <a class="item-list__text row-link" href="?open={{ c.id }}"><strong>{{ c.title }}</strong><span class="muted small">{{ c.works or c.description or "" }}{% if c.is_example %} · пример{% endif %}{% if not (c.before_image_id and c.after_image_id) %} · <span class="danger-text">нужны оба фото</span>{% endif %}</span></a>
+        <input class="switch switch--sm" type="checkbox" role="switch" aria-label="Показывать «{{ c.title }}»" {% if c.is_published %}checked{% endif %} data-toggle="{{ panel.api }}/portfolio/{{ c.id }}" data-field="is_published" data-on="Показано на сайте" data-off="Скрыто с сайта">
+        {{ move_buttons(c.id) }}
+      </li>
+      {% else %}
+      <li class="empty">Пар «до и после» пока нет. Блок на сайте появится, когда будет хотя бы одна.</li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% if selected or creating %}
+  <section class="drawer drawer--wide" aria-labelledby="case-title">
+    <div class="drawer__head"><h2 class="drawer__title" id="case-title">{{ "Новая пара" if creating else selected.title }}</h2><a class="icon-btn icon-btn--round" href="?" aria-label="Закрыть">{{ icon("close", 18) }}</a></div>
+    {{ case_form(selected, creating=creating) }}
+  </section>
+  {% endif %}
+</div>
+{{ media_dialog() }}
+{% endblock %}
+{% block scripts %}<script type="module" src="{{ static_url('js/media-picker.js') }}"></script>{% endblock %}

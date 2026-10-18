@@ -846,3 +846,32 @@ form:has(select[name="scope"] option[value="staff"]:checked) .if-staff { display
   .pn-cols--main-side:has(.drawer) > .library { display: none; }
   .dropzone { font-size: 13px; }
 }
+
+/* ---------- site content ---------- */
+.content-layout { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 20px; align-items: start; }
+.content-layout > .card--flush { position: sticky; top: 16px; }
+.content-layout .item-list__row { padding: 12px 18px; }
+.repeat__row--stack { grid-template-columns: minmax(0, 1fr) auto; align-items: start; }
+.repeat__fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 12px; }
+.repeat__fields .fld:has(textarea) { grid-column: 1 / -1; }
+.repeat__fields .media-field { grid-column: 1 / -1; }
+.repeat__row--stack .repeat__tools { flex-direction: column; padding: 0; }
+.list-field { border-top: 1px solid var(--line-1); padding-top: 14px; }
+.form__actions--sticky { position: sticky; bottom: 0; z-index: 2; justify-content: flex-end; padding: 14px 0; background: linear-gradient(transparent, var(--ink-1) 30%); }
+.gift-form .input { flex: 1 1 140px; }
+.gift-row .gift-form { flex: 1; }
+@media (max-width: 1100px) {
+  .content-layout { grid-template-columns: minmax(0, 1fr); }
+  .content-layout > .card--flush { position: static; }
+}
+@media (max-width: 900px) {
+  .form__actions--sticky { bottom: calc(var(--tabbar) + env(safe-area-inset-bottom)); }
+}
+
+/* ---------- before/after and reviews ---------- */
+.case-thumbs { display: flex; gap: 4px; flex: none; }
+.case-thumbs .thumb { width: 64px; height: 48px; }
+.review-top { display: flex; align-items: center; gap: 10px; }
+.stars { color: var(--line-3); letter-spacing: 2px; font-size: 13px; }
+.stars .is-on { color: var(--gold); }
+.review-text { font-weight: 400; line-height: 1.45; }

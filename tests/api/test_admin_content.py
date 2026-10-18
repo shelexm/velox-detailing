@@ -155,3 +155,25 @@ async def test_cases_reviews_gifts(client: httpx.AsyncClient, site_studio: Studi
         "is_visible"
     ] is False
     assert (await client.delete(f"{api}/gifts/{gift.json()['id']}")).status_code == 204
+
+
+async def test_content_screens(client: httpx.AsyncClient, site_studio: Studio, make_user) -> None:
+    api = await _owner(client, site_studio, make_user)
+    base = f"/admin/{site_studio.id}"
+    for key in EDITED_FIELD:
+        page = await client.get(f"{base}/content?block={key}", headers=HTML)
+        assert page.status_code == 200, (key, page.text[:300])
+        assert 'name="content.' in page.text, key
+    about = await client.get(f"{base}/content?block=about", headers=HTML)
+    assert 'data-repeat-prefix="content.items"' in about.text and 'name="content.items.0.icon"' in about.text
+    assert "Почему нам доверяют ключи" in about.text
+    assert (await client.get(f"{base}/content?tab=gifts", headers=HTML)).status_code == 200
+
+    review = (await client.post(f"{api}/reviews", json={"text": "Всё отлично", "is_demo": True})).json()
+    reviews = await client.get(f"{base}/reviews?open={review['id']}", headers=HTML)
+    assert reviews.status_code == 200 and "Всё отлично" in reviews.text and "ДЕМО" in reviews.text
+    assert (await client.get(f"{base}/reviews?new=1", headers=HTML)).status_code == 200
+    case = (await client.post(f"{api}/portfolio", json={"title": "Пара без фото"})).json()
+    portfolio = await client.get(f"{base}/portfolio?open={case['id']}", headers=HTML)
+    assert portfolio.status_code == 200 and "нужны оба фото" in portfolio.text
+    assert (await client.get(f"{base}/portfolio?new=1", headers=HTML)).status_code == 200

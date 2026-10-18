@@ -4,7 +4,19 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
-from app.web.panel import account, bookings, clients, dashboard, media, schedule, services, slots, staff
+from app.web.panel import (
+    account,
+    bookings,
+    clients,
+    content,
+    dashboard,
+    media,
+    schedule,
+    services,
+    site_lists,
+    slots,
+    staff,
+)
 
 router = APIRouter(include_in_schema=False)
 router.include_router(account.router)
@@ -16,3 +28,5 @@ router.include_router(staff.router)
 router.include_router(schedule.router)
 router.include_router(slots.router)
 router.include_router(media.router)
+router.include_router(content.router)
+router.include_router(site_lists.router)
