@@ -46,6 +46,8 @@ onScroll();
 if (bookingSection && "IntersectionObserver" in window) {
   new IntersectionObserver(([entry]) => {
     bookingInView = entry.isIntersecting;
+    // The Telegram button would cover the submit button of the form.
+    document.querySelector(".tg-float")?.classList.toggle("is-hidden", entry.isIntersecting);
     onScroll();
   }, { threshold: 0.05 }).observe(bookingSection);
 }
@@ -265,7 +267,11 @@ function initServiceDetail(scope) {
   detail.querySelectorAll("[data-variant]").forEach((variant) => {
     variant.addEventListener("click", () => {
       detail.querySelectorAll("[data-variant]").forEach((v) => v.setAttribute("aria-pressed", String(v === variant)));
-      if (book && variant.dataset.online === "true") book.dataset.bookService = variant.dataset.variant;
+      if (book && variant.dataset.online === "true") {
+        book.dataset.bookService = variant.dataset.variant;
+        // On a service page the button is a plain link to the landing: it carries the chosen variant.
+        book.href = `/?service=${encodeURIComponent(variant.dataset.variant)}#booking`;
+      }
     });
   });
 }

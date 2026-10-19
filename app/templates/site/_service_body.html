@@ -64,7 +64,7 @@
       <div class="svc-detail__actions">
         {% set ask = site.bot_url() or site.phone_href %}
         {% if ask %}<a class="btn btn--outline btn--md" href="{{ ask }}"{% if site.bot_url() %} target="_blank" rel="noopener"{% endif %}>ЗАДАТЬ ВОПРОС</a>{% endif %}
-        {% if first_variant %}<a class="btn btn--primary btn--md" href="/#booking" data-book data-book-service="{{ first_variant.slug }}" data-detail-book>ЗАПИСАТЬСЯ</a>{% endif %}
+        {% if first_variant %}<a class="btn btn--primary btn--md" href="/?service={{ first_variant.slug }}#booking" data-book data-book-service="{{ first_variant.slug }}" data-detail-book>ЗАПИСАТЬСЯ</a>{% endif %}
       </div>
     </div>
   </div>

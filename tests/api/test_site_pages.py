@@ -202,3 +202,19 @@ async def test_static_cache_headers(client: httpx.AsyncClient) -> None:
     assert "immutable" in versioned.headers["cache-control"]
     style = await client.get("/static/css/panel.css")
     assert style.headers["cache-control"] == "public, max-age=3600"
+
+
+async def test_booking_form_without_javascript_does_not_put_data_in_the_url(
+    client: httpx.AsyncClient, site_studio: Studio
+) -> None:
+    html = (await client.get("/")).text
+    forms = re.findall(r"<form[^>]*data-booking-form[^>]*>", html)
+    assert forms and all('method="post"' in f and 'action="/booking/needs-js"' in f for f in forms)
+    answer = await client.post("/booking/needs-js", headers={"Accept": "text/html"}, data={"name": "Иван"})
+    assert answer.status_code == 422 and "JavaScript" in answer.text
+
+
+async def test_service_page_booking_link_carries_the_variant(client: httpx.AsyncClient, site_studio: Studio) -> None:
+    html = (await client.get("/services/polishing")).text
+    link = re.search(r'<a class="btn btn--primary[^>]*data-detail-book[^>]*>', html)
+    assert link and re.search(r'href="/\?service=[a-z0-9-]+#booking"', link.group(0))

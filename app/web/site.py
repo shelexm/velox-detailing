@@ -11,7 +11,7 @@ from fastapi.responses import FileResponse, HTMLResponse, PlainTextResponse, Res
 from sqlalchemy import select
 
 from app.api.deps import DbSession
-from app.core.errors import NotFoundError
+from app.core.errors import NotFoundError, ValidationFailedError
 from app.models import ServiceGroup, Studio
 from app.services import booking as booking_service
 from app.services.media import VARIANT_NAME
@@ -67,6 +67,14 @@ async def index(request: Request, session: DbSession) -> HTMLResponse:
     studio = await current_studio(request, session)
     site = await load_site(session, studio)
     return _page(request, "site/index.html", site)
+
+
+@router.post("/booking/needs-js")
+async def booking_needs_js() -> Response:
+    """Where the booking form goes when JavaScript is off: a short explanation, nothing in the URL."""
+    raise ValidationFailedError(
+        "Для записи через сайт нужен включённый JavaScript. Запишитесь через Telegram-бота или по телефону студии"
+    )
 
 
 @router.get("/services/{slug}", response_class=HTMLResponse)

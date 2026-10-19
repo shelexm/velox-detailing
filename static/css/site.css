@@ -175,6 +175,7 @@ ul, ol { padding: 0; list-style: none; }
 
 /* ---------- floating telegram and sticky bar ---------- */
 .tg-float { position: fixed; right: 32px; bottom: 32px; z-index: 30; display: inline-flex; align-items: center; gap: 14px; height: 60px; padding: 0 24px 0 8px; border-radius: 999px; background: rgba(14, 15, 17, .86); border: 1px solid var(--gold-dark); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: 0 20px 50px rgba(0, 0, 0, .55); color: var(--text-1); text-decoration: none; transition: transform .3s var(--ease-out), border-color .3s, background-color .3s; }
+.tg-float.is-hidden { opacity: 0; transform: translateY(12px); pointer-events: none; }
 .tg-float:hover { transform: translateY(-2px); border-color: var(--gold); background-color: rgba(21, 20, 15, .92); color: var(--text-1); }
 .tg-float__label { display: flex; flex-direction: column; gap: 2px; line-height: 1.2; }
 .tg-float__label span:first-child { font-size: 14px; font-weight: 600; }
