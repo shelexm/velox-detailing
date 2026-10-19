@@ -454,3 +454,32 @@ async def test_erased_booking_cannot_be_brought_back(session: AsyncSession, stud
     await privacy.erase_client(session, studio.id, booking.client_id, ADMIN)
     with pytest.raises(InvalidTransitionError):  # used to surface as a database error, a 500 in the panel
         await svc.change_status(session, studio.id, booking.id, BookingStatus.CONFIRMED, ADMIN, now=NOW)
+
+
+async def test_panel_search_by_car_phone_and_number(session: AsyncSession, studio: Studio) -> None:
+    from app.services import queries
+
+    inspection = await service_id(session, studio, "inspection")
+    audi = await svc.create_booking(
+        session, studio.id, request(inspection, at(WEDNESDAY, 10), vehicle="Audi A6"), CLIENT, now=NOW
+    )
+    bmw = await svc.create_booking(
+        session,
+        studio.id,
+        request(inspection, at(WEDNESDAY, 12), vehicle="BMW X5", phone="+7 926 111-22-33", contact_name="Борис"),
+        CLIENT,
+        now=NOW,
+    )
+
+    async def found(text: str) -> set[int]:
+        rows = await queries.list_bookings(
+            session, studio.id, date_from=at(WEDNESDAY, 0), date_to=at(WEDNESDAY, 23, 59), query=text
+        )
+        return {row.id for row in rows}
+
+    assert await found("A6") == {audi.booking.id}  # the digit in "A6" is not a phone fragment
+    assert await found("X5") == {bmw.booking.id}
+    assert await found("8 926 111-22-33") == {bmw.booking.id}  # a leading 8 means +7
+    assert await found("4521") == {audi.booking.id}
+    assert await found(f"№ {bmw.booking.number}") == {bmw.booking.id}
+    assert await found("%") == set()  # a plain character, not "everything"

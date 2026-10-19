@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from datetime import UTC, date, datetime, timedelta
 from zoneinfo import ZoneInfo
 
@@ -192,6 +193,25 @@ def _booking_out(booking: Booking, client: Client | None, staff: Staff | None, r
     )
 
 
+_PHONE_LIKE = re.compile(r"^[\d\s()+\-]+$")
+
+
+def _search_terms(query: str) -> tuple[str, str | None, int | None]:
+    """Pattern for names and cars, a phone pattern, and a booking number: each only when the text looks like one.
+
+    "Audi A6" or "X5" must not match every phone with a 6 or a 5 in it, and "%" or "_" are plain characters.
+    """
+    text = query.strip()
+    escaped = text.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+    digits = "".join(ch for ch in text if ch.isdigit())
+    phone = None
+    if _PHONE_LIKE.match(text) and len(digits) >= 4:
+        national = digits[1:] if len(digits) == 11 and digits[0] in "78" else digits  # 8 913... is +7 913...
+        phone = f"%{national}%"
+    number = int(digits) if text.lstrip("№#").strip().isdigit() and len(digits) <= 6 else None
+    return f"%{escaped}%", phone, number
+
+
 async def list_bookings(
     session: AsyncSession,
     studio_id: int,
@@ -210,15 +230,16 @@ async def list_bookings(
     if staff_id is not None:
         stmt = stmt.where(Booking.staff_id == staff_id)
     if query:
-        like = f"%{query.strip()}%"
-        digits = "".join(ch for ch in query if ch.isdigit())
+        like, phone_like, number = _search_terms(query)
         conditions = [
-            Client.full_name.ilike(like),
-            Booking.contact_name.ilike(like),
-            Booking.vehicle_description.ilike(like),
+            Client.full_name.ilike(like, escape="\\"),
+            Booking.contact_name.ilike(like, escape="\\"),
+            Booking.vehicle_description.ilike(like, escape="\\"),
         ]
-        if digits:
-            conditions.append(Client.phone.like(f"%{digits}%"))
+        if phone_like:
+            conditions.append(Client.phone.like(phone_like))
+        if number is not None:
+            conditions.append(Booking.number == number)
         stmt = stmt.where(or_(*conditions))
     rows = (await session.execute(stmt.order_by(Booking.starts_at).limit(limit))).all()
     return [BookingAdminOut(**_booking_out(*row)) for row in rows]
@@ -314,16 +335,19 @@ async def list_clients(
         .where(Client.studio_id == studio_id)
     )
     if query:
-        like = f"%{query.strip()}%"
-        digits = "".join(ch for ch in query if ch.isdigit())
+        like, phone_like, _ = _search_terms(query)
         vehicle_match = (
             select(Vehicle.id)
-            .where(Vehicle.studio_id == studio_id, Vehicle.client_id == Client.id, Vehicle.description.ilike(like))
+            .where(
+                Vehicle.studio_id == studio_id,
+                Vehicle.client_id == Client.id,
+                Vehicle.description.ilike(like, escape="\\"),
+            )
             .exists()
         )
-        conditions = [Client.full_name.ilike(like), vehicle_match]
-        if digits:
-            conditions.append(Client.phone.like(f"%{digits}%"))
+        conditions = [Client.full_name.ilike(like, escape="\\"), vehicle_match]
+        if phone_like:
+            conditions.append(Client.phone.like(phone_like))
         base = base.where(or_(*conditions))
 
     segment_filters = {
