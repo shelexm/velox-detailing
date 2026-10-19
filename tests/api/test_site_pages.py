@@ -48,6 +48,35 @@ async def test_booking_form_asks_for_an_explicit_consent(client: httpx.AsyncClie
     assert 'data-error="consent"' in html
 
 
+async def test_privacy_policy_ways_to_withdraw_consent(
+    client: httpx.AsyncClient, session: AsyncSession, site_studio: Studio
+) -> None:
+    def rights(html: str) -> str:
+        text = re.sub(r"<[^>]+>", " ", html)
+        return " ".join(text.split()).split("Ваши права")[1].split("Согласие")[0]
+
+    nothing = rights((await client.get("/privacy")).text)
+    assert "Для этого обратитесь в студию." in nothing
+    assert "Срок хранения и получатели" in (await client.get("/privacy")).text
+    assert ", или через" not in nothing and " или через" not in nothing
+
+    await session.execute(
+        update(Studio).where(Studio.id == site_studio.id).values(phone="+79130000001", email="hello@velox.test")
+    )
+    await session.commit()
+    both = rights((await client.get("/privacy")).text)
+    assert "позвоните по телефону +7 913 000-00-01 , напишите на hello@velox.test ." in both
+
+    await session.execute(
+        update(Studio)
+        .where(Studio.id == site_studio.id)
+        .values(phone=None, email=None, telegram_bot_username="velox_test_bot")
+    )
+    await session.commit()
+    bot_only = rights((await client.get("/privacy")).text)
+    assert "Для этого обратитесь через Telegram-бота ." in bot_only
+
+
 async def test_partial_contacts_are_shown_individually(
     client: httpx.AsyncClient, session: AsyncSession, site_studio: Studio
 ) -> None:
