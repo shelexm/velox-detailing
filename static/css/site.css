@@ -717,14 +717,15 @@ html.is-repeat .anim-in, html.is-repeat .hero__media, html.is-repeat .site-heade
   @keyframes heroCarMobile { from { transform: scale(1) } to { transform: scale(1.04) } }
   .hero__sweep { animation-duration: 10s; -webkit-mask-image: radial-gradient(ellipse 60% 18% at 50% 68%, #000 50%, transparent 100%); mask-image: radial-gradient(ellipse 60% 18% at 50% 68%, #000 50%, transparent 100%); }
   .hero__glow { display: none; }
-  .hero__shade { background: linear-gradient(180deg, rgba(5, 5, 6, .85) 0%, rgba(5, 5, 6, .35) 36%, rgba(5, 5, 6, 0) 52%), linear-gradient(0deg, #070708 0%, #070708 9%, rgba(7, 7, 8, 0) 26%); }
+  /* The lead sits over the photo at 35 to 50% of the hero: the dark layer has to reach down to there. */
+  .hero__shade { background: linear-gradient(180deg, rgba(5, 5, 6, .9) 0%, rgba(5, 5, 6, .68) 34%, rgba(5, 5, 6, .34) 50%, rgba(5, 5, 6, 0) 62%), linear-gradient(0deg, #070708 0%, #070708 9%, rgba(7, 7, 8, 0) 26%); }
   .hero__content { position: static; height: auto; padding-top: 0; display: block; }
   .hero__copy { position: absolute; left: 20px; right: 20px; top: 104px; bottom: 28px; gap: 16px; }
   .hero__eyebrow-line { display: none; }
   .hero__title { font-size: 40px; line-height: 1.08; }
   .hero__title span { display: inline; }
   .hero__title span + span::before { content: " "; }
-  .hero__lead { font-size: 16px; line-height: 1.55; }
+  .hero__lead { font-size: 16px; line-height: 1.55; color: var(--text-1); text-shadow: 0 1px 14px rgba(5, 5, 6, .9), 0 0 3px rgba(5, 5, 6, .7); }
   .hero__copy > .hero__tg { display: none; }
   .hero__quality { display: none; }
   .hero__actions { margin-top: auto; display: grid; grid-template-columns: 1fr 68px; gap: 6px 8px; }
