@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Проверка картинок</title>
+<style>
+  body { font: 16px/1.4 -apple-system, system-ui, sans-serif; margin: 16px; background: #111; color: #eee; }
+  h1 { font-size: 20px; } h2 { font-size: 16px; margin: 20px 0 6px; }
+  .ok { color: #7ddc7d; } .fail { color: #ff7b7b; font-weight: 700; } pre { white-space: pre-wrap; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; }
+  .box img { width: 100%; max-height: 140px; object-fit: cover; background: #333; }
+</style>
+</head>
+<body>
+<h1>Проверка картинок VÉLOX</h1>
+<p>Подождите 10 секунд и пришлите скриншот всей страницы.</p>
+<pre id="env">…</pre>
+<h2>Как страница показывает фото</h2>
+<div id="page" class="grid"></div>
+<h2>Каждый размер отдельно</h2>
+<div id="variants" class="grid"></div>
+<script src="/static/diag/images.js"></script>
+</body>
+</html>
