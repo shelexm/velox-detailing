@@ -79,7 +79,7 @@ async def test_variants_and_fonts_have_image_and_font_types(
         )
     ).json()
     base = asset["thumb"].rsplit("/", 1)[0]
-    for name, expected in (("w480.webp", "image/webp"), ("w480.avif", "image/avif"), ("w480.jpg", "image/jpeg")):
+    for name, expected in (("w480.webp", "image/webp"), ("w480.jpg", "image/jpeg")):
         response = await client.get(f"{base}/{name}")
         assert response.status_code == 200 and response.headers["content-type"] == expected, name
     font = await client.get("/static/fonts/onest-latin.woff2")

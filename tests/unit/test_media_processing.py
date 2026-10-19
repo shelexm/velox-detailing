@@ -23,7 +23,7 @@ def test_large_jpeg_keeps_its_real_size_and_gets_standard_variants(size: tuple[i
     assert (result.width, result.height) == size
     widths = sorted({width for _, width, _, _ in result.variants})
     assert widths == [480, 960, 1600, 2400]
-    assert {ext for ext, *_ in result.variants} == {"avif", "webp", "jpg"}
+    assert {ext for ext, *_ in result.variants} == {"webp", "jpg"}  # no AVIF: see PUBLIC_FORMATS
 
 
 def test_small_jpeg_is_not_scaled_down() -> None:
@@ -55,3 +55,17 @@ def test_pixel_limits_are_checked_before_decoding(monkeypatch: pytest.MonkeyPatc
     with pytest.raises(ValidationFailedError) as jpeg:
         media.process_image(encode(1200, 1000))
     assert "разрешение" in jpeg.value.message
+
+
+def test_stored_avif_variants_are_not_offered_to_browsers() -> None:
+    from types import SimpleNamespace
+
+    variants = [
+        {"format": fmt, "width": width, "height": 100, "file": f"w{width}.{fmt}", "bytes": 1}
+        for fmt in ("avif", "webp", "jpg")
+        for width in (480, 960)
+    ]
+    asset = SimpleNamespace(studio_id=1, storage_key="k" * 32, variants=variants)
+    sets = media.srcsets(asset)
+    assert set(sets) == {"webp", "jpg"} and "avif" not in " ".join(sets.values())
+    assert media.fallback_src(asset).endswith(".jpg")

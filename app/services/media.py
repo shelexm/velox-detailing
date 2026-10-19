@@ -1,4 +1,4 @@
-"""Media library: validate uploads, keep the original privately, publish resized AVIF/WebP/JPEG variants.
+"""Media library: validate uploads, keep the original privately, publish resized WebP/JPEG variants.
 
 Files: MEDIA_ROOT/<studio_id>/<storage_key>/original.<ext>   (never served: may contain EXIF/GPS)
        MEDIA_ROOT/<studio_id>/<storage_key>/w<width>.<format>  (served at /media/..., metadata stripped)
@@ -31,8 +31,11 @@ MIN_SIDE = 200
 HEIF_BRANDS = {b"heic", b"heix", b"hevc", b"hevx", b"heim", b"heis", b"mif1", b"msf1"}
 WIDTHS = (480, 960, 1600, 2400)
 ALLOWED = {"JPEG": "jpg", "PNG": "png", "WEBP": "webp", "AVIF": "avif"}
+# AVIF is not produced and not offered: Safari on iOS 18 picks an AVIF <source> and then cannot show it (a "?"
+# placeholder in the Telegram browser), and for these photos it saves a few hundred bytes over WebP. Variants
+# stored earlier may still hold AVIF files; srcsets() leaves them out.
+PUBLIC_FORMATS = ("webp", "jpg")
 ENCODERS: tuple[tuple[str, str, dict[str, Any]], ...] = (
-    ("avif", "AVIF", {"quality": 58, "speed": 6}),
     ("webp", "WEBP", {"quality": 78, "method": 6}),
     ("jpg", "JPEG", {"quality": 82, "optimize": True, "progressive": True}),
 )
@@ -206,6 +209,8 @@ def media_url(asset: MediaAsset, file_name: str) -> str:
 def srcsets(asset: MediaAsset) -> dict[str, str]:
     by_format: dict[str, list[str]] = {}
     for variant in sorted(asset.variants, key=lambda v: v["width"]):
+        if variant["format"] not in PUBLIC_FORMATS:
+            continue
         by_format.setdefault(variant["format"], []).append(f"{media_url(asset, variant['file'])} {variant['width']}w")
     return {fmt: ", ".join(items) for fmt, items in by_format.items()}
 
