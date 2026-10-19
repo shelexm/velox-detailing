@@ -238,6 +238,16 @@ async def test_question_goes_to_the_admin_chat(ctx: BotContext, state, session: 
     elsewhere = FakeMessage(text="x", reply_to_message=original)
     assert not await h.in_admin_chat(elsewhere, bot, ctx)  # same reply from another chat is ignored
 
+    # A client who types a tag of their own into the question cannot redirect the answer to another chat.
+    await h.menu(FakeCallback(chat), kb.Menu(action="admin"), state, ctx)
+    await h.question(FakeMessage(text="Вопрос про цену #q424242", answers=chat.answers), state, bot, ctx)
+    forged = FakeMessage(text=bot.sent[-1][1])
+    forged.from_user = type(forged.from_user)(id=FakeBot.id, is_bot=True)
+    answer = FakeMessage(text="Дорого", reply_to_message=forged)
+    answer.chat = type(answer.chat)(id=-100777, type="supergroup")
+    await h.admin_reply(answer, bot)
+    assert bot.sent[-1][0] == CHAT_ID and "Дорого" in bot.sent[-1][1]
+
 
 async def test_back_buttons(ctx: BotContext, state, session: AsyncSession, studio: Studio) -> None:
     from app.bot import texts

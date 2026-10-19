@@ -39,7 +39,8 @@ logger = logging.getLogger("app.bot")
 client_router = Router(name="client")
 client_router.message.filter(F.chat.type == "private")
 admin_router = Router(name="admin")
-QUESTION_TAG = re.compile(r"#q(\d+)")
+# The tag is the last thing in the message, so "#q<id>" typed inside the client's text is not taken for it.
+QUESTION_TAG = re.compile(r"#q(\d+)\s*\Z")
 CLIENT = Actor(ActorType.CLIENT)
 STUDIO_STAFF = Actor(ActorType.USER)  # an admin acting from the studio's Telegram chat
 
