@@ -6,6 +6,7 @@ Messages are user-facing (Russian). Stack traces never leave the server.
 from __future__ import annotations
 
 import logging
+from collections.abc import Mapping
 from typing import Any
 
 from fastapi import FastAPI, Request
@@ -92,6 +93,49 @@ def _respond(request: Request, status: int, code: str, message: str, details: An
     return JSONResponse(error_body(code, message, details), status_code=status)
 
 
+_RU_MESSAGES: dict[str, str] = {
+    "missing": "Обязательное поле",
+    "string_too_short": "Слишком коротко: минимум {min_length} симв.",
+    "string_too_long": "Слишком длинно: максимум {max_length} симв.",
+    "too_short": "Слишком мало: минимум {min_length}",
+    "too_long": "Слишком много: максимум {max_length}",
+    "greater_than_equal": "Не меньше {ge}",
+    "greater_than": "Больше {gt}",
+    "less_than_equal": "Не больше {le}",
+    "less_than": "Меньше {lt}",
+    "int_parsing": "Введите целое число",
+    "int_type": "Введите целое число",
+    "int_from_float": "Введите целое число",
+    "float_parsing": "Введите число",
+    "float_type": "Введите число",
+    "bool_parsing": "Нужно значение «да» или «нет»",
+    "bool_type": "Нужно значение «да» или «нет»",
+    "string_type": "Нужен текст",
+    "enum": "Недопустимое значение",
+    "literal_error": "Недопустимое значение",
+    "extra_forbidden": "Лишнее поле",
+    "date_parsing": "Некорректная дата",
+    "date_type": "Некорректная дата",
+    "date_from_datetime_parsing": "Некорректная дата",
+    "datetime_parsing": "Некорректные дата и время",
+    "datetime_type": "Некорректные дата и время",
+    "time_parsing": "Некорректное время",
+    "json_invalid": "Некорректные данные",
+    "url_parsing": "Некорректный адрес",
+}
+
+
+def russian_message(err: Mapping[str, Any]) -> str:
+    """The text of one pydantic error for a person: Russian for the built-in checks, ours kept as written."""
+    template = _RU_MESSAGES.get(str(err.get("type", "")))
+    if template is None:
+        return str(err.get("msg", "")).removeprefix("Value error, ")
+    try:
+        return template.format(**(err.get("ctx") or {}))
+    except (KeyError, IndexError):
+        return str(err.get("msg", ""))
+
+
 def register_error_handlers(app: FastAPI) -> None:
     @app.exception_handler(AppError)
     async def handle_app_error(request: Request, exc: AppError) -> Response:
@@ -103,7 +147,7 @@ def register_error_handlers(app: FastAPI) -> None:
         details = [
             {
                 "field": ".".join(str(p) for p in err.get("loc", ()) if p not in ("body", "query", "path")),
-                "message": err.get("msg", ""),
+                "message": russian_message(err),
                 "type": err.get("type", ""),
             }
             for err in exc.errors()

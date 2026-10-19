@@ -191,6 +191,10 @@ async def test_clients_screen(client: httpx.AsyncClient, session: AsyncSession, 
 
     patched = await client.patch(f"{api}/{body['id']}", json={"notes": "Предпочитает утро", "add_vehicle": "BMW X5"})
     assert patched.status_code == 200 and set(patched.json()["vehicles"]) == {"Lexus RX", "BMW X5"}
+    assert patched.json()["notes"] == "Предпочитает утро"
+    cleared = await client.patch(f"{api}/{body['id']}", json={"notes": None})  # what the panel sends for an empty box
+    assert cleared.status_code == 200 and cleared.json()["notes"] is None
+    await client.patch(f"{api}/{body['id']}", json={"notes": "Предпочитает утро"})
 
     page = await client.get(f"/admin/{studio.id}/clients?q=Петр", headers=HTML)
     assert page.status_code == 200 and "Ольга Петрова" in page.text and "Найдено 1 из 1" in page.text

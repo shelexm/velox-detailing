@@ -12,7 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import DbSession, Manager
 from app.content.sections import FIXED_SECTIONS, SECTION_MODELS, default_content, validate_section
-from app.core.errors import NotFoundError, ValidationFailedError
+from app.core.errors import NotFoundError, ValidationFailedError, russian_message
 from app.models import GiftOption, MediaAsset, PortfolioCase, Review, SiteSection
 from app.schemas.content import (
     CaseCreateIn,
@@ -42,10 +42,7 @@ async def _check_images(session: AsyncSession, studio_id: int, ids: set[int], fi
 
 
 def _pydantic_details(exc: ValidationError) -> list[dict[str, str]]:
-    return [
-        {"field": ".".join(str(p) for p in err["loc"]), "message": err["msg"].removeprefix("Value error, ")}
-        for err in exc.errors()
-    ]
+    return [{"field": ".".join(str(p) for p in err["loc"]), "message": russian_message(err)} for err in exc.errors()]
 
 
 # ----- landing blocks -----

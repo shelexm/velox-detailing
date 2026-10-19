@@ -4,10 +4,11 @@ from __future__ import annotations
 
 from typing import Any
 
+from pydantic import ValidationError
 from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.errors import ConflictError, NotFoundError, ValidationFailedError
+from app.core.errors import ConflictError, NotFoundError, ValidationFailedError, russian_message
 from app.core.text import slugify, unique_slug
 from app.models import MediaAsset, Service, ServiceCategory, ServiceGroup, ServiceStaff, Staff
 from app.models.enums import StaffSelection
@@ -203,7 +204,15 @@ async def _apply_group(session: AsyncSession, studio_id: int, group: ServiceGrou
     values = data.model_dump(exclude_unset=True)
     await _owned(session, MediaAsset, studio_id, values.get("image_id"), "image_id", "Изображение")
     if "detail" in values and values["detail"] is not None:
-        detail = GroupDetailIn.model_validate(values.pop("detail"))
+        try:
+            detail = GroupDetailIn.model_validate(values.pop("detail"))
+        except ValidationError as exc:
+            raise ValidationFailedError(
+                details=[
+                    {"field": "detail." + ".".join(str(p) for p in err["loc"]), "message": russian_message(err)}
+                    for err in exc.errors()
+                ]
+            ) from exc
         gallery = []
         for item in detail.gallery:
             image_id = item.get("image_id")

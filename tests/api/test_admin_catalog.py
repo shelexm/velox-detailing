@@ -127,6 +127,14 @@ async def test_categories_and_groups(
     assert "Полировка кузова и фар" in page.text and "Новый текст страницы" in page.text
     assert (await client.delete(f"{api}/groups/{group.id}")).status_code == 409  # services are attached
 
+    # Too many lines in "Что входит" is a message at the field, not a server error.
+    too_many = await client.patch(
+        f"{api}/groups/{group.id}", json={"detail": {"includes": [f"п{n}" for n in range(13)]}}
+    )
+    assert too_many.status_code == 422, too_many.text
+    detail = too_many.json()["error"]["details"][0]
+    assert detail["field"] == "detail.includes" and detail["message"] == "Слишком много: максимум 12"
+
     hidden = await client.patch(f"{api}/groups/{group.id}", json={"is_visible": False})
     assert hidden.json()["is_visible"] is False
     landing = await client.get("/", headers={"Accept": "text/html"})

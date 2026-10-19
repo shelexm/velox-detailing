@@ -136,9 +136,11 @@ async def update_client(session: AsyncSession, studio_id: int, client_id: int, *
     client = await session.scalar(select(Client).where(Client.studio_id == studio_id, Client.id == client_id))
     if client is None:
         raise NotFoundError("Клиент не найден")
-    for field in ("full_name", "notes", "tags", "reminders_enabled"):
+    for field in ("full_name", "tags", "reminders_enabled"):
         if field in changes and changes[field] is not None:
             setattr(client, field, changes[field])
+    if "notes" in changes:  # an empty note clears it
+        client.notes = str(changes["notes"] or "").strip() or None
     vehicle = changes.get("add_vehicle")
     if isinstance(vehicle, str) and vehicle.strip():
         await remember_vehicle(session, studio_id=studio_id, client_id=client.id, description=" ".join(vehicle.split()))
