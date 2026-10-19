@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+from datetime import UTC, datetime, timedelta
+
 import httpx
 from sqlalchemy import select, text, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.telegram import hold_owner
 from app.models import Booking, BookingEvent, Client, Service, Studio, Vehicle
-from app.models.enums import BookingStatus, Role
+from app.models.enums import BookingSource, BookingStatus, Role
 from app.services.privacy import ERASED_NAME
 from tests.api.conftest import first_free_slot, login
 
@@ -72,3 +75,37 @@ async def test_owner_erases_client_data(
     assert (await client.get(f"{panel}/bookings/{booking_id}", headers=HTML)).status_code == 200
     assert (await client.get(panel, headers=HTML, follow_redirects=True)).status_code == 200
     assert (await client.delete(url)).status_code == 404
+
+
+async def test_erase_clears_the_telegram_id_from_released_holds(
+    client: httpx.AsyncClient, session: AsyncSession, studio: Studio, make_user
+) -> None:
+    await make_user("owner@velox.test", studio)
+    await login(client, "owner@velox.test")
+    card = Client(studio_id=studio.id, phone="+79130000009", full_name="Тест", telegram_user_id=4242, tags=[])
+    session.add(card)
+    await session.commit()
+    # A released bot hold: no client on the row, but it still names the Telegram account.
+    service = await session.scalar(select(Service).where(Service.studio_id == studio.id).limit(1))
+    now = datetime.now(UTC)
+    ghost = Booking(
+        studio_id=studio.id,
+        number=999,
+        service_id=service.id,
+        starts_at=now + timedelta(days=3),
+        ends_at=now + timedelta(days=3, hours=1),
+        occupied_until=now + timedelta(days=3, hours=1),
+        status=BookingStatus.EXPIRED,
+        source=BookingSource.TELEGRAM,
+        hold_owner=hold_owner(4242),
+        hold_expires_at=now,
+        service_name=service.name,
+        price_from=service.price_from,
+    )
+    session.add(ghost)
+    await session.commit()
+
+    erased = await client.delete(f"/api/v1/admin/studios/{studio.id}/clients/{card.id}")
+    assert erased.status_code == 200, erased.text
+    await session.refresh(ghost)
+    assert ghost.hold_owner is None

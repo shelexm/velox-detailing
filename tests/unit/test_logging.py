@@ -40,3 +40,36 @@ def test_formatter_masks_whole_line_including_traceback() -> None:
     line = formatter.format(record)
     assert line.startswith("req-12345678 failed")
     assert "452-18" not in line
+
+
+def test_booking_links_and_bot_urls_are_masked() -> None:
+    token = "x7Kq2mZp9LwR4tYv8NbC3dFg"
+    for line in (
+        f"GET /booking/{token} HTTP/1.1",
+        f"POST /api/v1/public/studios/velox/bookings/manage/{token}/cancel",
+        f"GET /api/v1/public/studios/velox/bookings/manage/{token}/calendar.ics",
+    ):
+        masked = mask_sensitive(line)
+        assert token not in masked and "<token>" in masked
+    bot_url = "https://api.telegram.org/bot123456789:AAHdqTcvCH1vGWJxfSeofSAs0K5PALDsaw/getMe"
+    assert "AAHdq" not in mask_sensitive(bot_url)
+    assert mask_sensitive("GET /booking/new HTTP/1.1") == "GET /booking/new HTTP/1.1"  # short words are not secrets
+
+
+def test_probe_access_lines_are_dropped() -> None:
+    from app.core.logging import QuietProbeFilter
+
+    def record(path: str) -> logging.LogRecord:
+        return logging.LogRecord(
+            "uvicorn.access",
+            logging.INFO,
+            __file__,
+            1,
+            '%s - "%s %s HTTP/%s" %d',
+            ("1.2.3.4", "GET", path, "1.1", 200),
+            None,
+        )
+
+    assert not QuietProbeFilter().filter(record("/health/live"))
+    assert QuietProbeFilter().filter(record("/health/ready"))
+    assert QuietProbeFilter().filter(record("/booking/abc"))

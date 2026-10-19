@@ -14,6 +14,7 @@ from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import ConflictError, NotFoundError
+from app.core.telegram import hold_owner
 from app.models import Booking, BookingEvent, Client, NotificationOutbox, Vehicle
 from app.models.enums import BookingStatus
 from app.services.booking import Actor, utcnow
@@ -85,6 +86,14 @@ async def erase_client(session: AsyncSession, studio_id: int, client_id: int, ac
                 data={},
             )
             for booking_id in ids
+        )
+    if client.telegram_user_id is not None:
+        # Bot holds that were released or expired belong to no client but still name the Telegram account.
+        await session.execute(
+            update(Booking)
+            .where(Booking.studio_id == studio_id, Booking.hold_owner == hold_owner(client.telegram_user_id))
+            .values(hold_owner=None)
+            .execution_options(synchronize_session=False)
         )
     await session.execute(delete(Vehicle).where(Vehicle.studio_id == studio_id, Vehicle.client_id == client.id))
     await session.delete(client)
