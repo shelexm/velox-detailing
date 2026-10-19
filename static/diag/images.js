@@ -59,14 +59,10 @@ const support = async () => {
     }
   }
   // The result goes to the server as the query of a request: it is visible in the access log.
-  const text = `${$("env").textContent}
-${report.join("
-")}`;
+  const text = [$("env").textContent, ...report].join(" | ").replace(/\s+/g, " ");
   new Image().src = `/static/diag/report.gif?${encodeURIComponent(text)}`;
   $("sent").textContent = "Готово, результат отправлен. Скриншот не нужен, напишите в чат «готово».";
 })().catch((error) => {
-  new Image().src = `/static/diag/report.gif?${encodeURIComponent(`SCRIPT ERROR ${error}
-${report.join("
-")}`)}`;
+  new Image().src = `/static/diag/report.gif?${encodeURIComponent(`SCRIPT ERROR ${error} | ${report.join(" | ")}`)}`;
   $("sent").textContent = `Ошибка: ${error}. Напишите в чат «ошибка».`;
 });
