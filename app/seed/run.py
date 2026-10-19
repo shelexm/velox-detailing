@@ -1,4 +1,4 @@
-"""Idempotent seeding: creates what is missing, never overwrites what the studio already edited."""
+"""Starting data for a new studio. A studio that already exists is left exactly as its owner has it."""
 
 from __future__ import annotations
 
@@ -15,6 +15,7 @@ from app.models import (
     ServiceCategory,
     ServiceGroup,
     ServiceStaff,
+    SiteSection,
     Staff,
     StaffHours,
     Studio,
@@ -148,8 +149,21 @@ async def seed_catalog(session: AsyncSession, studio: Studio) -> None:
 
 
 async def seed_all(session: AsyncSession, slug: str = data.STUDIO["slug"], *, media_root: Path | None = None) -> Studio:
-    """Catalog always; images and site texts too when a media root is given (they need files on disk)."""
+    """Catalog always; images and site texts too when a media root is given (they need files on disk).
+
+    Runs on every deploy (the `migrate` service), so it must not undo the owner's work: a renamed master,
+    a deleted category, review or gift would come back from the design. Everything is created only for a
+    studio that does not exist yet; the site content also for one that was created but never got it.
+    """
+    known = await session.scalar(select(Studio.id).where(Studio.slug == slug))
     studio = await seed_studio(session, slug)
+    if known is not None:
+        has_content = await session.scalar(select(SiteSection.studio_id).where(SiteSection.studio_id == studio.id))
+        if has_content is None and media_root is not None:
+            from app.seed.content import seed_content
+
+            await seed_content(session, studio, media_root)
+        return studio
     await seed_catalog(session, studio)
     await session.commit()
     if media_root is not None:
