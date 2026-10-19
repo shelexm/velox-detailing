@@ -48,14 +48,21 @@ async def login(payload: LoginIn, request: Request, response: Response, session:
     check_same_origin(request)
     limiters = request.app.state.limiters
     email, ip = auth_service.normalize_email(payload.email), client_ip(request)
-    if limiters.login_by_email.is_blocked(email) or limiters.login_by_ip.is_blocked(ip):
+    pair = f"{email}|{ip}"
+    if (
+        limiters.login_by_email_and_ip.is_blocked(pair)
+        or limiters.login_by_email.is_blocked(email)
+        or limiters.login_by_ip.is_blocked(ip)
+    ):
         raise RateLimitedError("Слишком много попыток входа. Попробуйте через 15 минут")
     try:
         user = await auth_service.authenticate(session, email, payload.password)
     except UnauthorizedError:
+        limiters.login_by_email_and_ip.hit(pair)
         limiters.login_by_email.hit(email)
         limiters.login_by_ip.hit(ip)
         raise
+    limiters.login_by_email_and_ip.reset(pair)
     limiters.login_by_email.reset(email)
     ttl = timedelta(hours=request.app.state.settings.session_ttl_hours)
     issued = await auth_service.start_session(session, user, ttl)

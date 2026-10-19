@@ -31,11 +31,11 @@ def normalize_email(email: str) -> str:
 async def authenticate(session: AsyncSession, email: str, password: str) -> User:
     """Same error and similar timing whether the e-mail is unknown, inactive or the password is wrong."""
     user = await session.scalar(select(User).where(User.email == normalize_email(email)))
-    valid = security.verify_password(user.password_hash if user else None, password)
+    valid = await security.verify_password_async(user.password_hash if user else None, password)
     if user is None or not valid or not user.is_active:
         raise UnauthorizedError("Неверный e-mail или пароль", code="invalid_credentials")
     if security.password_needs_rehash(user.password_hash):
-        user.password_hash = security.hash_password(password)
+        user.password_hash = await security.hash_password_async(password)
     return user
 
 
@@ -94,15 +94,15 @@ async def change_password(
     session: AsyncSession, user: User, current_session: UserSession, current: str, new: str
 ) -> None:
     """Checks the current password, stores the new one and signs out every other device."""
-    if not security.verify_password(user.password_hash, current):
+    if not await security.verify_password_async(user.password_hash, current):
         raise ValidationFailedError(details=[{"field": "current_password", "message": "Неверный текущий пароль"}])
     try:
         security.validate_new_password(new)
     except ValueError as exc:
         raise ValidationFailedError(details=[{"field": "new_password", "message": str(exc)}]) from exc
-    if security.verify_password(user.password_hash, new):
+    if await security.verify_password_async(user.password_hash, new):
         raise ValidationFailedError(details=[{"field": "new_password", "message": "Новый пароль совпадает с текущим"}])
-    user.password_hash = security.hash_password(new)
+    user.password_hash = await security.hash_password_async(new)
     now = datetime.now(UTC)
     await session.execute(
         update(UserSession)
