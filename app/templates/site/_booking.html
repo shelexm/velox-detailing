@@ -85,7 +85,10 @@
   <div class="bk__foot">
     <div class="bk__summary-wrap">
       <span class="bk__summary" id="{{ p }}-summary" data-summary></span>
-      <span class="bk__consent">{{ consent_parts[0] }}{% if consent_parts | length > 1 %}<a href="/privacy">{{ link_text }}</a>{{ consent_parts[1] }}{% else %} <a href="/privacy">Политика конфиденциальности</a>{% endif %}</span>
+      <div class="bk__consent">
+        <label class="bk__check"><input type="checkbox" name="consent" value="1" aria-describedby="{{ p }}-consent-error"><span>{{ consent_parts[0] }}{% if consent_parts | length > 1 %}<a href="/privacy" target="_blank" rel="noopener">{{ link_text }}</a>{{ consent_parts[1] }}{% else %} <a href="/privacy" target="_blank" rel="noopener">Политика конфиденциальности</a>{% endif %}</span></label>
+        <span class="field-error" id="{{ p }}-consent-error" data-error="consent" hidden>{{ icon("alert", 14) }}Нужно согласие на обработку данных</span>
+      </div>
     </div>
     <div class="bk__buttons">
       {% if mode == "wizard" %}<button class="icon-btn bk__back" type="button" aria-label="Назад" data-wizard-back hidden>{{ icon("chevron-left") }}</button>{% endif %}

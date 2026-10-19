@@ -39,6 +39,15 @@ async def test_landing_renders_without_placeholders(client: httpx.AsyncClient, s
     assert "data-booking-form" in html
 
 
+async def test_booking_form_asks_for_an_explicit_consent(client: httpx.AsyncClient, site_studio: Studio) -> None:
+    html = (await client.get("/")).text
+    # Every booking form has its own unchecked checkbox with the wording and a link to the policy.
+    boxes = re.findall(r'<input type="checkbox" name="consent"[^>]*>', html)
+    assert boxes and all("checked" not in box for box in boxes)
+    assert "Я согласен на обработку персональных данных в соответствии с" in html
+    assert 'data-error="consent"' in html
+
+
 async def test_partial_contacts_are_shown_individually(
     client: httpx.AsyncClient, session: AsyncSession, site_studio: Studio
 ) -> None:

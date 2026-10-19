@@ -107,6 +107,7 @@ export class BookingForm {
         this.saveDraft();
       });
     }
+    this.q('input[name="consent"]').addEventListener("change", () => this.clearFieldError("consent"));
     this.q("[data-days-prev]").addEventListener("click", () => this.shiftWindow(-7));
     this.q("[data-days-next]").addEventListener("click", () => this.shiftWindow(7));
     this.q("[data-other-day]").addEventListener("click", () => {
@@ -503,6 +504,10 @@ export class BookingForm {
       this.showFieldError("starts_at");
       problems.push("выберите время");
     }
+    if (!this.q('input[name="consent"]').checked) {
+      this.showFieldError("consent");
+      problems.push("подтвердите согласие на обработку данных");
+    }
     if (problems.length) {
       this.showAlert("Не получилось отправить заявку", `Пожалуйста, ${problems.join(", ")}.`);
       if (this.mode === "wizard" && !this.state.start) this.goto(2);
@@ -524,7 +529,7 @@ export class BookingForm {
       name: this.q('input[name="name"]').value.trim(),
       phone: this.q('input[name="phone"]').value,
       vehicle: this.q('input[name="vehicle"]').value.trim() || null,
-      consent: true,
+      consent: this.q('input[name="consent"]').checked,
       website: this.q('input[name="website"]').value,
     };
     try {
@@ -538,7 +543,7 @@ export class BookingForm {
       const error = data.error || {};
       if (error.code === "slot_taken") return this.slotTaken(error.details?.alternatives || []);
       if (response.status === 422 && Array.isArray(error.details)) {
-        const map = { contact_name: "name", name: "name", phone: "phone", starts_at: "starts_at" };
+        const map = { contact_name: "name", name: "name", phone: "phone", starts_at: "starts_at", consent: "consent" };
         for (const item of error.details) if (map[item.field]) this.showFieldError(map[item.field], item.message);
       }
       this.showAlert("Не получилось отправить заявку", error.message || "Попробуйте ещё раз.");

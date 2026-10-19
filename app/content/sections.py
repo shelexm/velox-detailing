@@ -290,7 +290,7 @@ class Contacts(Block):
     tab_online: Short = "Записаться онлайн"
     tab_telegram: Short = "Записаться через Telegram"
     submit_label: Short = "ЗАПИСАТЬСЯ"
-    consent_text: Line = "Нажимая «Записаться», вы соглашаетесь с политикой обработки данных"
+    consent_text: Line = "Я согласен на обработку персональных данных в соответствии с политикой обработки данных"
     success_title: Short = "Заявка принята"
     success_text: Line = "мы перезвоним в течение рабочего часа, чтобы подтвердить время."
 

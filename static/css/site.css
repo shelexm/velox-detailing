@@ -556,7 +556,11 @@ html.is-repeat .anim-in, html.is-repeat .hero__media, html.is-repeat .site-heade
 .bk__summary-wrap { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .bk__summary { font-size: 15px; }
 .bk__consent { font-size: 12px; color: var(--text-3); }
-.bk__consent a { color: var(--text-2); }
+.bk__consent a { color: var(--text-2); text-decoration: underline; text-underline-offset: 2px; }
+.bk__consent { display: flex; flex-direction: column; gap: 6px; }
+.bk__check { display: flex; align-items: flex-start; gap: 10px; cursor: pointer; line-height: 1.45; }
+.bk__check input { flex: none; width: 20px; height: 20px; margin: 0; accent-color: var(--gold); cursor: pointer; }
+.bk__check input[aria-invalid="true"] { outline: 2px solid var(--danger-text); outline-offset: 2px; }
 .bk__buttons { display: flex; gap: 8px; }
 .bk__submit { padding: 0 36px; }
 .bk__submit.is-loading { pointer-events: none; opacity: .7; }
