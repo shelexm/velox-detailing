@@ -75,6 +75,30 @@ async def test_existing_account_joins_without_new_password(
     await other.aclose()
 
 
+async def test_owner_cannot_take_over_an_account_of_another_studio(
+    client: httpx.AsyncClient, studio: Studio, other_studio: Studio, make_user
+) -> None:
+    await make_user("owner@velox.test", studio)
+    victim = await make_user("shared@velox.test", other_studio)
+    await login(client, "owner@velox.test")
+    api = f"/api/v1/admin/studios/{studio.id}/users"
+    # Knowing the e-mail, the owner of studio A adds the owner of studio B to A.
+    added = await client.post(api, json={"email": "shared@velox.test", "full_name": "Чужой", "role": "admin"})
+    assert added.status_code == 201 and added.json()["temporary_password"] is None
+    # ... but cannot reset that password or rename the account: both are the person's own.
+    reset = await client.post(f"{api}/{victim.id}/reset-password")
+    assert reset.status_code == 409 and reset.json()["error"]["code"] == "shared_account"
+    renamed = await client.patch(f"{api}/{victim.id}", json={"full_name": "Взломщик"})
+    assert renamed.status_code == 409 and renamed.json()["error"]["code"] == "shared_account"
+    # The old password still works.
+    other = fresh_client(client)
+    assert (await login(other, "shared@velox.test", PASSWORD)).status_code == 200
+    await other.aclose()
+    # What belongs to the own studio stays the owner's call: the role here, access to it.
+    assert (await client.patch(f"{api}/{victim.id}", json={"role": "admin"})).status_code == 200
+    assert (await client.delete(f"{api}/{victim.id}")).status_code == 204
+
+
 async def test_owner_pages_and_roles(client: httpx.AsyncClient, studio: Studio, make_user) -> None:
     await make_user("owner@velox.test", studio)
     await make_user("admin@velox.test", studio, role=Role.ADMIN)

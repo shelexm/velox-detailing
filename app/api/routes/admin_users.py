@@ -57,6 +57,20 @@ def _temporary_password() -> str:
     return secrets.token_urlsafe(12)
 
 
+async def _own_account_only(session, studio_id: int, user_id: int) -> None:
+    """Password and name belong to the account, not to the studio: refuse when the person works elsewhere too."""
+    elsewhere = await session.scalar(
+        select(func.count())
+        .select_from(StudioMembership)
+        .where(StudioMembership.user_id == user_id, StudioMembership.studio_id != studio_id)
+    )
+    if elsewhere:
+        raise ConflictError(
+            "Этот аккаунт есть и в других студиях: пароль и имя меняет сам человек на странице учётной записи",
+            code="shared_account",
+        )
+
+
 async def _staff_ok(session, studio_id: int, staff_id: int | None) -> None:
     if staff_id is None:
         return
@@ -130,6 +144,7 @@ async def update_member(user_id: int, payload: MemberUpdateIn, access: Owner, se
     if membership.role != Role.MASTER:
         membership.staff_id = None
     if values.get("full_name"):
+        await _own_account_only(session, sid, user_id)
         user = await session.get(User, user_id)
         user.full_name = " ".join(values["full_name"].split())
     await session.commit()
@@ -142,6 +157,7 @@ async def reset_password(user_id: int, access: Owner, session: DbSession) -> dic
     await _membership(session, access.studio.id, user_id)
     if user_id == access.user.id:
         raise ValidationFailedError("Свой пароль меняйте на странице учётной записи")
+    await _own_account_only(session, access.studio.id, user_id)
     user = await session.get(User, user_id)
     temporary = _temporary_password()
     user.password_hash = security.hash_password(temporary)
