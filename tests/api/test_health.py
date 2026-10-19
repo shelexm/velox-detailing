@@ -4,6 +4,7 @@ from fastapi import FastAPI
 
 from app.core.config import Settings
 from app.main import create_app
+from app.models import Studio
 
 
 async def test_live(client: httpx.AsyncClient) -> None:
@@ -69,3 +70,10 @@ async def test_unexpected_errors_do_not_leak_details(app_with_failing_route: Fas
     assert response.json()["error"]["code"] == "internal_error"
     assert "hunter2" not in response.text
     assert "Traceback" not in response.text
+
+
+async def test_probes_answer_head_requests(client: httpx.AsyncClient, studio: Studio) -> None:
+    # Uptime monitors send HEAD by default; a 405 would show a healthy site as down.
+    for path in ("/health/live", "/health/ready", "/"):
+        response = await client.head(path)
+        assert response.status_code == 200, path

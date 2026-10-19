@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 
-_DIGITS = re.compile(r"\D")
+_NOT_ASCII_DIGIT = re.compile(r"[^0-9]")  # \D would keep full-width and Arabic digits, which the database refuses
 
 
 class InvalidPhoneError(ValueError):
@@ -12,7 +12,7 @@ class InvalidPhoneError(ValueError):
 
 
 def normalize_ru_phone(raw: str) -> str:
-    digits = _DIGITS.sub("", raw or "")
+    digits = _NOT_ASCII_DIGIT.sub("", raw or "")
     if len(digits) == 11 and digits[0] in "78":
         digits = digits[1:]
     if len(digits) != 10 or digits[0] not in "3489":

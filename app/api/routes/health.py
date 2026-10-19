@@ -1,4 +1,4 @@
-"""Liveness and readiness probes."""
+"""Liveness and readiness probes. HEAD is allowed: many uptime monitors use it by default."""
 
 from __future__ import annotations
 
@@ -12,13 +12,13 @@ router = APIRouter(tags=["health"])
 logger = logging.getLogger(__name__)
 
 
-@router.get("/health/live")
+@router.api_route("/health/live", methods=["GET", "HEAD"])
 async def live() -> dict[str, str]:
     """The process is up and serving requests."""
     return {"status": "ok"}
 
 
-@router.get("/health/ready")
+@router.api_route("/health/ready", methods=["GET", "HEAD"])
 async def ready(request: Request) -> JSONResponse:
     """The database answers and its schema is at the migration head this code expects."""
     checks: dict[str, str] = {}

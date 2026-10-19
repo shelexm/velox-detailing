@@ -135,3 +135,18 @@ async def test_security_headers(client: httpx.AsyncClient, studio: Studio) -> No
     assert "script-src 'self'" in response.headers["content-security-policy"]
     assert response.headers["x-content-type-options"] == "nosniff"
     assert response.headers["x-frame-options"] == "DENY"
+
+
+async def test_odd_input_is_a_clean_error_not_a_500(
+    client: httpx.AsyncClient, session: AsyncSession, studio: Studio
+) -> None:
+    ceramic = await service_by_slug(session, "ceramic-coating")
+    # Dates far outside any calendar used to overflow datetime arithmetic.
+    for day in ("9999-12-31", "0001-01-01"):
+        response = await client.get(f"{BASE}/availability", params={"service_id": ceramic, "date_from": day})
+        assert response.status_code == 422, day
+    # Full-width digits pass \D but not the database CHECK; they must be refused as a bad phone.
+    start = await first_free_slot(client, "velox", ceramic)
+    response = await client.post(f"{BASE}/bookings", json=form(ceramic, start, phone="+7 9１３ 452-18-07"))
+    assert response.status_code == 422
+    assert "phone" in {d["field"] for d in response.json()["error"]["details"]}

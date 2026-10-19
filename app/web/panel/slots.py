@@ -12,6 +12,7 @@ from sqlalchemy import select
 from app.api.deps import DbSession
 from app.core.errors import NotFoundError
 from app.models import Resource, Service, StudioHours
+from app.schemas.common import MAX_DAY, MIN_DAY
 from app.services import queries
 from app.web.panel import fmt
 from app.web.panel.bookings import active_staff
@@ -25,7 +26,7 @@ async def slots_page(
     request: Request,
     panel: ManagerPanel,
     session: DbSession,
-    day: Annotated[date | None, Query()] = None,
+    day: Annotated[date | None, Query(ge=MIN_DAY, le=MAX_DAY)] = None,
     service: Annotated[int | None, Query(ge=1)] = None,
 ) -> Response:
     studio = panel.studio

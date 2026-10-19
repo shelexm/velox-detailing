@@ -28,6 +28,7 @@ from app.schemas.booking import (
     RescheduleIn,
     StatusChangeIn,
 )
+from app.schemas.common import MAX_DAY, MIN_DAY
 from app.schemas.studio import StudioSettingsIn, StudioSettingsOut
 from app.services import booking as booking_service
 from app.services import privacy, queries
@@ -168,7 +169,7 @@ async def availability(
     access: AnyMember,
     session: DbSession,
     service_id: Annotated[int, Query(ge=1)],
-    date_from: date | None = None,
+    date_from: Annotated[date | None, Query(ge=MIN_DAY, le=MAX_DAY)] = None,
     days: Annotated[int, Query(ge=1, le=14)] = 1,
     staff_id: int | None = None,
 ) -> AvailabilityOut:

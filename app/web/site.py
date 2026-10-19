@@ -62,7 +62,7 @@ def _page(request: Request, template: str, site, **extra) -> HTMLResponse:
     )
 
 
-@router.get("/", response_class=HTMLResponse)
+@router.api_route("/", methods=["GET", "HEAD"], response_class=HTMLResponse)
 async def index(request: Request, session: DbSession) -> HTMLResponse:
     studio = await current_studio(request, session)
     site = await load_site(session, studio)

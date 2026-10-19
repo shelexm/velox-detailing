@@ -15,6 +15,7 @@ from app.core.errors import NotFoundError
 from app.models import Resource, Service, Staff
 from app.models.enums import BookingSource, BookingStatus
 from app.schemas.booking import BookingAdminOut
+from app.schemas.common import MAX_DAY, MIN_DAY
 from app.services import queries
 from app.services.booking import TRANSITIONS
 from app.services.snapshot import load_snapshot
@@ -170,7 +171,7 @@ async def bookings_page(
     panel: AnyPanel,
     session: DbSession,
     view: Annotated[View, Query()] = "week",
-    day: Annotated[date | None, Query(alias="date")] = None,
+    day: Annotated[date | None, Query(alias="date", ge=MIN_DAY, le=MAX_DAY)] = None,
     staff: Annotated[int | None, Query(ge=1)] = None,
     status: Annotated[BookingStatus | None, Query()] = None,
     q: Annotated[str | None, Query(max_length=100)] = None,

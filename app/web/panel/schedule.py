@@ -13,6 +13,7 @@ from sqlalchemy import select
 from app.api.deps import DbSession
 from app.models import Resource, SpecialDay, StaffAbsence, StaffHours, StudioBreak, StudioHours, TimeBlock
 from app.models.enums import SpecialDayKind
+from app.schemas.common import MAX_DAY, MIN_DAY
 from app.web.panel import fmt
 from app.web.panel.bookings import active_staff
 from app.web.panel.common import ManagerPanel, render
@@ -26,7 +27,9 @@ def _month(value: str | None, today: date) -> date:
     if value:
         try:
             year, month = (int(x) for x in value.split("-"))
-            return date(year, month, 1)
+            first = date(year, month, 1)
+            if MIN_DAY <= first <= MAX_DAY:
+                return first
         except ValueError:
             pass
     return today.replace(day=1)
