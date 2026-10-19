@@ -467,6 +467,7 @@ async def change_status(
     reactivating = new_status in ACTIVE_BOOKING_STATUSES
     if reactivating:
         await _lock_studio(session, studio_id)
+        await _expire_holds(session, studio_id, now)
     booking = await _get_booking(session, studio_id, booking_id)
     if expected_version is not None and booking.version != expected_version:
         raise StaleBookingError()
@@ -475,6 +476,9 @@ async def change_status(
         return booking
     if new_status not in TRANSITIONS[old_status]:
         raise InvalidTransitionError()
+    if reactivating and booking.client_id is None:
+        # The client's data was erased: an active booking needs a client (database CHECK).
+        raise InvalidTransitionError("Данные клиента удалены: вернуть такую запись в работу нельзя")
 
     booking.status = new_status
     if new_status == BookingStatus.CONFIRMED and booking.confirmed_at is None:
@@ -527,6 +531,7 @@ async def reschedule(
     now = now or utcnow()
     by_client = actor.type in (ActorType.CLIENT, ActorType.BOT)
     studio = await _lock_studio(session, studio_id)
+    await _expire_holds(session, studio_id, now)  # a stale hold would answer "time taken" for a free slot
     booking = await _get_booking(session, studio_id, booking_id)
     if expected_version is not None and booking.version != expected_version:
         raise StaleBookingError()
@@ -552,9 +557,12 @@ async def reschedule(
         "service_id": booking.service_id,
         "staff_id": booking.staff_id,
     }
-    booking.service_id = service.id
-    booking.service_name = service.name
-    booking.price_from = service.price_from
+    moved = assignment.start != booking.starts_at or service.id != booking.service_id
+    if service.id != booking.service_id:
+        # The price and name agreed at booking time stay when only the time or the master changes.
+        booking.service_id = service.id
+        booking.service_name = service.name
+        booking.price_from = service.price_from
     booking.staff_id = assignment.staff_id
     booking.resource_id = assignment.resource_id
     booking.starts_at = assignment.start
@@ -577,10 +585,15 @@ async def reschedule(
         to_status=booking.status,
         data={"previous": previous},
     )
-    audience = outbox.AUDIENCE_ADMINS if by_client else outbox.AUDIENCE_CLIENT
-    await outbox.enqueue(
-        session, booking, "booking_rescheduled", audiences=(audience,), extra={"previous_start": previous["starts_at"]}
-    )
+    if moved:  # changing only the master tells the client nothing new
+        audience = outbox.AUDIENCE_ADMINS if by_client else outbox.AUDIENCE_CLIENT
+        await outbox.enqueue(
+            session,
+            booking,
+            "booking_rescheduled",
+            audiences=(audience,),
+            extra={"previous_start": previous["starts_at"]},
+        )
     await session.commit()
     return booking
 

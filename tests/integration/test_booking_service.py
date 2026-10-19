@@ -402,3 +402,55 @@ async def test_seed_does_not_bring_back_what_the_owner_changed(session: AsyncSes
     assert await session.scalar(select(func.count()).select_from(GiftOption)) == 0
     await session.refresh(group)
     assert group.short_title is None
+
+
+async def test_reschedule_keeps_the_agreed_price_and_only_a_real_move_notifies(
+    session: AsyncSession, studio: Studio
+) -> None:
+    light = await service_id(session, studio, "wheel-ceramic")  # five hours, two masters
+    created = await svc.create_booking(session, studio.id, request(light, at(WEDNESDAY, 10)), CLIENT, now=NOW)
+    booking = created.booking
+    agreed = booking.price_from
+    service = await session.get(Service, light)
+    service.price_from = agreed + 5000  # the catalog price goes up afterwards
+    await session.commit()
+    sent_before = await session.scalar(select(func.count()).select_from(NotificationOutbox))
+
+    other_master = next(
+        s
+        for s in (await staff_id(session, studio, "Андрей К."), await staff_id(session, studio, "Максим Р."))
+        if s != booking.staff_id
+    )
+    await svc.reschedule(
+        session, studio.id, booking.id, starts_at=at(WEDNESDAY, 10), actor=CLIENT, staff_id=other_master, now=NOW
+    )
+    assert booking.staff_id == other_master and booking.price_from == agreed
+    assert await session.scalar(select(func.count()).select_from(NotificationOutbox)) == sent_before  # same time
+
+    await svc.reschedule(session, studio.id, booking.id, starts_at=at(date(2026, 10, 22), 10), actor=CLIENT, now=NOW)
+    assert booking.price_from == agreed
+    assert await session.scalar(select(func.count()).select_from(NotificationOutbox)) == sent_before + 1
+
+
+async def test_stale_hold_does_not_block_a_reschedule(session: AsyncSession, studio: Studio) -> None:
+    light = await service_id(session, studio, "inspection")
+    await svc.create_hold(session, studio.id, service_id=light, starts_at=at(WEDNESDAY, 12), owner="tg:1", now=NOW)
+    created = await svc.create_booking(session, studio.id, request(light, at(WEDNESDAY, 16)), CLIENT, now=NOW)
+    later = NOW + timedelta(minutes=30)  # the hold has long expired but nobody swept it
+    moved = await svc.reschedule(
+        session, studio.id, created.booking.id, starts_at=at(WEDNESDAY, 12), actor=ADMIN, now=later
+    )
+    assert moved.starts_at == at(WEDNESDAY, 12)
+
+
+async def test_erased_booking_cannot_be_brought_back(session: AsyncSession, studio: Studio) -> None:
+    from app.services import privacy
+
+    light = await service_id(session, studio, "light-polish")
+    created = await svc.create_booking(session, studio.id, request(light, at(WEDNESDAY, 10)), CLIENT, now=NOW)
+    booking = created.booking
+    await svc.change_status(session, studio.id, booking.id, BookingStatus.CONFIRMED, ADMIN, now=NOW)
+    await svc.change_status(session, studio.id, booking.id, BookingStatus.DONE, ADMIN, now=NOW)
+    await privacy.erase_client(session, studio.id, booking.client_id, ADMIN)
+    with pytest.raises(InvalidTransitionError):  # used to surface as a database error, a 500 in the panel
+        await svc.change_status(session, studio.id, booking.id, BookingStatus.CONFIRMED, ADMIN, now=NOW)
