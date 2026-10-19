@@ -330,10 +330,12 @@ async def create_booking(
 
 
 async def _release(session: AsyncSession, studio_id: int, owner: str, now: datetime) -> None:
+    # A released hold is a never-completed hold, like an expired one: "cancelled" would show it in the
+    # panel calendar as a nameless cancelled booking and inflate the cancellation count.
     await session.execute(
         update(Booking)
         .where(Booking.studio_id == studio_id, Booking.status == BookingStatus.HOLD, Booking.hold_owner == owner)
-        .values(status=BookingStatus.CANCELLED, cancelled_at=now, version=Booking.version + 1)
+        .values(status=BookingStatus.EXPIRED, version=Booking.version + 1)
         .execution_options(synchronize_session=False)
     )
 

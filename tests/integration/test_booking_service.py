@@ -247,6 +247,61 @@ async def test_bot_hold_blocks_slot_until_completed_or_expired(session: AsyncSes
         )
 
 
+async def test_released_hold_is_not_a_cancelled_booking(session: AsyncSession, studio: Studio) -> None:
+    from app.services import queries
+
+    ceramic = await service_id(session, studio, "ceramic-coating")
+    first = await svc.create_hold(
+        session, studio.id, service_id=ceramic, starts_at=at(WEDNESDAY, 12), owner="tg:1", now=NOW
+    )
+    # Choosing another time releases the first hold; stepping back releases the second.
+    second = await svc.create_hold(
+        session, studio.id, service_id=ceramic, starts_at=at(WEDNESDAY, 14), owner="tg:1", now=NOW
+    )
+    await svc.release_holds(session, studio.id, "tg:1")
+    for hold in (first, second):
+        await session.refresh(hold)
+        assert hold.status == BookingStatus.EXPIRED and hold.cancelled_at is None
+    # They are invisible in the panel list and the slot is free again.
+    listed = await queries.list_bookings(
+        session,
+        studio.id,
+        date_from=at(WEDNESDAY, 0),
+        date_to=at(WEDNESDAY, 23, 59),
+        statuses=[BookingStatus.CANCELLED],
+    )
+    assert listed == []
+    assert (await svc.create_booking(session, studio.id, request(ceramic, at(WEDNESDAY, 12)), CLIENT, now=NOW)).booking
+
+
+async def test_migration_turns_old_released_holds_into_expired(settings, session: AsyncSession, studio: Studio) -> None:
+    from sqlalchemy import update
+
+    from tests.conftest import run_alembic
+
+    ceramic = await service_id(session, studio, "ceramic-coating")
+    ghost = await svc.create_hold(
+        session, studio.id, service_id=ceramic, starts_at=at(WEDNESDAY, 12), owner="tg:1", now=NOW
+    )
+    real = await svc.create_booking(
+        session, studio.id, request(ceramic, at(WEDNESDAY + timedelta(days=14), 12)), CLIENT, now=NOW
+    )
+    await svc.change_status(session, studio.id, real.booking.id, BookingStatus.CANCELLED, ADMIN, now=NOW)
+    # The old behaviour: a released hold stored as cancelled.
+    await session.execute(
+        update(Booking).where(Booking.id == ghost.id).values(status=BookingStatus.CANCELLED, cancelled_at=NOW)
+    )
+    await session.commit()
+
+    await asyncio.to_thread(run_alembic, settings, "downgrade", "0009")
+    await asyncio.to_thread(run_alembic, settings, "upgrade", "head")
+    await session.rollback()
+    await session.refresh(ghost)
+    await session.refresh(real.booking)
+    assert ghost.status == BookingStatus.EXPIRED and ghost.cancelled_at is None
+    assert real.booking.status == BookingStatus.CANCELLED and real.booking.cancelled_at is not None
+
+
 async def test_bot_hold_completion(session: AsyncSession, studio: Studio) -> None:
     ceramic = await service_id(session, studio, "ceramic-coating")
     hold = await svc.create_hold(
