@@ -1,6 +1,8 @@
 // Temporary diagnostics: which picture files this browser picks on the real page and which variants it can show.
 const $ = (id) => document.getElementById(id);
+const report = [];
 const line = (parent, ok, text) => {
+  report.push(`${ok ? "OK" : "FAIL"} ${text}`);
   const d = document.createElement("div");
   d.className = ok ? "ok" : "fail";
   d.textContent = `${ok ? "OK" : "НЕ ГРУЗИТСЯ"}  ${text}`;
@@ -56,4 +58,15 @@ const support = async () => {
       line(box, result.ok, `${name} ${result.ok ? result.size : result.why}`);
     }
   }
-})();
+  // The result goes to the server as the query of a request: it is visible in the access log.
+  const text = `${$("env").textContent}
+${report.join("
+")}`;
+  new Image().src = `/static/diag/report.gif?${encodeURIComponent(text)}`;
+  $("sent").textContent = "Готово, результат отправлен. Скриншот не нужен, напишите в чат «готово».";
+})().catch((error) => {
+  new Image().src = `/static/diag/report.gif?${encodeURIComponent(`SCRIPT ERROR ${error}
+${report.join("
+")}`)}`;
+  $("sent").textContent = `Ошибка: ${error}. Напишите в чат «ошибка».`;
+});
