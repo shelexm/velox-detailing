@@ -43,6 +43,7 @@ def bot_description(studio: str | None) -> str:
 
 BACK = "« Назад"
 MENU = "« В меню"
+NEXT_ACTION = "Что дальше?"
 
 BOT_SHORT_DESCRIPTION = "Запись на детейлинг, мои записи и напоминания о визите"
 

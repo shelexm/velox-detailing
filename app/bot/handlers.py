@@ -18,7 +18,7 @@ from app.bot import keyboards as kb
 from app.bot import logic, texts
 from app.bot.context import BotContext
 from app.core import security
-from app.core.errors import AppError, NotFoundError, ValidationFailedError
+from app.core.errors import AppError, ConflictError, NotFoundError, ValidationFailedError
 from app.core.phone import InvalidPhoneError, normalize_ru_phone
 from app.core.telegram import hold_owner
 from app.models import Booking, Client, ServiceCategory
@@ -490,6 +490,11 @@ async def _finish(
             return
         except ValidationFailedError:
             await message.answer(texts.PHONE_HINT, reply_markup=kb.share_phone())
+            return
+        except ConflictError as exc:  # a duplicate request, or too many active bookings on this number
+            await state.clear()
+            await message.answer(exc.message, reply_markup=ReplyKeyboardRemove())
+            await message.answer(texts.NEXT_ACTION, reply_markup=kb.main_menu())
             return
         booking = created.booking
         card = await logic.booking_text(

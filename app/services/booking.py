@@ -14,7 +14,7 @@ import secrets
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 
-from sqlalchemy import select, update
+from sqlalchemy import func, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm.exc import StaleDataError
@@ -287,6 +287,8 @@ async def create_booking(
         telegram_username=data.telegram_username,
         telegram_verified=data.telegram_verified,
     )
+    if online:
+        await _guard_repeat_requests(session, studio_id, client.id, service.id, assignment.start, now)
     vehicle_text = _clean_text(data.vehicle, 120)
     vehicle = (
         await remember_vehicle(session, studio_id=studio_id, client_id=client.id, description=vehicle_text)
@@ -327,6 +329,49 @@ async def create_booking(
     await outbox.enqueue(session, booking, "booking_created", audiences=audiences)
     await session.commit()
     return CreatedBooking(booking=booking, manage_token=manage_token)
+
+
+MAX_ACTIVE_ONLINE_REQUESTS = 5
+
+
+async def _guard_repeat_requests(
+    session: AsyncSession,
+    studio_id: int,
+    client_id: int,
+    service_id: int | None,
+    starts_at: datetime | None,
+    now: datetime,
+) -> None:
+    """Online requests only: the same request sent twice, and one phone flooding the calendar."""
+    if service_id is not None and starts_at is not None:
+        twin = await session.scalar(
+            select(Booking.id).where(
+                Booking.studio_id == studio_id,
+                Booking.client_id == client_id,
+                Booking.service_id == service_id,
+                Booking.starts_at == starts_at,
+                Booking.status.in_((BookingStatus.NEW, BookingStatus.CONFIRMED)),
+            )
+        )
+        if twin is not None:
+            raise ConflictError(
+                "Такая заявка уже принята. Мы свяжемся с вами, чтобы подтвердить время", code="duplicate_booking"
+            )
+    active = await session.scalar(
+        select(func.count())
+        .select_from(Booking)
+        .where(
+            Booking.studio_id == studio_id,
+            Booking.client_id == client_id,
+            Booking.status.in_((BookingStatus.NEW, BookingStatus.CONFIRMED)),
+            Booking.starts_at > now,
+        )
+    )
+    if (active or 0) >= MAX_ACTIVE_ONLINE_REQUESTS:
+        raise ConflictError(
+            "На этот номер уже оформлено несколько записей. Дождитесь подтверждения или позвоните в студию",
+            code="too_many_active_bookings",
+        )
 
 
 async def _release(session: AsyncSession, studio_id: int, owner: str, now: datetime) -> None:
@@ -424,6 +469,7 @@ async def complete_hold(
         telegram_username=data.telegram_username,
         telegram_verified=data.telegram_verified,
     )
+    await _guard_repeat_requests(session, studio_id, client.id, hold.service_id, hold.starts_at, now)
     vehicle_text = _clean_text(data.vehicle, 120)
     if vehicle_text:
         vehicle = await remember_vehicle(session, studio_id=studio_id, client_id=client.id, description=vehicle_text)

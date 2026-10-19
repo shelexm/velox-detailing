@@ -150,3 +150,32 @@ async def test_odd_input_is_a_clean_error_not_a_500(
     response = await client.post(f"{BASE}/bookings", json=form(ceramic, start, phone="+7 9１３ 452-18-07"))
     assert response.status_code == 422
     assert "phone" in {d["field"] for d in response.json()["error"]["details"]}
+
+
+async def test_same_request_twice_and_phone_flooding(
+    client: httpx.AsyncClient, session: AsyncSession, studio: Studio
+) -> None:
+    from app.services.booking import MAX_ACTIVE_ONLINE_REQUESTS
+
+    inspection = await service_by_slug(session, "inspection")  # three masters and two boxes: a twin would fit
+    start = await first_free_slot(client, "velox", inspection)
+    first = await client.post(f"{BASE}/bookings", json=form(inspection, start))
+    assert first.status_code == 201
+    # A retry after a lost answer (or a second tab) must not occupy another box and master.
+    again = await client.post(f"{BASE}/bookings", json=form(inspection, start))
+    assert again.status_code == 409 and again.json()["error"]["code"] == "duplicate_booking"
+
+    # One phone cannot fill the calendar: the limit counts its active bookings.
+    days = (await client.get(f"{BASE}/availability", params={"service_id": inspection, "days": 14})).json()["days"]
+    other_slots = [
+        slot["start"] for day in days for slot in day["slots"] if slot["available"] and slot["start"] != start
+    ]
+    created = 1
+    for slot in other_slots[: MAX_ACTIVE_ONLINE_REQUESTS + 2]:
+        response = await client.post(f"{BASE}/bookings", json=form(inspection, slot))
+        if response.status_code == 201:
+            created += 1
+        else:
+            assert response.status_code == 409 and response.json()["error"]["code"] == "too_many_active_bookings"
+            break
+    assert created == MAX_ACTIVE_ONLINE_REQUESTS
