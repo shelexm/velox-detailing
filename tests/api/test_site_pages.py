@@ -9,7 +9,7 @@ from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import Settings
-from app.models import Booking, Service, SiteSection, Studio
+from app.models import Booking, Service, ServiceGroup, SiteSection, Studio
 from app.services.media import ingest_image
 
 PLACEHOLDERS = re.compile(
@@ -218,3 +218,29 @@ async def test_service_page_booking_link_carries_the_variant(client: httpx.Async
     html = (await client.get("/services/polishing")).text
     link = re.search(r'<a class="btn btn--primary[^>]*data-detail-book[^>]*>', html)
     assert link and re.search(r'href="/\?service=[a-z0-9-]+#booking"', link.group(0))
+
+
+async def test_direction_price_follows_the_prices_of_its_services(
+    client: httpx.AsyncClient, session: AsyncSession, site_studio: Studio
+) -> None:
+    group = await session.scalar(
+        select(ServiceGroup).where(ServiceGroup.studio_id == site_studio.id, ServiceGroup.slug == "polishing")
+    )
+    services = list(await session.scalars(select(Service).where(Service.group_id == group.id, Service.is_active)))
+    cheapest = min(services, key=lambda s: s.price_from)
+    assert group.price_label and str(cheapest.price_from) not in group.price_label.replace(
+        " ", ""
+    )  # typed label differs
+
+    def shown(html: str, price: int) -> bool:
+        return bool(re.search(rf"от[\s ]{price // 1000}[\s ]{price % 1000:03d}[\s ]₽", html))
+
+    assert shown((await client.get("/")).text, cheapest.price_from)
+    assert shown((await client.get("/services/polishing")).text, cheapest.price_from)
+
+    # The owner changes the price in the services settings: the card and the page follow.
+    cheapest.price_from = 12_500
+    await session.commit()
+    assert shown((await client.get("/")).text, 12_500)
+    assert shown((await client.get("/services/polishing")).text, 12_500)
+    assert "от 25 000 ₽*" not in (await client.get("/services/polishing")).text

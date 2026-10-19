@@ -1,6 +1,6 @@
 # Статус разработки
 
-Обновлено: 19.10.2026. Ветка `main`, https://github.com/shelexm/velox-detailing (приватный). Тесты: 212 проходят (`pytest`, локально, в Docker и в GitHub Actions), покрытие 91%, `ruff` чистый.
+Обновлено: 19.10.2026. Ветка `main`, https://github.com/shelexm/velox-detailing (приватный). Тесты: 213 проходят (`pytest`, локально, в Docker и в GitHub Actions), покрытие 91%, `ruff` чистый.
 
 | Этап | Статус |
 |---|---|

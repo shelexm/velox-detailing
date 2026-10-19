@@ -7,8 +7,8 @@
     <div class="svc-grid">
       {% for view in site.groups %}
       {% set g = view.group %}
-      {% set prices = view.services | selectattr("price_from") | map(attribute="price_from") | list %}
-      {% set price = g.price_label or ((prices | min) | rub if prices else "") %}
+      {# The price comes from the services' prices in the panel; the typed label is only for a direction without priced services. #}
+      {% set price = (view.min_price | rub) if view.min_price is not none else (g.price_label or "") %}
       <article class="svc-card reveal{% if g.is_wide %} svc-card--wide{% endif %}{% if g.badge %} svc-card--featured{% endif %}">
         <a class="svc-card__overlay" href="/services/{{ g.slug }}" data-service-link aria-label="{{ g.title }}: подробнее"></a>
         <div class="svc-card__media">

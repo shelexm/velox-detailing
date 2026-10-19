@@ -52,7 +52,7 @@
     </div>
     {% endif %}
 
-    {% set facts = [("СРОК", d.term or g.duration_label), ("СТОИМОСТЬ", d.cost or g.price_label), ("ГАРАНТИЯ", d.guarantee)] | selectattr(1) | list %}
+    {% set facts = [("СРОК", d.term or g.duration_label), ("СТОИМОСТЬ", (view.min_price | rub) if view.min_price is not none else (d.cost or g.price_label)), ("ГАРАНТИЯ", d.guarantee)] | selectattr(1) | list %}
     {% if facts %}
     <dl class="facts facts--{{ facts | length }}">{% for label, value in facts %}<div><dt class="mono">{{ label }}</dt><dd{% if label == "СТОИМОСТЬ" %} class="mono"{% endif %}>{{ value }}</dd></div>{% endfor %}</dl>
     {% endif %}

@@ -36,6 +36,12 @@ class GroupView:
     number: int
 
     @property
+    def min_price(self) -> int | None:
+        """The lowest price among the direction's services: what the card and the page show as "от ..."."""
+        prices = [s.price_from for s in self.services if s.price_from is not None]
+        return min(prices) if prices else None
+
+    @property
     def online_services(self) -> list[Service]:
         return [s for s in self.services if s.online_booking]
 

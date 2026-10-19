@@ -104,7 +104,7 @@
   {{ field("tagline", "Подпись в мобильном списке", g.tagline if g else "", maxlength=120, attrs='data-type="nullable"') }}
   {{ field("features", "Пункты карточки: по одному в строке", (g.features | join("\n")) if g else "", type="textarea", attrs='data-type="lines" rows="3"') }}
   <div class="fld-row">
-    {{ field("price_label", "Цена на карточке", g.price_label if g else "", maxlength=60, placeholder="от 25 000 ₽*", attrs='data-type="nullable"') }}
+    {{ field("price_label", "Цена, если у направления нет услуг", g.price_label if g else "", maxlength=60, placeholder="по осмотру", hint="На карточке и странице показывается минимальная цена его услуг; этот текст нужен только когда услуг с ценой нет", attrs='data-type="nullable"') }}
     {{ field("duration_label", "Срок на карточке", g.duration_label if g else "", maxlength=60, placeholder="1–2 дня", attrs='data-type="nullable"') }}
   </div>
   {{ field("badge", "Плашка", g.badge if g else "", maxlength=40, attrs='data-type="nullable"') }}
@@ -117,7 +117,7 @@
   {{ field("detail.includes", "Что входит: по пункту в строке", (d.includes or []) | join("\n"), type="textarea", attrs='data-type="lines" rows="4"') }}
   <div class="fld-row">
     {{ field("detail.term", "Срок", d.term, maxlength=60, attrs='data-type="nullable"') }}
-    {{ field("detail.cost", "Стоимость", d.cost, maxlength=60, attrs='data-type="nullable"') }}
+    {{ field("detail.cost", "Стоимость, если у направления нет услуг", d.cost, maxlength=60, attrs='data-type="nullable"') }}
   </div>
   {{ field("detail.guarantee", "Гарантия", d.guarantee, maxlength=200, attrs='data-type="nullable"') }}
   {{ field("detail.upsell", "Совет (внизу страницы)", d.upsell, maxlength=300, attrs='data-type="nullable"') }}
