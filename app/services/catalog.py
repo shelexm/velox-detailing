@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from pydantic import ValidationError
-from sqlalchemy import delete, func, select
+from sqlalchemy import delete, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import ConflictError, NotFoundError, ValidationFailedError, russian_message
@@ -180,10 +180,18 @@ async def delete_category(session: AsyncSession, studio_id: int, category_id: in
     if category is None:
         raise NotFoundError("Раздел не найден")
     used = await session.scalar(
-        select(func.count()).where(Service.studio_id == studio_id, Service.category_id == category_id)
+        select(func.count()).where(
+            Service.studio_id == studio_id, Service.category_id == category_id, Service.is_active.is_(True)
+        )
     )
     if used:
         raise ConflictError("В разделе есть услуги. Перенесите их в другой раздел", code="category_in_use")
+    # Removed services are not shown anywhere: they must not keep the section from being deleted.
+    await session.execute(
+        update(Service)
+        .where(Service.studio_id == studio_id, Service.category_id == category_id)
+        .values(category_id=None)
+    )
     await session.delete(category)
     await session.commit()
 

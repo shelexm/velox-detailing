@@ -111,6 +111,27 @@ async def test_categories_and_groups(
     assert (await client.delete(f"{api}/categories/{used}")).status_code == 409
     assert (await client.delete(f"{api}/categories/{created.json()['id']}")).status_code == 204
 
+    # A section whose only service was removed can be deleted (the removed service is nowhere to be seen).
+    section = (await client.post(f"{api}/categories", json={"name": "Временный"})).json()
+    staff = list(await session.scalars(select(Staff.id).where(Staff.studio_id == studio.id).limit(1)))
+    service = await client.post(
+        f"{api}/services",
+        json={
+            "name": "Разовая услуга",
+            "category_id": section["id"],
+            "short_description": "Тест",
+            "price_from": 1000,
+            "duration_value": 1,
+            "duration_unit": "hours",
+            "duration_label": "1 ч",
+            "staff_ids": staff,
+        },
+    )
+    assert service.status_code == 201, service.text
+    assert (await client.delete(f"{api}/categories/{section['id']}")).status_code == 409  # still offered
+    assert (await client.delete(f"{api}/services/{service.json()['id']}")).status_code == 204
+    assert (await client.delete(f"{api}/categories/{section['id']}")).status_code == 204
+
     group = await session.scalar(select(ServiceGroup).where(ServiceGroup.slug == "polishing"))
     patched = await client.patch(
         f"{api}/groups/{group.id}",

@@ -188,6 +188,7 @@ export function showErrors(form, error) {
 }
 
 async function submitForm(form, submitter) {
+  if (form.dataset.busy) return; // a second click while the first request runs would create a duplicate
   clearErrors(form);
   if (form.dataset.confirm && !(await confirmAction({ title: form.dataset.confirm, ok: form.dataset.confirmOk || "Да" }))) return;
   let data;
@@ -200,10 +201,16 @@ async function submitForm(form, submitter) {
   const extra = form.dataset.extra ? JSON.parse(form.dataset.extra) : {};
   const button = submitter || form.querySelector('[type="submit"]');
   button?.setAttribute("aria-busy", "true");
+  form.dataset.busy = "1";
   const method = submitter?.dataset.method || form.dataset.method || "POST";
   const action = submitter?.dataset.action || form.dataset.action;
-  const result = await api(action, { method, data: { ...data, ...extra } });
-  button?.removeAttribute("aria-busy");
+  let result;
+  try {
+    result = await api(action, { method, data: { ...data, ...extra } });
+  } finally {
+    button?.removeAttribute("aria-busy");
+    delete form.dataset.busy;
+  }
   if (!result.ok) {
     showErrors(form, result.error);
     return;
@@ -248,11 +255,16 @@ document.addEventListener("click", async (event) => {
   const button = event.target.closest("[data-api]");
   if (!button) return;
   event.preventDefault();
+  if (button.getAttribute("aria-busy")) return; // already running: a second click must not repeat the action
   if (button.dataset.confirm && !(await confirmAction({ title: button.dataset.confirm, text: button.dataset.confirmText || "", ok: button.dataset.confirmOk || "Да", danger: button.dataset.confirmSafe === undefined }))) return;
   button.setAttribute("aria-busy", "true");
   const data = button.dataset.body ? JSON.parse(button.dataset.body) : undefined;
-  const result = await api(button.dataset.api, { method: button.dataset.method || "POST", data });
-  button.removeAttribute("aria-busy");
+  let result;
+  try {
+    result = await api(button.dataset.api, { method: button.dataset.method || "POST", data });
+  } finally {
+    button.removeAttribute("aria-busy");
+  }
   if (!result.ok) {
     toast(result.error?.message || "Не получилось", "error");
     return;
