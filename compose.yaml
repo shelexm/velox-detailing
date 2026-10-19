@@ -112,7 +112,8 @@ services:
     volumes:
       - ./scripts/backup-loop.sh:/backup-loop.sh:ro
       - ${BACKUP_DIR:-./backups}:/backups
-      - media:/media:ro
+      # Not /media: the Alpine image has cdrom, floppy and usb there, and they would be copied into the volume.
+      - media:/srv/media:ro
     depends_on:
       db:
         condition: service_healthy

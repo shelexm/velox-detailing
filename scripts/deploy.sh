@@ -3,8 +3,10 @@
 #
 #   DEPLOY_HOST=root@203.0.113.10 sh scripts/deploy.sh
 #
-# The server keeps its own .env, backups and Docker volumes; only the code is replaced. The build runs
-# detached on the server (a dropped SSH connection does not stop it); its log is in $DEPLOY_DIR/deploy.log.
+# The server keeps its own .env, backups and Docker volumes; only the code is replaced. scripts/server-deploy.sh
+# then runs there, detached (a dropped SSH connection does not stop it): it dumps the database, keeps the
+# previous image, builds, waits for /health/ready and tidies up. Its log is $DEPLOY_DIR/deploy.log and ends
+# with DEPLOY-OK or DEPLOY-FAILED.
 set -eu
 
 cd "$(dirname "$0")/.."
@@ -22,6 +24,6 @@ echo "Shipping $rev to $host:$dir"
 git archive --format=tar HEAD -- . ':!design-reference' | gzip | ssh $ssh_opts "$host" \
     "set -e; test -f '$dir/.env' || { echo 'no $dir/.env on the server' >&2; exit 1; }; tar -xzf - -C '$dir'; echo $rev > '$dir/REVISION'"
 # shellcheck disable=SC2086
-ssh $ssh_opts -f "$host" "cd '$dir' && setsid nohup sh -c 'docker compose up -d --build --remove-orphans && echo DEPLOY-OK || echo DEPLOY-FAILED' > deploy.log 2>&1 < /dev/null &"
+ssh $ssh_opts -f "$host" "cd '$dir' && setsid nohup sh scripts/server-deploy.sh > deploy.log 2>&1 < /dev/null &"
 echo "Build started on the server. Follow it with:"
 echo "  ssh $host 'tail -f $dir/deploy.log'"

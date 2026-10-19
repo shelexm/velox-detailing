@@ -17,12 +17,16 @@ run_backup() {
         rm -f "/backups/db-${stamp}.dump.partial"
         echo "backup: pg_dump failed" >&2
     fi
-    if [ -d /media ]; then
-        tar -czf "/backups/media-${stamp}.tar.gz.partial" -C /media . \
+    if [ -d /srv/media ]; then
+        tar -czf "/backups/media-${stamp}.tar.gz.partial" -C /srv/media . \
             && mv "/backups/media-${stamp}.tar.gz.partial" "/backups/media-${stamp}.tar.gz" \
             && echo "backup: media saved to media-${stamp}.tar.gz"
     fi
-    find /backups -maxdepth 1 -type f \( -name 'db-*.dump' -o -name 'media-*.tar.gz' \) -mtime "+${KEEP_DAYS}" -delete
+    find /backups -maxdepth 1 -type f -name '*.partial' -mtime +1 -delete
+    # Old copies go only while a recent dump exists: if dumps have been failing, the last good ones stay.
+    if [ -n "$(find /backups -maxdepth 1 -type f -name 'db-*.dump' -mtime "-${KEEP_DAYS}" | head -n 1)" ]; then
+        find /backups -maxdepth 1 -type f \( -name 'db-*.dump' -o -name 'media-*.tar.gz' \) -mtime "+${KEEP_DAYS}" -delete
+    fi
 }
 
 # Give the database a moment after startup, then back up on the interval.
