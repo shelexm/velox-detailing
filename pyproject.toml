@@ -52,6 +52,8 @@ filterwarnings = [
 
 [tool.coverage.run]
 source = ["app"]
+# SQLAlchemy async runs code in greenlets; without this the report undercounts by about ten points.
+concurrency = ["greenlet", "thread"]
 omit = ["app/bot/__main__.py"]
 
 [tool.ruff]

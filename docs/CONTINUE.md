@@ -6,7 +6,7 @@
 
 ```sh
 docker compose -f compose.test.yaml up -d --wait db-test       # тестовая БД на 127.0.0.1:55432
-C:/Users/arizo/.venvs/velox/Scripts/python.exe -m pytest -q     # ожидается 163 passed
+C:/Users/arizo/.venvs/velox/Scripts/python.exe -m pytest -q     # ожидается 212 passed
 C:/Users/arizo/.venvs/velox/Scripts/ruff.exe check app tests
 docker compose up -d --build                                    # сайт: http://127.0.0.1:8010/ (API_PORT=8010 в .env)
 docker compose run --rm api python -m app.cli create-admin --email you@example.com --name "Имя"   # пароль вводится интерактивно
