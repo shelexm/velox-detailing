@@ -376,10 +376,8 @@ async def test_seed_is_idempotent(session: AsyncSession, studio: Studio) -> None
     assert await session.scalar(select(func.count()).select_from(Service)) == before == 16
 
 
-async def test_seed_does_not_bring_back_what_the_owner_changed(session: AsyncSession, studio: Studio) -> None:
+async def test_seed_does_not_bring_back_what_the_owner_changed(session: AsyncSession, studio: Studio, tmp_path) -> None:
     """The seed runs on every deploy: a renamed master or a deleted review must stay that way."""
-    from pathlib import Path
-
     from sqlalchemy import delete
 
     from app.models import GiftOption, Review, ServiceGroup
@@ -395,7 +393,7 @@ async def test_seed_does_not_bring_back_what_the_owner_changed(session: AsyncSes
     await session.commit()
     masters = await session.scalar(select(func.count()).select_from(Staff))
 
-    await seed_all(session, media_root=Path("."))  # a media root would otherwise run the content seed too
+    await seed_all(session, media_root=tmp_path)  # a media root would otherwise run the content seed too
 
     assert await session.scalar(select(func.count()).select_from(Staff)) == masters
     assert await session.scalar(select(func.count()).select_from(Review)) == 0
