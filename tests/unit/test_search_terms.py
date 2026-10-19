@@ -11,9 +11,15 @@ def test_text_with_a_digit_is_not_a_phone_search(text: str) -> None:
 
 @pytest.mark.parametrize(
     ("text", "phone"),
-    [("8 (913) 452-18-07", "%9134521807%"), ("+7 913 452", "%7913452%"), ("4521", "%4521%"), ("913", None)],
+    [
+        ("8 (913) 452-18-07", "%9134521807%"),
+        ("+7 913 452", "%7913452%"),
+        ("4521", "%4521%"),
+        ("913", "%913%"),
+        ("91", None),
+    ],
 )
-def test_phone_like_text_searches_phones_from_four_digits(text: str, phone: str | None) -> None:
+def test_phone_like_text_searches_phones_from_three_digits(text: str, phone: str | None) -> None:
     assert _search_terms(text)[1] == phone
 
 

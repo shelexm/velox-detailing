@@ -205,7 +205,7 @@ def _search_terms(query: str) -> tuple[str, str | None, int | None]:
     escaped = text.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
     digits = "".join(ch for ch in text if ch.isdigit())
     phone = None
-    if _PHONE_LIKE.match(text) and len(digits) >= 4:
+    if _PHONE_LIKE.match(text) and len(digits) >= 3:
         national = digits[1:] if len(digits) == 11 and digits[0] in "78" else digits  # 8 913... is +7 913...
         phone = f"%{national}%"
     number = int(digits) if text.lstrip("№#").strip().isdigit() and len(digits) <= 6 else None
