@@ -134,15 +134,15 @@ class Panel:
         return items
 
 
-async def _new_bookings(session, studio_id: int) -> int:
-    return int(
-        await session.scalar(
-            select(func.count())
-            .select_from(Booking)
-            .where(Booking.studio_id == studio_id, Booking.status == BookingStatus.NEW)
-        )
-        or 0
+async def _new_bookings(session, studio_id: int, staff_id: int | None = None) -> int:
+    query = (
+        select(func.count())
+        .select_from(Booking)
+        .where(Booking.studio_id == studio_id, Booking.status == BookingStatus.NEW)
     )
+    if staff_id is not None:
+        query = query.where(Booking.staff_id == staff_id)
+    return int(await session.scalar(query) or 0)
 
 
 async def _resolve_user(request: Request, session) -> tuple[User, list[tuple[StudioMembership, Studio]]]:
@@ -177,12 +177,14 @@ def panel_access(*roles: Role):
         membership, studio = found
         if roles and membership.role not in roles:
             raise ForbiddenError("Этот раздел доступен администратору студии")
+        # A master's badge counts their own requests, not the studio's.
+        own = None if membership.role in MANAGERS else (membership.staff_id or -1)
         return Panel(
             user=user,
             studio=studio,
             membership=membership,
             memberships=rows,
-            new_count=await _new_bookings(session, studio.id),
+            new_count=await _new_bookings(session, studio.id, own),
             brand=await load_brand(session, studio),
         )
 

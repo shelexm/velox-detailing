@@ -166,8 +166,9 @@ async def dashboard(
     later_today = [r for r in rows if r.booking.starts_at > now]
 
     requests = await queries.new_requests(session, studio.id, staff_id=scope, limit=20)
-    period_stats = await stats.period_stats(session, studio, period, today)
-    upcoming = await stats.day_loads(session, studio, today + timedelta(days=1), 5)
+    # A master gets numbers about their own bookings only: the load of the boxes is the studio's business.
+    period_stats = await stats.period_stats(session, studio, period, today, staff_id=scope)
+    upcoming = await stats.day_loads(session, studio, today + timedelta(days=1), 5) if panel.is_manager else []
     clients = await stats.client_stats(session, studio.id, now) if panel.is_manager else None
     peak = max((count for _, count, _, _ in period_stats.per_bucket), default=0)
 

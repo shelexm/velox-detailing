@@ -71,6 +71,36 @@ async def test_master_sees_only_their_part(client: httpx.AsyncClient, studio: St
     assert "Клиентов в базе" not in page.text and f"/admin/{studio.id}/schedule" not in page.text
 
 
+async def test_master_dashboard_counts_only_their_own_bookings(
+    client: httpx.AsyncClient, session: AsyncSession, studio: Studio, make_user
+) -> None:
+    light = await _site_booking(client, session, "light-polish", "Марина")
+    booking = await session.scalar(select(Booking).where(Booking.number == light["number"]))
+    other_staff = await session.scalar(
+        select(Staff.id).where(Staff.studio_id == studio.id, Staff.id != booking.staff_id)
+    )
+    await make_user("owner@velox.test", studio)
+    await make_user("master@velox.test", studio, role=Role.MASTER, staff_id=booking.staff_id)
+    await make_user("master2@velox.test", studio, role=Role.MASTER, staff_id=other_staff)
+
+    await login(client, "owner@velox.test")
+    owner = (await client.get(f"/admin/{studio.id}/", headers=HTML)).text
+    assert "Загрузка" in owner and "Ближайшие дни" in owner and "есть новые" in owner
+
+    client.cookies.clear()
+    await login(client, "master@velox.test")
+    own = (await client.get(f"/admin/{studio.id}/?period=quarter", headers=HTML)).text
+    assert "Лёгкая полировка" in own and "есть новые" in own  # their own booking and request
+    assert "Загрузка" not in own and "Ближайшие дни" not in own  # the studio's boxes are not theirs
+
+    client.cookies.clear()
+    await login(client, "master2@velox.test")
+    stranger = (await client.get(f"/admin/{studio.id}/?period=quarter", headers=HTML)).text
+    assert "Лёгкая полировка" not in stranger and "Марина" not in stranger  # not in the by-service list either
+    assert "Загрузка" not in stranger and "Ближайшие дни" not in stranger
+    assert "есть новые" not in stranger  # the badge does not count the studio's requests
+
+
 async def test_change_password(client: httpx.AsyncClient, session: AsyncSession, studio: Studio, make_user) -> None:
     await make_user("owner@velox.test", studio)
     await login(client, "owner@velox.test")
@@ -239,3 +269,4 @@ async def test_services_screen(
     assert "Новое направление" in (await client.get(f"{base}?tab=groups&new=1", headers=HTML)).text
     categories = await client.get(f"{base}?tab=categories", headers=HTML)
     assert categories.status_code == 200 and 'value="Кузов"' in categories.text
+

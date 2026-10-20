@@ -138,18 +138,21 @@ def period_bounds(period: str, today: date) -> tuple[date, date]:
     return start, end
 
 
-async def period_stats(session: AsyncSession, studio: Studio, period: str, today: date) -> PeriodStats:
+async def period_stats(
+    session: AsyncSession, studio: Studio, period: str, today: date, *, staff_id: int | None = None
+) -> PeriodStats:
+    """Numbers for the period. With `staff_id` only that master's bookings are counted and the load of the
+    studio's boxes (which is not theirs to see) is left out."""
     start_day, end_day = period_bounds(period, today)
-    loads = await day_loads(session, studio, start_day, (end_day - start_day).days)
+    loads = [] if staff_id is not None else await day_loads(session, studio, start_day, (end_day - start_day).days)
     tz_start = datetime.combine(start_day, time(0), tzinfo=_tz(studio))
     tz_end = datetime.combine(end_day, time(0), tzinfo=_tz(studio))
-    rows = (
-        await session.execute(
-            select(Booking.starts_at, Booking.status, Booking.service_name).where(
-                Booking.studio_id == studio.id, Booking.starts_at >= tz_start, Booking.starts_at < tz_end
-            )
-        )
-    ).all()
+    query = select(Booking.starts_at, Booking.status, Booking.service_name).where(
+        Booking.studio_id == studio.id, Booking.starts_at >= tz_start, Booking.starts_at < tz_end
+    )
+    if staff_id is not None:
+        query = query.where(Booking.staff_id == staff_id)
+    rows = (await session.execute(query)).all()
     statuses = Counter(status for _, status, _ in rows)
     tz = _tz(studio)
     working = [(starts_at.astimezone(tz).date(), name) for starts_at, status, name in rows if status in WORK_STATUSES]

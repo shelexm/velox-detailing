@@ -39,12 +39,14 @@
     <span class="kpi__foot">{{ clients.repeat_percent }} %: повторные визиты</span>
   </div>
   {% endif %}
+  {% if panel.is_manager %}
   <div class="kpi">
     <span class="kpi__label">Загрузка {{ period_gen }}</span>
     <span class="kpi__value"><span class="kpi__num">{{ stats.load_percent }} %</span><span class="kpi__note only-desktop">{{ stats.busy_slots }} из {{ stats.total_slots }} {{ plural(stats.total_slots, "слота", "слотов", "слотов") }}</span></span>
     <span class="meter only-desktop" aria-hidden="true"><span style="width: {{ [stats.load_percent, 100] | min }}%"></span></span>
     <span class="kpi__foot only-mobile">{{ period_labels[period] | lower }}</span>
   </div>
+  {% endif %}
   <div class="kpi only-desktop">
     <span class="kpi__label">Выполнено {{ period_for }}</span>
     <span class="kpi__value"><span class="kpi__num">{{ stats.done }}</span><span class="kpi__note">{{ plural(stats.done, "работа", "работы", "работ") }}</span></span>
@@ -175,6 +177,7 @@
       {% if requests | length > 4 %}<a class="link" href="{{ panel.url('/bookings?status=new') }}">Все новые заявки ({{ new_total }})</a>{% endif %}
     </section>
 
+    {% if panel.is_manager %}
     <section class="card" aria-labelledby="days-title">
       <div class="card__head">
         <h2 class="card__title" id="days-title">Ближайшие дни</h2>
@@ -195,6 +198,7 @@
         {% endfor %}
       </div>
     </section>
+    {% endif %}
   </div>
 </div>
 {% endblock %}
