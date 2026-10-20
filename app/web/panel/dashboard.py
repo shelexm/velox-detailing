@@ -77,6 +77,8 @@ def _booking_href(panel: Panel, booking: BookingAdminOut) -> str:
 def _timeline(
     panel: Panel, bookings: list[BookingAdminOut], opening: Interval | None, resources: list[tuple[int, str]], day: date
 ) -> tuple[list[int], list[tuple[str, list[Segment]]]]:
+    """Boxes along the opening hours. A master only has their own bookings in `bookings`, so "free" would be
+    a lie (other masters work there) and boxes without their jobs say nothing: they get the jobs alone."""
     if opening is None:
         return [], []
     tz = panel.tz
@@ -96,10 +98,12 @@ def _timeline(
             (b for b in bookings if b.resource_id == resource_id and b.status in SHOWN_ON_TIMELINE),
             key=lambda b: b.starts_at,
         )
+        if not panel.is_manager and not mine:
+            continue
         cursor = opening.start
         for booking in mine:
             start, end = max(booking.starts_at, opening.start), min(booking.ends_at, opening.end)
-            if start - cursor >= timedelta(minutes=30):
+            if panel.is_manager and start - cursor >= timedelta(minutes=30):
                 segments.append(Segment(pos(cursor), pos(start) - pos(cursor), "free", "свободно"))
             if end > start:
                 who = " · ".join(
@@ -110,7 +114,7 @@ def _timeline(
                 href = _booking_href(panel, booking)
                 segments.append(Segment(pos(start), pos(end) - pos(start), booking.status, title, who, href))
             cursor = max(cursor, end)
-        if opening.end - cursor >= timedelta(minutes=30):
+        if panel.is_manager and opening.end - cursor >= timedelta(minutes=30):
             segments.append(Segment(pos(cursor), pos(opening.end) - pos(cursor), "free", "свободно"))
         rows.append((name, segments))
     return hours, rows

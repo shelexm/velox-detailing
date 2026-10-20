@@ -85,7 +85,7 @@
         <h2 class="card__title" id="today-title">Сегодня в студии</h2>
         <div class="card__legend">
           <span class="legend legend--busy">Занято</span>
-          <span class="legend legend--free">Свободно</span>
+          {% if panel.is_manager %}<span class="legend legend--free">Свободно</span>{% endif %}
           <a class="link" href="{{ panel.url('/bookings?view=day&date=' ~ today.isoformat()) }}">Открыть календарь</a>
         </div>
       </div>
