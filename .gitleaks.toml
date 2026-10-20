@@ -1,0 +1,9 @@
+# Secret scan settings (CI job "secrets"). The default rules stay on; only the fixture file below is skipped.
+title = "velox gitleaks"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Made-up tokens in the log masking tests (the Telegram example token and a random booking link token)"
+paths = ['''tests/unit/test_logging\.py''']
