@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+from datetime import datetime, time
+from zoneinfo import ZoneInfo
+
 import httpx
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -270,3 +273,24 @@ async def test_services_screen(
     categories = await client.get(f"{base}?tab=categories", headers=HTML)
     assert categories.status_code == 200 and 'value="Кузов"' in categories.text
 
+
+async def test_calendar_axis_grows_to_show_bookings_outside_opening_hours(
+    client: httpx.AsyncClient, session: AsyncSession, studio: Studio, make_user
+) -> None:
+    await make_user("owner@velox.test", studio)
+    await login(client, "owner@velox.test")
+    light = await _site_booking(client, session, "light-polish", "Марина")
+    booking = await session.scalar(select(Booking).where(Booking.number == light["number"]))
+    tz = ZoneInfo(studio.timezone)
+    day = booking.starts_at.astimezone(tz).date()
+    before = (await client.get(f"/admin/{studio.id}/bookings?view=day&date={day}", headers=HTML)).text
+    assert "05:00" not in before  # the studio does not open that early
+
+    booking.starts_at = datetime.combine(day, time(5, 30), tzinfo=tz)
+    booking.ends_at = datetime.combine(day, time(6, 30), tzinfo=tz)
+    await session.commit()
+
+    for view in ("day", "week"):
+        page = await client.get(f"/admin/{studio.id}/bookings?view={view}&date={day}", headers=HTML)
+        assert page.status_code == 200
+        assert "05:00" in page.text and "cal__block--new" in page.text, view

@@ -135,6 +135,26 @@ async def _hours_range(session, panel: Panel, first: date, days: int) -> tuple[i
     return lo, hi, closed
 
 
+def _fit_axis(lo: int, hi: int, bookings: list[BookingAdminOut], panel: Panel, view: str, day: date) -> tuple[int, int]:
+    """Widen the hour axis so bookings outside the opening hours (made by hand, or before the hours changed)
+    do not vanish from the grid."""
+    for b in bookings:
+        start, end = _local(b.starts_at, panel), _local(b.ends_at, panel)
+        if not _is_multiday(b, panel):
+            lo = min(lo, start.hour)
+            hi = max(hi, 24 if end.date() > start.date() else end.hour + (1 if end.minute else 0))
+        elif view == "day":
+            # Multi-day jobs fill the days in between; only their first and last day can fall off the axis.
+            if start.date() == day:
+                lo = min(lo, start.hour)
+                hi = 24 if start.hour >= hi else hi
+            elif end.date() == day:
+                end_hour = end.hour + (1 if end.minute else 0)
+                lo = 0 if end_hour <= lo else lo
+                hi = max(hi, end_hour)
+    return lo, hi
+
+
 def _block(b: BookingAdminOut, panel: Panel, day: date, lo: int, hi: int) -> Block | None:
     axis_start = datetime.combine(day, time(lo), tzinfo=panel.tz)
     axis_end = datetime.combine(day, time(0), tzinfo=panel.tz) + timedelta(hours=hi)
@@ -211,6 +231,7 @@ async def bookings_page(
     )
 
     lo, hi, closed = await _hours_range(session, panel, first, days)
+    lo, hi = _fit_axis(lo, hi, bookings, panel, view, day)
     columns: list[Column] = []
     spans: list[Span] = []
     if view == "week":
