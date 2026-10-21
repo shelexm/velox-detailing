@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import io
+import re
 
 import httpx
 import pytest
@@ -184,6 +185,13 @@ async def test_content_screens(client: httpx.AsyncClient, site_studio: Studio, m
     about = await client.get(f"{base}/content?block=about", headers=HTML)
     assert 'data-repeat-prefix="content.items"' in about.text and 'name="content.items.0.icon"' in about.text
     assert "Почему нам доверяют ключи" in about.text
+    # Every row numbers all its own fields (a row index taken from the field loop collapsed rows on save).
+    names = re.findall(r'name="(content\.items\.\d+\.\w+)"', about.text.split("<template")[0])
+    assert len(names) == len(set(names)) and {
+        "content.items.5.icon",
+        "content.items.5.title",
+        "content.items.5.text",
+    } <= set(names)
     assert (await client.get(f"{base}/content?tab=gifts", headers=HTML)).status_code == 200
 
     review = (await client.post(f"{api}/reviews", json={"text": "Всё отлично", "is_demo": True})).json()

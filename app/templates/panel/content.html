@@ -37,7 +37,8 @@
     <div class="repeat" id="{{ box_id }}" data-repeat data-repeat-prefix="{{ name }}">
       {% for item in (value or []) %}
       <div class="repeat__row repeat__row--stack" data-repeat-row>
-        <div class="repeat__fields">{% for child in f.children %}{{ render_field(child, item[child.name], name ~ "." ~ loop.index0 ~ ".") }}{% endfor %}</div>
+        {% set row = loop.index0 %}
+        <div class="repeat__fields">{% for child in f.children %}{{ render_field(child, item[child.name], name ~ "." ~ row ~ ".") }}{% endfor %}</div>
         <div class="repeat__tools">{{ move_buttons(0) }}<button class="icon-btn icon-btn--xs" type="button" data-repeat-remove aria-label="Убрать">{{ icon("close", 14) }}</button></div>
       </div>
       {% endfor %}
