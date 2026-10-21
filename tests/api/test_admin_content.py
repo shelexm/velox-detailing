@@ -146,6 +146,16 @@ async def test_cases_reviews_gifts(client: httpx.AsyncClient, site_studio: Studi
         await client.post(f"{api}/reviews", json={"text": "x", "source_url": "javascript:alert(1)"})
     ).status_code == 422
 
+    # A link typed without the scheme still works, and the site shows it on the review card.
+    linked = await client.post(
+        f"{api}/reviews", json={"text": "Ссылочный отзыв", "source_url": "yandex.ru/maps/org/velox/reviews"}
+    )
+    assert linked.status_code == 201 and linked.json()["source_url"] == "https://yandex.ru/maps/org/velox/reviews"
+    assert 'href="https://yandex.ru/maps/org/velox/reviews"' in (await client.get("/", headers=HTML)).text
+    saved = await client.patch(f"{api}/sections/reviews", json={"content": {"all_reviews_url": "2gis.ru/city/firm/1"}})
+    assert saved.status_code == 200, saved.text
+    assert 'href="https://2gis.ru/city/firm/1"' in (await client.get("/", headers=HTML)).text
+
     gift = await client.post(
         f"{api}/gifts", json={"label": "7 000 ₽", "value_text": "7 000 ₽", "subtitle": "На любую услугу"}
     )

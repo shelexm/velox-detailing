@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from datetime import datetime, time
 from zoneinfo import ZoneInfo
 
@@ -169,6 +170,18 @@ async def test_bookings_calendar_views(
     opened = await client.get(f"/admin/{studio.id}/bookings?date={day}&open={booking_id}", headers=HTML)
     assert opened.status_code == 200 and f"ЗАПИСЬ № {light['number']}" in opened.text
     assert "data-booking-editor" in opened.text and "Отменить запись" in opened.text
+    # The global click handler of panel.js fires on any ancestor with data-api: the editor must not carry one,
+    # otherwise "Сохранить" posts to the booking URL (405) instead of saving.
+    editor = re.search(r"<section[^>]*data-booking-editor[^>]*>", opened.text)
+    assert editor and "data-booking-api=" in editor.group(0) and " data-api=" not in editor.group(0)
+
+    # Filter forms send empty values for "Все мастера" and a cleared date: that is "no filter", not a 422.
+    blank = await client.get(f"/admin/{studio.id}/bookings?view=week&date={day}&staff=", headers=HTML)
+    assert blank.status_code == 200 and "Марина" in blank.text
+    assert (
+        await client.get(f"/admin/{studio.id}/bookings?view=week&date=&staff=&status=", headers=HTML)
+    ).status_code == 200
+    assert (await client.get(f"/admin/{studio.id}/slots?day=&service=", headers=HTML)).status_code == 200
 
     creating = await client.get(f"/admin/{studio.id}/bookings?new=1", headers=HTML)
     assert creating.status_code == 200 and "data-booking-create" in creating.text
