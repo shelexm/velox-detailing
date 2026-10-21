@@ -31,7 +31,7 @@ const editor = document.querySelector("[data-booking-editor]");
 const editForm = editor?.querySelector("[data-booking-form]");
 if (editForm) {
   const original = JSON.parse(editor.dataset.original);
-  const base = editor.dataset.api;
+  const base = editor.dataset.bookingApi;
 
   editForm.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -94,7 +94,7 @@ if (creator) {
     slotsBox.setAttribute("aria-busy", "true");
     const params = new URLSearchParams({ service_id: service, date_from: day, days: "1" });
     if (creator.staff_id.value) params.set("staff_id", creator.staff_id.value);
-    const result = await api(`${creator.dataset.api}/availability?${params}`);
+    const result = await api(`${creator.dataset.bookingApi}/availability?${params}`);
     if (mine !== token) return;
     slotsBox.removeAttribute("aria-busy");
     const slots = result.ok ? result.data.days[0]?.slots.filter((s) => s.available) : [];
@@ -142,7 +142,7 @@ if (creator) {
     const button = creator.querySelector('[type="submit"]');
     button.setAttribute("aria-busy", "true");
     const { date, time, ...rest } = data;
-    const result = await api(`${creator.dataset.api}/bookings`, { method: "POST", data: { ...rest, staff_id: rest.staff_id || null, starts_at: `${date}T${time}:00` } });
+    const result = await api(`${creator.dataset.bookingApi}/bookings`, { method: "POST", data: { ...rest, staff_id: rest.staff_id || null, starts_at: `${date}T${time}:00` } });
     button.removeAttribute("aria-busy");
     if (!result.ok) {
       if (result.error?.code === "slot_taken") result.error.message = slotTakenMessage(result.error);

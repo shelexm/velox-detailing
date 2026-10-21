@@ -4,7 +4,7 @@
 {% macro booking_editor(detail, allowed, options, status_order, source_labels, panel, close_href="", page=false) -%}
 {% set local_start = detail.starts_at.astimezone(panel.tz) %}
 {% set local_end = detail.ends_at.astimezone(panel.tz) %}
-<section class="drawer {% if page %}drawer--page{% endif %}" aria-labelledby="bk-title" data-booking-editor data-api="{{ panel.api }}/bookings/{{ detail.id }}"
+<section class="drawer {% if page %}drawer--page{% endif %}" aria-labelledby="bk-title" data-booking-editor data-booking-api="{{ panel.api }}/bookings/{{ detail.id }}"
   data-original='{{ {"status": detail.status, "contact_name": detail.contact_name or "", "vehicle": detail.vehicle or "", "service_id": detail.service_id, "staff_id": detail.staff_id or "", "date": local_start.date().isoformat(), "time": local_start.strftime("%H:%M"), "client_comment": detail.client_comment or "", "internal_note": detail.internal_note or "", "version": detail.version} | tojson }}'>
   <div class="drawer__head">
     <div>
@@ -119,7 +119,7 @@
     <div><span class="drawer__eyebrow mono">НОВАЯ ЗАПИСЬ</span><h2 class="drawer__title" id="new-title">Записать клиента</h2></div>
     <a class="icon-btn icon-btn--round" href="{{ close_href }}" aria-label="Закрыть">{{ icon("close", 18) }}</a>
   </div>
-  <form class="drawer__body" data-booking-create data-api="{{ panel.api }}" data-redirect-base="{{ panel.url('/bookings') }}" novalidate>
+  <form class="drawer__body" data-booking-create data-booking-api="{{ panel.api }}" data-redirect-base="{{ panel.url('/bookings') }}" novalidate>
     <div class="form-alert" data-form-alert hidden>{{ icon("alert", 18) }}<span data-form-alert-text></span></div>
     <div class="fld">
       <label class="fld__label" for="nb-service">Услуга</label>
