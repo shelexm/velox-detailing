@@ -8,6 +8,7 @@ from typing import Annotated, Literal
 
 from fastapi import APIRouter, Query, Request
 from fastapi.responses import Response
+from pydantic import Field
 from sqlalchemy import select
 
 from app.api.deps import DbSession
@@ -20,7 +21,7 @@ from app.services import queries
 from app.services.booking import TRANSITIONS
 from app.services.snapshot import load_snapshot
 from app.web.panel import fmt
-from app.web.panel.common import AnyPanel, Panel, render
+from app.web.panel.common import AnyPanel, BlankAsNone, Panel, render
 
 router = APIRouter()
 
@@ -191,13 +192,13 @@ async def bookings_page(
     panel: AnyPanel,
     session: DbSession,
     view: Annotated[View, Query()] = "week",
-    day: Annotated[date | None, Query(alias="date", ge=MIN_DAY, le=MAX_DAY)] = None,
-    staff: Annotated[int | None, Query(ge=1)] = None,
-    status: Annotated[BookingStatus | None, Query()] = None,
+    day: Annotated[Annotated[date, Field(ge=MIN_DAY, le=MAX_DAY)] | None, BlankAsNone, Query(alias="date")] = None,
+    staff: Annotated[Annotated[int, Field(ge=1)] | None, BlankAsNone, Query()] = None,
+    status: Annotated[BookingStatus | None, BlankAsNone, Query()] = None,
     q: Annotated[str | None, Query(max_length=100)] = None,
-    open_id: Annotated[int | None, Query(alias="open", ge=1)] = None,
+    open_id: Annotated[Annotated[int, Field(ge=1)] | None, BlankAsNone, Query(alias="open")] = None,
     new: Annotated[bool, Query()] = False,
-    client: Annotated[int | None, Query(ge=1)] = None,
+    client: Annotated[Annotated[int, Field(ge=1)] | None, BlankAsNone, Query()] = None,
 ) -> Response:
     tz, now = panel.tz, panel.now()
     today = now.date()

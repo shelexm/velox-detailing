@@ -14,6 +14,7 @@ from zoneinfo import ZoneInfo
 
 from fastapi import Depends, Path, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
+from pydantic import BeforeValidator
 from sqlalchemy import func, select
 
 from app.api.deps import DbSession
@@ -28,6 +29,14 @@ from app.web.templating import build_templates, render_attrs
 
 templates = build_templates()
 templates.env.filters.update(fmt.FILTERS)
+
+
+def _blank_to_none(value: object) -> object:
+    return None if isinstance(value, str) and not value.strip() else value
+
+
+# A filter form sends "staff=" for "Все мастера" and "day=" for a cleared date: that means "no filter", not an error.
+BlankAsNone = BeforeValidator(_blank_to_none)
 
 ROLE_LABELS = {Role.OWNER: "Владелец", Role.ADMIN: "Администратор", Role.MASTER: "Мастер"}
 MANAGERS = (Role.OWNER, Role.ADMIN)

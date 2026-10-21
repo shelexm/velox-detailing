@@ -7,6 +7,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Query, Request
 from fastapi.responses import Response
+from pydantic import Field
 from sqlalchemy import select
 
 from app.api.deps import DbSession
@@ -16,7 +17,7 @@ from app.schemas.common import MAX_DAY, MIN_DAY
 from app.services import queries
 from app.web.panel import fmt
 from app.web.panel.bookings import active_staff
-from app.web.panel.common import ManagerPanel, render
+from app.web.panel.common import BlankAsNone, ManagerPanel, render
 
 router = APIRouter()
 
@@ -26,8 +27,8 @@ async def slots_page(
     request: Request,
     panel: ManagerPanel,
     session: DbSession,
-    day: Annotated[date | None, Query(ge=MIN_DAY, le=MAX_DAY)] = None,
-    service: Annotated[int | None, Query(ge=1)] = None,
+    day: Annotated[Annotated[date, Field(ge=MIN_DAY, le=MAX_DAY)] | None, BlankAsNone, Query()] = None,
+    service: Annotated[Annotated[int, Field(ge=1)] | None, BlankAsNone, Query()] = None,
 ) -> Response:
     studio = panel.studio
     sid = studio.id
