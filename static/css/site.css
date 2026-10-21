@@ -437,6 +437,7 @@ html.is-repeat .anim-in, html.is-repeat .hero__media, html.is-repeat .site-heade
 .review__who { display: flex; flex-direction: column; }
 .review__who strong { font-size: 15px; font-weight: 600; }
 .review__who span { font-size: 13px; color: var(--text-3); }
+.review__src { min-height: 0; font-size: 13px; color: var(--text-2); }
 .review__svc { font-size: 11px; color: var(--text-2); letter-spacing: .08em; margin-left: auto; }
 .dots { display: flex; gap: 6px; }
 .dots span { width: 18px; height: 2px; background: var(--line-3); }
@@ -693,6 +694,7 @@ html.is-repeat .anim-in, html.is-repeat .hero__media, html.is-repeat .site-heade
   .section-head__title { gap: 14px; }
   .section-head__aside { gap: 14px; }
   .section-head .link--arrow { display: none; }
+  .section--reviews .section-head .link--arrow { display: inline-flex; }
 
   .site-nav, .site-header__phone, .site-header__cta { display: none; }
   .site-header__call, .site-header__burger { display: inline-flex; }

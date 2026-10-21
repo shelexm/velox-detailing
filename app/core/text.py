@@ -1,4 +1,4 @@
-"""Small text helpers: Latin slugs from Russian names."""
+"""Small text helpers: Latin slugs from Russian names, links typed by hand."""
 
 from __future__ import annotations
 
@@ -19,6 +19,23 @@ def slugify(text: str, *, fallback: str = "item", max_length: int = 56) -> str:
     value = text.lower().translate(_TRANSLIT)
     value = re.sub(r"[^a-z0-9]+", "-", value).strip("-")
     return (value[:max_length].rstrip("-")) or fallback
+
+
+def with_https(value: object) -> object:
+    """A link as people type it: "yandex.ru/maps/x" and "http://x.ru" become https links, blank becomes None.
+
+    Anything else (another scheme, spaces) is returned as is for the field's own check to reject.
+    """
+    if not isinstance(value, str):
+        return value
+    value = value.strip()
+    if not value:
+        return None
+    if value[:7].lower() == "http://":
+        return "https://" + value[7:]
+    if "://" not in value and re.match(r"^[\w-]+(\.[\w-]+)+([/?#]|$)", value):
+        return "https://" + value
+    return value
 
 
 def unique_slug(base: str, taken: set[str]) -> str:

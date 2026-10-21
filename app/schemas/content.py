@@ -6,6 +6,7 @@ from typing import Any
 
 from pydantic import Field, field_validator
 
+from app.core.text import with_https
 from app.schemas.common import Schema
 
 
@@ -66,7 +67,8 @@ class ReviewFields(Schema):
     is_demo: bool | None = None
     is_published: bool | None = None
 
-    _c = field_validator("author_name", "car", "service_label", "source_url", mode="before")(_clean)
+    _c = field_validator("author_name", "car", "service_label", mode="before")(_clean)
+    _u = field_validator("source_url", mode="before")(with_https)
     _t = field_validator("text", mode="before")(_text)
 
 

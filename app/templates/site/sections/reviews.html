@@ -21,6 +21,7 @@
           {% if review.author_name or review.car %}<span class="review__who"><strong>{{ review.author_name or "" }}</strong>{% if review.car %}<span>{{ review.car }}</span>{% endif %}</span>{% endif %}
           {% if review.service_label %}<span class="mono review__svc">{{ review.service_label }}</span>{% endif %}
         </figcaption>
+        {% if review.source_url %}<a class="link link--arrow review__src" href="{{ review.source_url }}" target="_blank" rel="noopener nofollow">{{ s.source_label }} {{ icon("arrow", 16) }}</a>{% endif %}
       </figure>
       {% endfor %}
     </div>
