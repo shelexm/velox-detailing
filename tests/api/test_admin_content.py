@@ -155,6 +155,13 @@ async def test_cases_reviews_gifts(client: httpx.AsyncClient, site_studio: Studi
     saved = await client.patch(f"{api}/sections/reviews", json={"content": {"all_reviews_url": "2gis.ru/city/firm/1"}})
     assert saved.status_code == 200, saved.text
     assert 'href="https://2gis.ru/city/firm/1"' in (await client.get("/", headers=HTML)).text
+    # The panel sends null (or an empty string) when the link is cleared: that must save, not crash.
+    for blank in (None, ""):
+        cleared = await client.patch(f"{api}/sections/reviews", json={"content": {"all_reviews_url": blank}})
+        assert cleared.status_code == 200, cleared.text
+    assert "2gis.ru/city/firm/1" not in (await client.get("/", headers=HTML)).text
+    no_link = await client.post(f"{api}/reviews", json={"text": "Без ссылки", "source_url": ""})
+    assert no_link.status_code == 201 and no_link.json()["source_url"] is None
 
     gift = await client.post(
         f"{api}/gifts", json={"label": "7 000 ₽", "value_text": "7 000 ₽", "subtitle": "На любую услугу"}

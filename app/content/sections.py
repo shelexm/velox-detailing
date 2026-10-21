@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import Annotated
 
-from pydantic import BaseModel, BeforeValidator, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.core.text import with_https
 
@@ -269,9 +269,9 @@ class Reviews(Block):
     demo_label: Short = "ДЕМО"
     source_label: Short = "Оригинал отзыва"
     all_reviews_label: Short = "Все отзывы на картах"
-    all_reviews_url: Annotated[
-        str | None, BeforeValidator(with_https), Field(default=None, max_length=500, pattern=r"^https://")
-    ] = None
+    all_reviews_url: Annotated[str | None, Field(default=None, max_length=500, pattern=r"^https://")] = None
+
+    _link = field_validator("all_reviews_url", mode="before")(with_https)
 
 
 class Gift(Block):
