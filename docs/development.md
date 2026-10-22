@@ -114,7 +114,7 @@ docker run --rm -v "$PWD:/src" -w /src python:3.12-slim sh -c \
 - Никогда не коммитить `.env`, токены, ключи, дампы базы, реальные данные клиентов. `git add` только
   конкретных файлов.
 - Без `push --force` и переписывания истории.
-- Выкладка на сервер: `DEPLOY_HOST=root@89.110.87.55 sh scripts/deploy.sh` (подробно: [deployment.md](deployment.md#5-обновление-и-откат)).
+- Выкладка на сервер: `DEPLOY_HOST=ПОЛЬЗОВАТЕЛЬ@СЕРВЕР sh scripts/deploy.sh` (подробно: [deployment.md](deployment.md#5-обновление-и-откат)).
 
 ## Локальный бот
 

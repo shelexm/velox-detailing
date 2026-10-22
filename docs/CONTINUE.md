@@ -25,7 +25,7 @@ docker compose run --rm api python -m app.cli create-admin --email you@example.c
 
 ## Обновление сервера
 
-`DEPLOY_HOST=root@89.110.87.55 sh scripts/deploy.sh` из чистого рабочего дерева, затем ждать `DEPLOY-OK`
+`DEPLOY_HOST=ПОЛЬЗОВАТЕЛЬ@СЕРВЕР sh scripts/deploy.sh` из чистого рабочего дерева, затем ждать `DEPLOY-OK`
 в `/opt/velox/deploy.log`.
 
 ## Дальше (по желанию владельца)

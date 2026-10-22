@@ -19,7 +19,7 @@
 
 | | |
 |---|---|
-| Адрес | https://topsite.goroshka.ru (DNS: afraid.org, A-запись на 89.110.87.55) |
+| Адрес | https://topsite.goroshka.ru (DNS: afraid.org, A-запись на IP сервера) |
 | Сервер | VPS Ubuntu 24.04, 1 CPU, 1 ГБ RAM + swap 1 ГБ (`/swapfile`), диск 10 ГБ, Нидерланды |
 | Соседи | 3x-ui (xray) и nginx пользователя: работают как раньше |
 | Проект | `/opt/velox`: код, `.env` (права 600), `backups/`, `deploy.log`, `REVISION` (выложенный коммит) |
@@ -70,11 +70,12 @@ docker run --rm postgres:17-alpine sh -c 'wget -q -T 8 -O /dev/null https://pypi
 
 ### 3.2. Код
 
-С компьютера разработчика (в репозитории, рабочее дерево чистое):
+С компьютера разработчика (в репозитории, рабочее дерево чистое). Здесь и ниже `ПОЛЬЗОВАТЕЛЬ@СЕРВЕР`: SSH-пользователь
+и адрес вашего сервера, настоящие значения в документацию не пишутся.
 
 ```sh
-ssh root@СЕРВЕР 'mkdir -p /opt/velox && chmod 750 /opt/velox'
-git archive --format=tar HEAD -- . ':!design-reference' | gzip | ssh root@СЕРВЕР 'tar -xzf - -C /opt/velox'
+ssh ПОЛЬЗОВАТЕЛЬ@СЕРВЕР 'mkdir -p /opt/velox && chmod 750 /opt/velox'
+git archive --format=tar HEAD -- . ':!design-reference' | gzip | ssh ПОЛЬЗОВАТЕЛЬ@СЕРВЕР 'tar -xzf - -C /opt/velox'
 ```
 
 (Или `git clone` приватного репозитория на сервер через read-only deploy key.)
@@ -183,8 +184,8 @@ docker compose run --rm api python -m app.cli create-admin --email owner@example
 на сервере не трогаются):
 
 ```sh
-DEPLOY_HOST=root@89.110.87.55 sh scripts/deploy.sh
-ssh root@89.110.87.55 'tail -f /opt/velox/deploy.log'     # ждать DEPLOY-OK или DEPLOY-FAILED
+DEPLOY_HOST=ПОЛЬЗОВАТЕЛЬ@СЕРВЕР sh scripts/deploy.sh
+ssh ПОЛЬЗОВАТЕЛЬ@СЕРВЕР 'tail -f /opt/velox/deploy.log'     # ждать DEPLOY-OK или DEPLOY-FAILED
 ```
 
 Скрипт копирует код в `/opt/velox`, записывает коммит в `REVISION` и запускает на сервере
@@ -200,7 +201,7 @@ ssh root@89.110.87.55 'tail -f /opt/velox/deploy.log'     # ждать DEPLOY-OK
 
 ```sh
 curl -s https://topsite.goroshka.ru/health/ready
-ssh root@89.110.87.55 'cd /opt/velox && cat REVISION && docker compose ps'
+ssh ПОЛЬЗОВАТЕЛЬ@СЕРВЕР 'cd /opt/velox && cat REVISION && docker compose ps'
 ```
 
 **Откат кода:** быстрый, без пересборки, пока образ `velox-app:prev` на месте:
@@ -208,7 +209,7 @@ ssh root@89.110.87.55 'cd /opt/velox && cat REVISION && docker compose ps'
 (`git checkout <коммит>` во временной ветке, тот же скрипт, затем вернуться на `main`). Если новая версия успела
 применить миграцию базы, сначала восстановить базу из `db-predeploy-<время>.dump` (см. ниже), потом возвращать код.
 
-Дамп перед каждой выкладкой делается сам; ручной бэкап (`ssh root@89.110.87.55 'cd /opt/velox && sh scripts/backup.sh'`) нужен перед работами на самом сервере.
+Дамп перед каждой выкладкой делается сам; ручной бэкап (`ssh ПОЛЬЗОВАТЕЛЬ@СЕРВЕР 'cd /opt/velox && sh scripts/backup.sh'`) нужен перед работами на самом сервере.
 
 ## 6. Резервные копии
 
@@ -221,7 +222,7 @@ ssh root@89.110.87.55 'cd /opt/velox && cat REVISION && docker compose ps'
 **Копия за пределами сервера** (бэкапы на том же сервере не спасут при его потере):
 
 ```sh
-scp 'root@89.110.87.55:/opt/velox/backups/db-*.dump' ./velox-backups/
+scp 'ПОЛЬЗОВАТЕЛЬ@СЕРВЕР:/opt/velox/backups/db-*.dump' ./velox-backups/
 ```
 
 Храните копии там, где есть только у вас доступ: в них телефоны и имена клиентов.
