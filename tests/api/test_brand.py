@@ -64,3 +64,29 @@ async def test_brand_word_tagline_and_image(
         )
     ).text
     assert "pn-logo__word" in login_page
+
+
+async def test_timezone_is_set_in_the_settings(
+    client: httpx.AsyncClient, session: AsyncSession, site_studio: Studio, make_user
+) -> None:
+    await make_user("owner@velox.test", site_studio)
+    await login(client, "owner@velox.test")
+    api = f"/api/v1/admin/studios/{site_studio.id}"
+
+    page = (await client.get(f"/admin/{site_studio.id}/settings", headers=HTML)).text
+    assert 'name="timezone"' in page and '<option value="Europe/Moscow" selected>' in page
+
+    saved = await client.patch(f"{api}/settings", json={"timezone": "Asia/Novosibirsk"})
+    assert saved.status_code == 200 and saved.json()["timezone"] == "Asia/Novosibirsk"
+    page = (await client.get(f"/admin/{site_studio.id}/settings", headers=HTML)).text
+    assert '<option value="Asia/Novosibirsk" selected>' in page
+
+    for bad in ("Mars/Olympus", "../etc/passwd", ""):
+        rejected = await client.patch(f"{api}/settings", json={"timezone": bad})
+        assert rejected.status_code == 422, bad
+    assert (await client.get(f"{api}/settings")).json()["timezone"] == "Asia/Novosibirsk"
+
+    # A zone outside the offered list stays selectable once the studio has it.
+    await client.patch(f"{api}/settings", json={"timezone": "America/New_York"})
+    page = (await client.get(f"/admin/{site_studio.id}/settings", headers=HTML)).text
+    assert '<option value="America/New_York" selected>' in page

@@ -17,6 +17,12 @@
   <section class="card">
     <h2 class="card__title">Студия</h2>
     {{ field("name", "Название", s.name, required=true, maxlength=200) }}
+    <div class="fld">
+      <label class="fld__label" for="f-timezone">Часовой пояс студии</label>
+      <select class="select" id="f-timezone" name="timezone">{% for key, label in timezones %}<option value="{{ key }}" {% if key == s.timezone %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+      <span class="fld__hint">По нему считаются часы работы, слоты и время в записях, уведомлениях и боте. Уже созданные записи остаются на тот же момент, а часы работы из расписания сдвинутся вместе с поясом: после смены проверьте расписание</span>
+      <span class="fld__error" data-error-for="timezone" hidden></span>
+    </div>
     <div class="fld-row">
       {{ field("city", "Город", s.city, maxlength=120, attrs='data-type="nullable"') }}
       {{ field("address", "Адрес", s.address, maxlength=300, placeholder="улица, дом", attrs='data-type="nullable"') }}

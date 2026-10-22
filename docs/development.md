@@ -91,7 +91,7 @@ docker compose run --rm migrate alembic revision --autogenerate -m "describe cha
 - **JavaScript** без фреймворков, модули ES. Панель: общий `static/js/panel.js` (формы `data-form`,
   кнопки `data-api`, переключатели `data-toggle`, порядок `data-move`) и скрипты страниц.
 - **Тексты бота** только в `app/bot/texts.py`, клавиатуры в `app/bot/keyboards.py`.
-- **Время** хранится в UTC, показывается в часовом поясе студии (`Europe/Moscow`).
+- **Время** хранится в UTC, показывается в часовом поясе студии (по умолчанию `Europe/Moscow`, меняется в «Настройках»).
 - В текстах, документации и коммитах не используется длинное тире: только дефис, двоеточие или запятая.
 
 ## Зависимости

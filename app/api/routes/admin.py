@@ -41,6 +41,7 @@ MAX_RANGE = timedelta(days=62)
 REQUIRED_SETTINGS = frozenset(
     {
         "name",
+        "timezone",
         "online_booking_enabled",
         "slot_step_minutes",
         "buffer_minutes",

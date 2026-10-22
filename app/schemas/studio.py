@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+from zoneinfo import available_timezones
 
 from pydantic import Field, field_validator
 
@@ -50,6 +51,7 @@ class StudioSettingsIn(Schema):
     """Every field is optional: only the provided ones change. An empty string clears a contact."""
 
     name: str | None = Field(default=None, min_length=1, max_length=200)
+    timezone: str | None = Field(default=None, max_length=64)
     city: str | None = Field(default=None, max_length=120)
     address: str | None = Field(default=None, max_length=300)
     address_note: str | None = Field(default=None, max_length=300)
@@ -79,6 +81,17 @@ class StudioSettingsIn(Schema):
         if value is not None and value not in (15, 30, 60, 120):
             raise ValueError("Шаг слотов: 15, 30, 60 или 120 минут")
         return value
+
+    @field_validator("timezone", mode="before")
+    @classmethod
+    def _timezone(cls, value: object) -> object:
+        value = _blank_to_none(value)
+        if value is None:
+            return None
+        name = str(value).strip()
+        if name not in available_timezones():
+            raise ValueError("Неизвестный часовой пояс")
+        return name
 
     @field_validator("route_url", "whatsapp_url", mode="before")
     @classmethod
