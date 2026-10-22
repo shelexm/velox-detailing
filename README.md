@@ -5,7 +5,7 @@
 уже занятое время. Архитектура готова к нескольким студиям (SaaS): каждая запись в базе привязана к студии,
 доступ изолирован.
 
-Рабочий адрес: **https://topsite.goroshka.ru** (панель: `/admin`, бот: [@velox_detailing_bot](https://t.me/velox_detailing_bot)).
+Рабочий адрес: **https://velox.stakko.online**, запасной: https://topsite.goroshka.ru (панель: `/admin`, бот: [@velox_detailing_bot](https://t.me/velox_detailing_bot)).
 
 ## Что умеет
 

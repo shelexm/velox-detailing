@@ -18,7 +18,7 @@
 | `POSTGRES_PASSWORD` | (обязательно) | пароль базы; в `production` не короче 16 символов. Сгенерировать: `openssl rand -hex 24` |
 | `POSTGRES_HOST`, `POSTGRES_PORT` | задаёт compose: `db`, `5432` | менять только при запуске без Docker |
 | `DB_POOL_SIZE`, `DB_MAX_OVERFLOW` | `5`, `10` | размер пула соединений к базе на процесс |
-| `PUBLIC_BASE_URL` | `http://127.0.0.1:8000` | внешний адрес сайта (`https://topsite.goroshka.ru`). Используется в ссылках бота, в мини-приложении (кнопка календаря появляется только при `https://`), в `sitemap.xml` |
+| `PUBLIC_BASE_URL` | `http://127.0.0.1:8000` | внешний адрес сайта (`https://velox.stakko.online`). Используется в ссылках бота, в мини-приложении (кнопка календаря появляется только при `https://`), в `sitemap.xml` |
 | `ALLOWED_HOSTS` | `127.0.0.1,localhost` | имена хостов через запятую, на которые отвечает сайт; запросы с другим `Host` отклоняются. Шаблоны вида `*.example.com` разрешены, `*` в `production` запрещён |
 | `COOKIE_SECURE` | `true` в `production`, иначе `false` | cookie панели только по HTTPS; в `production` выключить нельзя |
 | `SESSION_TTL_HOURS` | `12` | сколько живёт вход в панель |
@@ -51,8 +51,8 @@ LOG_LEVEL=INFO
 POSTGRES_DB=velox
 POSTGRES_USER=velox
 POSTGRES_PASSWORD=<openssl rand -hex 24>
-PUBLIC_BASE_URL=https://topsite.goroshka.ru
-ALLOWED_HOSTS=topsite.goroshka.ru
+PUBLIC_BASE_URL=https://velox.stakko.online
+ALLOWED_HOSTS=velox.stakko.online,topsite.goroshka.ru
 COOKIE_SECURE=true
 API_PORT=8000
 DEFAULT_STUDIO_SLUG=velox

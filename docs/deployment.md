@@ -19,7 +19,7 @@
 
 | | |
 |---|---|
-| Адрес | https://topsite.goroshka.ru (DNS: afraid.org, A-запись на IP сервера) |
+| Адрес | https://velox.stakko.online (DNS: REG.RU, A-запись на IP сервера); запасной https://topsite.goroshka.ru (DNS: afraid.org) |
 | Сервер | VPS Ubuntu 24.04, 1 CPU, 1 ГБ RAM + swap 1 ГБ (`/swapfile`), диск 10 ГБ, Нидерланды |
 | Соседи | 3x-ui (xray) и nginx пользователя: работают как раньше |
 | Проект | `/opt/velox`: код, `.env` (права 600), `backups/`, `deploy.log`, `REVISION` (выложенный коммит) |
@@ -31,13 +31,13 @@
 
 ```
 интернет :443 ─ nginx stream (SNI) ─┬─ домены 3x-ui ─ как раньше (xray, панель)
-                                    └─ topsite.goroshka.ru ─ 127.0.0.1:10443 (nginx, TLS) ─ 127.0.0.1:8000 (api)
+                                    └─ velox.stakko.online, topsite.goroshka.ru ─ 127.0.0.1:10443 (nginx, TLS) ─ 127.0.0.1:8000 (api)
 интернет :80  ─ nginx ─ /.well-known/acme-challenge (проверка Let's Encrypt), остальное ─ редирект на https
 ```
 
 Что было добавлено в nginx (копии всего до изменений: `/root/velox-nginx-backup/`):
-- `/etc/nginx/sites-available/topsite.goroshka.ru` и ссылка в `sites-enabled`;
-- в `/etc/nginx/stream-enabled/stream.conf` строка `topsite.goroshka.ru velox;` в карте доменов и блок
+- `/etc/nginx/sites-available/velox.stakko.online` и `/etc/nginx/sites-available/topsite.goroshka.ru`, ссылки в `sites-enabled`;
+- в `/etc/nginx/stream-enabled/stream.conf` строки `velox.stakko.online velox;` и `topsite.goroshka.ru velox;` в карте доменов и блок
   `upstream velox { server 127.0.0.1:10443; }`.
 
 ## 2. Требования к серверу
@@ -155,7 +155,7 @@ server {
 
 **Вариант Б: порт 443 уже делится по SNI (как на текущем сервере с 3x-ui).** Наш сайт слушает
 `127.0.0.1:10443 ssl http2 proxy_protocol`, в карту `stream` добавляется строка с доменом. Готовый файл:
-`/etc/nginx/sites-available/topsite.goroshka.ru` на текущем сервере. Реальный IP посетителя берётся из
+`/etc/nginx/sites-available/velox.stakko.online` на текущем сервере. Реальный IP посетителя берётся из
 `$proxy_protocol_addr` (иначе ограничения частоты запросов считали бы всех посетителей одним адресом).
 
 Заголовки безопасности (HSTS, CSP и другие) ставит само приложение, в nginx их добавлять не нужно.
@@ -200,7 +200,7 @@ ssh ПОЛЬЗОВАТЕЛЬ@СЕРВЕР 'tail -f /opt/velox/deploy.log'     # 
 Проверка после выкладки:
 
 ```sh
-curl -s https://topsite.goroshka.ru/health/ready
+curl -s https://velox.stakko.online/health/ready
 ssh ПОЛЬЗОВАТЕЛЬ@СЕРВЕР 'cd /opt/velox && cat REVISION && docker compose ps'
 ```
 

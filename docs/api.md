@@ -108,8 +108,8 @@ Content-Type: application/json
   "number": 1009, "status": "new", "service_name": "Детейлинг-мойка",
   "starts_at": "2026-10-21T10:00:00+03:00", "ends_at": "2026-10-21T13:00:00+03:00",
   "staff_name": "Олег Г.", "price_from": 4500, "duration_label": "2-3 ч",
-  "manage_url": "https://topsite.goroshka.ru/booking/<token>",
-  "calendar_url": "https://topsite.goroshka.ru/api/v1/public/studios/velox/bookings/manage/<token>/calendar.ics"
+  "manage_url": "https://velox.stakko.online/booking/<token>",
+  "calendar_url": "https://velox.stakko.online/api/v1/public/studios/velox/bookings/manage/<token>/calendar.ics"
 }
 ```
 

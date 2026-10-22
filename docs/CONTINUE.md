@@ -1,6 +1,6 @@
 # Как продолжить работу
 
-Состояние: `docs/PROGRESS.md`. Все 9 этапов готовы, сайт: https://topsite.goroshka.ru. Сервер: `docs/deployment.md`.
+Состояние: `docs/PROGRESS.md`. Все 9 этапов готовы, сайт: https://velox.stakko.online (запасной адрес https://topsite.goroshka.ru). Сервер: `docs/deployment.md`.
 
 ## Запуск и проверка (Windows, Git Bash)
 
